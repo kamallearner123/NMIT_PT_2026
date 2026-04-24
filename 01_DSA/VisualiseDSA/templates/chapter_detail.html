@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ chapter.title }}{% endblock %}
+
+{% block content %}
+<div class="variable-panel glass-card" id="variablePanel" style="display: none;">
+    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Variables</h3>
+    <div id="variableList">
+        <!-- Variables will be injected here -->
+    </div>
+</div>
+
+<div class="glass-card">
+    <h1>{{ chapter.title }}</h1>
+    
+    {% if is_arrays_strings %}
+        <!-- Chapter 02: Arrays and Strings Content (Existing) -->
+        <p>In this chapter, we explore how arrays and strings work, including common operations like searching and sorting.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <optgroup label="Sorting">
+                        <option value="bubbleSort">Bubble Sort</option>
+                        <option value="selectionSort">Selection Sort</option>
+                        <option value="insertionSort">Insertion Sort</option>
+                        <option value="mergeSort">Merge Sort</option>
+                        <option value="quickSort">Quick Sort</option>
+                    </optgroup>
+                    <optgroup label="Searching">
+                        <option value="linearSearch">Linear Search</option>
+                        <option value="binarySearch">Binary Search</option>
+                    </optgroup>
+                    <optgroup label="Strings">
+                        <option value="reverseString">Reverse String</option>
+                        <option value="palindromeCheck">Palindrome Check</option>
+                    </optgroup>
+                </select>
+                <button class="btn" onclick="generateArray()">New Input</button>
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="arrayContainer" class="array-container">
+                <!-- Bars or Characters will be generated here -->
+            </div>
+
+            <div id="diagramContainer" class="glass-card" style="display: none; margin-top: 2rem; text-align: center;">
+                <h3>Divide & Conquer Strategy</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Visualizing the recursive splitting and merging process.</p>
+                <img id="algoDiagram" src="/static/img/merge_sort_diagram.png" alt="Merge Sort Diagram" style="max-width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);">
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Algorithm Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "01_Complexity_Analysis" %}
+        <p>Big O notation is used to describe the efficiency of an algorithm in terms of time and space as the input size grows.</p>
+        
+        <div class="visualizer-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="glass-card">
+                    <h3>Big O Growth Chart</h3>
+                    <canvas id="complexityChart" style="margin-top: 1rem;"></canvas>
+                    <div class="controls" style="margin-top: 1rem;">
+                        <label>Input Size (n): </label>
+                        <input type="range" id="nSlider" min="1" max="100" value="20" style="width: 100%;">
+                    </div>
+                </div>
+                
+                <div class="glass-card">
+                    <h3>Complexity Race</h3>
+                    <div id="raceContainer" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Race tracks injected here -->
+                    </div>
+                    <button class="btn" style="margin-top: 1rem; width: 100%;" onclick="startRace()">Start Race</button>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3>Data Structure Complexities</h3>
+                <table class="complexity-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Data Structure</th>
+                            <th>Access</th>
+                            <th>Search</th>
+                            <th>Insertion</th>
+                            <th>Deletion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Array</td>
+                            <td class="O1">O(1)</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                        </tr>
+                        <tr>
+                            <td>Linked List</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                        </tr>
+                        <tr>
+                            <td>Binary Search Tree</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                        </tr>
+                        <tr>
+                            <td>Hash Table</td>
+                            <td>N/A</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% elif chapter.id == "03_Linked_Lists" %}
+        <p>A Linked List is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="append">Append Node</option>
+                    <option value="insert">Insert at Index</option>
+                    <option value="find">Find Value</option>
+                    <option value="delete">Delete Node</option>
+                </select>
+                <input type="number" id="nodeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="listContainer" class="list-container">
+                <!-- Linked list nodes will be generated here -->
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Linked List Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "04_Stacks_and_Queues" %}
+        <p>Stacks (LIFO) and Queues (FIFO) are fundamental linear data structures used to store and retrieve data in a specific order.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="stack">Stack (Push/Pop)</option>
+                    <option value="queue">Queue (Enqueue/Dequeue)</option>
+                </select>
+                <input type="number" id="elementValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" onclick="performOperation('push')">Push/Enqueue</button>
+                <button class="btn btn-secondary" onclick="performOperation('pop')">Pop/Dequeue</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="structureContainer" class="list-container" style="justify-content: center; height: 400px; flex-direction: column-reverse;">
+                <!-- Stack/Queue elements will be generated here -->
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Content for {{ chapter.title }} is coming soon!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if is_arrays_strings %}
+<script src="{% static 'js/visualizer.js' %}"></script>
+{% elif chapter.id == "01_Complexity_Analysis" %}
+<script src="{% static 'js/complexity_visualizer.js' %}"></script>
+{% elif chapter.id == "03_Linked_Lists" %}
+<script src="{% static 'js/linked_list_visualizer.js' %}"></script>
+{% elif chapter.id == "04_Stacks_and_Queues" %}
+<script src="{% static 'js/stack_queue_visualizer.js' %}"></script>
+{% endif %}
+{% endblock %}

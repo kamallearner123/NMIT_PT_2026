@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Algorithm Debugger</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0d1117;
+            --panel: #161b22;
+            --accent: #58a6ff;
+            --curr-line: rgba(255, 235, 59, 0.2);
+            --text: #c9d1d9;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 10px; }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            width: 95%;
+            max-width: 1300px;
+        }
+
+        /* Variables Window */
+        .vars-container {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+        }
+
+        .var-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #30363d;
+            font-family: 'Courier New', monospace;
+        }
+
+        .var-name { color: #8b949e; }
+        .var-val { color: #d2a8ff; font-weight: bold; }
+
+        /* Code Window */
+        .code-window {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        /* Line Highlighter Overlay */
+        #highlighter {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 24px; /* Matches line-height */
+            background: var(--curr-line);
+            border-left: 4px solid #e3b341;
+            transition: top 0.2s ease;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            padding: 1em !important;
+            line-height: 1.5 !important;
+            font-size: 15px !important;
+        }
+
+        /* Visualizer Window */
+        .viz-window {
+            grid-column: span 2;
+            background: var(--panel);
+            height: 350px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 50px;
+            gap: 15px;
+            position: relative;
+        }
+
+        .bar {
+            width: 50px;
+            background: var(--accent);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: height 0.3s, background 0.3s;
+        }
+
+        .bar-val {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .ptr {
+            position: absolute;
+            bottom: -35px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .btn-group {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover { background: #2ea043; }
+        button:disabled { background: #21262d; color: #8b949e; }
+    </style>
+</head>
+<body>
+
+    <h1 id="algo-title">Selection Sort Visualizer</h1>
+
+    <div class="dashboard">
+        <div class="vars-container">
+            <h3>Variables</h3>
+            <div class="var-row"><span class="var-name">i</span><span id="v-i" class="var-val">-</span></div>
+            <div class="var-row"><span class="var-name">j</span><span id="v-j" class="var-val">-</span></div>
+            <div class="var-row"><span class="var-name">min_idx</span><span id="v-min" class="var-val">-</span></div>
+            <div class="var-row"><span class="var-name">len(arr)</span><span id="v-n" class="var-val">6</span></div>
+        </div>
+
+        <div class="code-window">
+            <div id="highlighter"></div>
+            <pre><code class="language-python">def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]</code></pre>
+        </div>
+
+        <div class="viz-window" id="viz"></div>
+    </div>
+
+    <div class="btn-group">
+        <button id="stepBtn" onclick="step()">Next Line ➔</button>
+        <button onclick="location.reload()" style="background: #30363d;">Reset</button>
+    </div>
+
+    <script>
+        let arr = [30, 10, 50, 20, 40, 5];
+        let i = 0, j = 0, min_idx = 0, n = arr.length;
+        let line = 1; 
+        const lineH = 22.5; // Estimated height per line in px
+        const offset = 18;  // Top padding offset
+
+        function updateUI() {
+            // Update Text
+            document.getElementById('v-i').innerText = i;
+            document.getElementById('v-j').innerText = j;
+            document.getElementById('v-min').innerText = min_idx;
+
+            // Update Highlight (Logic: line * height)
+            document.getElementById('highlighter').style.top = (offset + (line * lineH)) + "px";
+
+            // Update Bars
+            const viz = document.getElementById('viz');
+            viz.innerHTML = '';
+            arr.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = (val * 4) + 'px';
+                
+                // Colors
+                if (idx < i) bar.style.background = '#3fb950'; // Sorted
+                else if (idx === min_idx) bar.style.background = '#f85149'; // Current Min
+                else if (idx === j) bar.style.background = '#d2a8ff'; // Searching
+
+                // Pointers
+                let pText = [];
+                if (idx === i) pText.push('i');
+                if (idx === j) pText.push('j');
+                if (idx === min_idx) pText.push('min');
+
+                bar.innerHTML = `
+                    <div class="bar-val">${val}</div>
+                    <div class="ptr" style="color:${idx === i ? '#58a6ff' : '#f85149'}">${pText.join(',')}</div>
+                `;
+                viz.appendChild(bar);
+            });
+        }
+
+        function step() {
+            switch(line) {
+                case 1: line = 2; break;
+                case 2: line = 3; break;
+                case 3: 
+                    if (i < n) { min_idx = i; line = 4; } 
+                    else { document.getElementById('stepBtn').disabled = true; alert("Sorting Complete!"); }
+                    break;
+                case 4: j = i + 1; line = 5; break;
+                case 5:
+                    if (j < n) { line = 6; }
+                    else { line = 8; }
+                    break;
+                case 6:
+                    if (arr[j] < arr[min_idx]) { line = 7; }
+                    else { j++; line = 5; }
+                    break;
+                case 7:
+                    min_idx = j;
+                    j++;
+                    line = 5;
+                    break;
+                case 8:
+                    [arr[i], arr[min_idx]] = [arr[min_idx], arr[i]];
+                    i++;
+                    line = 3;
+                    break;
+            }
+            updateUI();
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisualiseDSA - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">VisualiseDSA</div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}" class="nav-item {% if not chapter %}active{% endif %}">Dashboard</a>
+            {% for chap in chapters %}
+                <a href="{% url 'chapter_detail' chap.id %}" class="nav-item {% if chapter.id == chap.id %}active{% endif %}">
+                    {{ chap.title }}
+                </a>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>
