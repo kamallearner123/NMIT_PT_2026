@@ -360,3 +360,42 @@ p {
 .variable-value {
     color: var(--accent);
 }
+
+/* Tree Visuals */
+.tree-node {
+    width: 50px;
+    height: 50px;
+    background: var(--card-bg);
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: absolute;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.tree-node.active {
+    border-color: #fbbf24;
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
+.tree-node.highlight {
+    background: var(--accent);
+    color: white;
+}
+
+line {
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    transition: all 0.3s;
+}
+
+line.active-edge {
+    stroke: #fbbf24;
+    stroke-width: 4;
+}

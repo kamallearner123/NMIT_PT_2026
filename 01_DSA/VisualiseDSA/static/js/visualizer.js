@@ -193,6 +193,23 @@ function updateCodeDisplay(activeLine = -1) {
     });
 }
 
+function renderVariables(vars = {}) {
+    const panel = document.getElementById('variablePanel');
+    const list = document.getElementById('variableList');
+    if (!vars || Object.keys(vars).length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+    panel.style.display = 'block';
+    list.innerHTML = '';
+    for (const [key, val] of Object.entries(vars)) {
+        const item = document.createElement('div');
+        item.className = 'variable-item';
+        item.innerHTML = `<span class="variable-name">${key}</span>: <span class="variable-value">${val}</span>`;
+        list.appendChild(item);
+    }
+}
+
 function resetVisualization() {
     const data = ALGO_DATA[algorithmSelect.value];
     algoTitle.innerText = data.title;
@@ -212,6 +229,7 @@ function resetVisualization() {
         diagramContainer.style.display = 'none';
     }
 
+    renderVariables({});
     steps = [];
     currentStep = -1;
     nextBtn.disabled = true;
@@ -227,18 +245,18 @@ function startVisualization() {
     if (algo === 'bubbleSort') {
         const arr = [...array];
         const n = arr.length;
-        steps.push({ line: 1, array: [...arr] });
+        steps.push({ line: 1, array: [...arr], vars: { n: n } });
         for (let i = 0; i < n; i++) {
-            steps.push({ line: 2, array: [...arr] });
+            steps.push({ line: 2, array: [...arr], vars: { i: i, n: n } });
             for (let j = 0; j < n - i - 1; j++) {
-                steps.push({ line: 3, array: [...arr], compare: [j, j+1] });
-                steps.push({ line: 4, array: [...arr], compare: [j, j+1] });
+                steps.push({ line: 3, array: [...arr], compare: [j, j+1], vars: { i: i, j: j, n: n } });
+                steps.push({ line: 4, array: [...arr], compare: [j, j+1], vars: { i: i, j: j, n: n, "arr[j]": arr[j], "arr[j+1]": arr[j+1] } });
                 if (arr[j] > arr[j + 1]) {
                     [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-                    steps.push({ line: 5, array: [...arr], swap: [j, j+1] });
+                    steps.push({ line: 5, array: [...arr], swap: [j, j+1], vars: { i: i, j: j, n: n, status: "Swapped!" } });
                 }
             }
-            steps.push({ line: 3, array: [...arr], sorted: Array.from({length: i+1}, (_, k) => n-1-k) });
+            steps.push({ line: 3, array: [...arr], sorted: Array.from({length: i+1}, (_, k) => n-1-k), vars: { i: i, status: "Pass Complete" } });
         }
     } else if (algo === 'selectionSort') {
         const arr = [...array];
@@ -293,21 +311,21 @@ function startVisualization() {
         algoDesc.innerText += ` (Searching for: ${target})`;
         let low = 0, high = arr.length - 1;
         while (low <= high) {
-            steps.push({ line: 3, array: [...arr], compare: Array.from({length: high-low+1}, (_, k) => low+k) });
             let mid = Math.floor((low + high) / 2);
-            steps.push({ line: 4, array: [...arr], compare: [mid] });
-            steps.push({ line: 5, array: [...arr], compare: [mid] });
+            steps.push({ line: 3, array: [...arr], compare: Array.from({length: high-low+1}, (_, k) => low+k), vars: { low, high, mid } });
+            steps.push({ line: 4, array: [...arr], compare: [mid], vars: { low, high, mid, target } });
+            steps.push({ line: 5, array: [...arr], compare: [mid], vars: { low, high, mid, target, "arr[mid]": arr[mid] } });
             if (arr[mid] === target) {
-                steps.push({ line: 6, array: [...arr], sorted: [mid] });
+                steps.push({ line: 6, array: [...arr], sorted: [mid], vars: { mid, target, status: "Found!" } });
                 break;
             } else if (arr[mid] < target) {
-                steps.push({ line: 7, array: [...arr], compare: [mid] });
+                steps.push({ line: 7, array: [...arr], compare: [mid], vars: { mid, target, status: "Too small" } });
                 low = mid + 1;
-                steps.push({ line: 8, array: [...arr] });
+                steps.push({ line: 8, array: [...arr], vars: { low, high } });
             } else {
-                steps.push({ line: 9, array: [...arr], compare: [mid] });
+                steps.push({ line: 9, array: [...arr], compare: [mid], vars: { mid, target, status: "Too large" } });
                 high = mid - 1;
-                steps.push({ line: 10, array: [...arr] });
+                steps.push({ line: 10, array: [...arr], vars: { low, high } });
             }
         }
     } else if (algo === 'mergeSort') {
@@ -410,6 +428,7 @@ function nextStep() {
     
     renderArray(step.swap || [], step.compare || [], step.sorted || []);
     updateCodeDisplay(step.line);
+    renderVariables(step.vars);
 
     currentStep++;
 }

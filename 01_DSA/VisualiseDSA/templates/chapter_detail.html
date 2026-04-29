@@ -185,6 +185,35 @@
                 </div>
             </div>
         </div>
+    {% elif chapter.id == "05_Trees_and_Heaps" %}
+        <p>Trees are hierarchical data structures. A Binary Search Tree (BST) maintains sorted order, while Heaps are specialized trees for priority management.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="bst_insert">BST Insert</option>
+                    <option value="bst_search">BST Search</option>
+                    <option value="heap_insert">Max Heap Insert</option>
+                </select>
+                <input type="number" id="treeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="treeContainer" class="list-container" style="justify-content: center; height: 500px; position: relative; overflow: visible;">
+                <!-- SVG lines and Nodes will be generated here -->
+                <svg id="treeSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
     {% else %}
         <p>Content for {{ chapter.title }} is coming soon!</p>
     {% endif %}
@@ -200,5 +229,7 @@
 <script src="{% static 'js/linked_list_visualizer.js' %}"></script>
 {% elif chapter.id == "04_Stacks_and_Queues" %}
 <script src="{% static 'js/stack_queue_visualizer.js' %}"></script>
+{% elif chapter.id == "05_Trees_and_Heaps" %}
+<script src="{% static 'js/tree_heap_visualizer.js' %}"></script>
 {% endif %}
 {% endblock %}
