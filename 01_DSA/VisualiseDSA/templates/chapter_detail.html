@@ -139,11 +139,16 @@
                     <option value="insert">Insert at Index</option>
                     <option value="find">Find Value</option>
                     <option value="delete">Delete Node</option>
+                    <option value="reverse">Reverse List</option>
+                    <option value="detect_loop">Detect Loop (Floyd's Cycle)</option>
                 </select>
                 <input type="number" id="nodeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
                 <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
                 <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
                 <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateRandomList()">Random List</button>
+                <button class="btn btn-secondary" id="withLoopBtn" onclick="generateListWithLoop()" style="display: none;">List with Loop</button>
+                <button class="btn btn-secondary" id="withoutLoopBtn" onclick="generateListWithoutLoop()" style="display: none;">List without Loop</button>
             </div>
 
             <div id="listContainer" class="list-container">
@@ -193,17 +198,60 @@
                 <select id="algorithm" class="btn btn-secondary">
                     <option value="bst_insert">BST Insert</option>
                     <option value="bst_search">BST Search</option>
+                    <option value="bst_delete">BST Delete</option>
+                    <option value="bst_inorder">BST In-order Traversal</option>
+                    <option value="bst_preorder">BST Pre-order Traversal</option>
+                    <option value="bst_postorder">BST Post-order Traversal</option>
                     <option value="heap_insert">Max Heap Insert</option>
                 </select>
                 <input type="number" id="treeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
                 <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
                 <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
                 <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateLargeBST()">Generate Large BST</button>
             </div>
 
             <div id="treeContainer" class="list-container" style="justify-content: center; height: 500px; position: relative; overflow: visible;">
                 <!-- SVG lines and Nodes will be generated here -->
                 <svg id="treeSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+
+            <div id="traversalDisplay" class="glass-card" style="display: none; margin-top: 1rem; padding: 1rem;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Traversal Path:</h4>
+                <div id="traversalPath" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "06_Graphs" %}
+        <p>Graphs are networks of nodes (vertices) connected by edges. They can be <strong>Directed</strong> (edges have a direction) or <strong>Undirected</strong>, and <strong>Weighted</strong> (edges have values/costs) or <strong>Unweighted</strong>.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="bfs">BFS (Breadth First Search)</option>
+                    <option value="dfs">DFS (Depth First Search)</option>
+                    <option value="dijkstra">Dijkstra's Algorithm (Weighted)</option>
+                </select>
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateRandomGraph()">New Random Graph</button>
+            </div>
+
+            <div id="graphContainer" class="list-container" style="justify-content: center; height: 500px; position: relative; overflow: visible; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.02);">
+                <svg id="graphSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+
+            <div id="traversalDisplay" class="glass-card" style="display: none; margin-top: 1rem; padding: 1rem;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Traversal Sequence:</h4>
+                <div id="traversalPath" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
             </div>
 
             <div class="glass-card" style="margin-top: 2rem;">
@@ -231,5 +279,7 @@
 <script src="{% static 'js/stack_queue_visualizer.js' %}"></script>
 {% elif chapter.id == "05_Trees_and_Heaps" %}
 <script src="{% static 'js/tree_heap_visualizer.js' %}"></script>
+{% elif chapter.id == "06_Graphs" %}
+<script src="{% static 'js/graph_visualizer.js' %}"></script>
 {% endif %}
 {% endblock %}

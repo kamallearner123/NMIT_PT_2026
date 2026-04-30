@@ -8,6 +8,14 @@ class TreeNode {
     }
 }
 
+function cloneTree(node) {
+    if (!node) return null;
+    const newNode = new TreeNode(node.val);
+    newNode.left = cloneTree(node.left);
+    newNode.right = cloneTree(node.right);
+    return newNode;
+}
+
 let root = null;
 let steps = [];
 let currentStep = -1;
@@ -47,6 +55,56 @@ const TREE_DATA = {
             "    if root.val < key:",
             "        return search(root.right, key)",
             "    return search(root.left, key)"
+        ]
+    },
+    bst_delete: {
+        title: "BST Deletion",
+        desc: "Removes a node while maintaining BST properties. Handles cases: no child, one child, or two children.",
+        code: [
+            "def deleteNode(root, key):",
+            "    if not root: return root",
+            "    if key < root.val: root.left = deleteNode(root.left, key)",
+            "    elif key > root.val: root.right = deleteNode(root.right, key)",
+            "    else:",
+            "        if not root.left: return root.right",
+            "        elif not root.right: return root.left",
+            "        temp = minValueNode(root.right)",
+            "        root.val = temp.val",
+            "        root.right = deleteNode(root.right, temp.val)",
+            "    return root"
+        ]
+    },
+    bst_inorder: {
+        title: "In-order Traversal",
+        desc: "Visits nodes in Left-Root-Right order. For BST, this visits nodes in sorted ascending order.",
+        code: [
+            "def inorder(root):",
+            "    if root:",
+            "        inorder(root.left)",
+            "        print(root.val)",
+            "        inorder(root.right)"
+        ]
+    },
+    bst_preorder: {
+        title: "Pre-order Traversal",
+        desc: "Visits nodes in Root-Left-Right order.",
+        code: [
+            "def preorder(root):",
+            "    if root:",
+            "        print(root.val)",
+            "        preorder(root.left)",
+            "        preorder(root.right)"
+        ]
+    },
+    bst_postorder: {
+        title: "Post-order Traversal",
+        desc: "Visits nodes in Left-Right-Root order.",
+        code: [
+            "def postorder(root):",
+            "    if root:",
+            "        postorder(root.left)",
+            "        postorder(root.right)",
+            "        print(root.val)"
         ]
     },
     heap_insert: {
@@ -134,6 +192,12 @@ function startVisualization() {
     const val = parseInt(valInput.value) || Math.floor(Math.random() * 90) + 10;
     steps = [];
     
+    // Clear traversal display
+    const display = document.getElementById('traversalDisplay');
+    const path = document.getElementById('traversalPath');
+    if (display) display.style.display = 'none';
+    if (path) path.innerHTML = '';
+    
     if (algo === 'bst_insert') {
         let curr = root;
         steps.push({ line: 0, vars: { key: val } });
@@ -180,6 +244,93 @@ function startVisualization() {
             }
         }
         if (!found) steps.push({ line: 1, vars: { status: "Not Found" } });
+    } else if (algo === 'bst_delete') {
+        let currentTree = cloneTree(root);
+        
+        const getMin = (node) => {
+            let curr = node;
+            while (curr && curr.left) {
+                steps.push({ line: 7, active: curr.val, vars: { "finding_min": "go left" } });
+                curr = curr.left;
+            }
+            steps.push({ line: 7, highlight: curr.val, vars: { "min_found": curr.val } });
+            return curr;
+        }
+
+        const del = (node, key, parent, isLeft) => {
+            if (!node) {
+                steps.push({ line: 1, vars: { status: "Not Found" } });
+                return null;
+            }
+            steps.push({ line: 2, active: node.val, vars: { current: node.val, key: key } });
+            if (key < node.val) {
+                steps.push({ line: 2, active: node.val, vars: { direction: "Left" } });
+                let newLeft = del(node.left, key, node, true);
+                if (node.left !== newLeft) {
+                    node.left = newLeft;
+                    steps.push({ action: 'set_tree', newRoot: cloneTree(currentTree) });
+                }
+            } else if (key > node.val) {
+                steps.push({ line: 3, active: node.val, vars: { direction: "Right" } });
+                let newRight = del(node.right, key, node, false);
+                if (node.right !== newRight) {
+                    node.right = newRight;
+                    steps.push({ action: 'set_tree', newRoot: cloneTree(currentTree) });
+                }
+            } else {
+                steps.push({ line: 4, highlight: node.val, vars: { status: "Found" } });
+                if (!node.left) {
+                    steps.push({ line: 5, highlight: node.val, vars: { case: "No left child" } });
+                    return node.right;
+                } else if (!node.right) {
+                    steps.push({ line: 6, highlight: node.val, vars: { case: "No right child" } });
+                    return node.left;
+                }
+                steps.push({ line: 7, highlight: node.val, vars: { case: "Two children" } });
+                let minNode = getMin(node.right);
+                node.val = minNode.val;
+                steps.push({ line: 8, active: node.val, vars: { "replace_val": minNode.val }, action: 'set_tree', newRoot: cloneTree(currentTree) });
+                node.right = del(node.right, minNode.val, node, false);
+                steps.push({ line: 9, active: node.val, action: 'set_tree', newRoot: cloneTree(currentTree) });
+            }
+            return node;
+        };
+        
+        currentTree = del(currentTree, val, null, false);
+        steps.push({ line: 10, action: 'set_tree', newRoot: cloneTree(currentTree), vars: { status: "Done" } });
+    } else if (algo === 'bst_inorder') {
+        const traverse = (node) => {
+            if (!node) return;
+            steps.push({ line: 1, active: node.val, vars: { "current": node.val } });
+            steps.push({ line: 2, active: node.val, vars: { "action": "visit left" } });
+            traverse(node.left);
+            steps.push({ line: 3, highlight: node.val, vars: { "visited": node.val } });
+            steps.push({ line: 4, active: node.val, vars: { "action": "visit right" } });
+            traverse(node.right);
+        };
+        traverse(root);
+    } else if (algo === 'bst_preorder') {
+        const traverse = (node) => {
+            if (!node) return;
+            steps.push({ line: 1, active: node.val, vars: { "current": node.val } });
+            steps.push({ line: 2, highlight: node.val, vars: { "visited": node.val } });
+            steps.push({ line: 3, active: node.val, vars: { "action": "visit left" } });
+            traverse(node.left);
+            steps.push({ line: 4, active: node.val, vars: { "action": "visit right" } });
+            traverse(node.right);
+        };
+        traverse(root);
+    } else if (algo === 'bst_postorder') {
+        const traverse = (node) => {
+            if (!node) return;
+            steps.push({ line: 1, active: node.val, vars: { "current": node.val } });
+            steps.push({ line: 2, active: node.val, vars: { "action": "visit left" } });
+            traverse(node.left);
+            steps.push({ line: 3, active: node.val, vars: { "action": "visit right" } });
+            traverse(node.right);
+            steps.push({ line: 4, highlight: node.val, vars: { "visited": node.val } });
+        };
+        traverse(root);
     }
 
     currentStep = 0;
@@ -199,10 +350,35 @@ function nextStep() {
     if (step.action === 'create_root') root = new TreeNode(step.vars.key || parseInt(valInput.value));
     if (step.action === 'add_left') step.parent.left = new TreeNode(step.val);
     if (step.action === 'add_right') step.parent.right = new TreeNode(step.val);
+    if (step.action === 'set_tree') root = cloneTree(step.newRoot);
 
     renderTree(step.active, step.highlight);
     updateCode(step.line);
     renderVariables(step.vars);
+
+    // Update traversal path display
+    if (step.highlight !== undefined && step.highlight !== null) {
+        const display = document.getElementById('traversalDisplay');
+        const path = document.getElementById('traversalPath');
+        if (display && path && (algorithmSelect.value.includes('traverse') || algorithmSelect.value.includes('order'))) {
+            display.style.display = 'block';
+            // Avoid duplicates in path for the same step
+            const existingNodes = path.querySelectorAll('.tree-node-path');
+            let isAlreadyAdded = false;
+            existingNodes.forEach(n => {
+                if (n.dataset.step === currentStep.toString()) isAlreadyAdded = true;
+            });
+
+            if (!isAlreadyAdded) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'tree-node-path';
+                nodeDiv.innerText = step.highlight;
+                nodeDiv.dataset.step = currentStep.toString();
+                nodeDiv.style.cssText = "width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);";
+                path.appendChild(nodeDiv);
+            }
+        }
+    }
 
     currentStep++;
 }
@@ -233,6 +409,51 @@ function resetVisualization() {
     renderTree();
     updateCode();
     renderVariables({});
+    
+    const display = document.getElementById('traversalDisplay');
+    const path = document.getElementById('traversalPath');
+    if (display) display.style.display = 'none';
+    if (path) path.innerHTML = '';
+}
+
+function generateLargeBST() {
+    resetVisualization();
+    root = null;
+    
+    // Helper to insert into BST without visualization steps
+    const insertNode = (node, val) => {
+        if (!node) return new TreeNode(val);
+        if (val < node.val) {
+            node.left = insertNode(node.left, val);
+        } else if (val > node.val) {
+            node.right = insertNode(node.right, val);
+        }
+        return node;
+    };
+    
+    // Generate 15-20 unique random numbers
+    let values = new Set();
+    const count = 15 + Math.floor(Math.random() * 6);
+    while (values.size < count) {
+        values.add(Math.floor(Math.random() * 150) + 10);
+    }
+    
+    let valArray = Array.from(values);
+    // Shuffle to create a random tree structure
+    for (let i = valArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [valArray[i], valArray[j]] = [valArray[j], valArray[i]];
+    }
+    
+    // Sort slightly to make it more balanced (optional, but shuffling is fine for random)
+    // valArray.sort((a, b) => a - b); // Too balanced if we do this simply
+    
+    for (let val of valArray) {
+        root = insertNode(root, val);
+    }
+    
+    renderTree();
+    updateCode();
 }
 
 // Initial Tree
