@@ -10,6 +10,7 @@ def get_chapters():
         {"id": "scripting", "title": "6. Shell & Scripting", "description": "Pipes, Redirection, and Automation."},
         {"id": "memory", "title": "7. Memory Management", "description": "Virtual memory, Paging, and Malloc internals."},
         {"id": "scheduling", "title": "8. CPU Scheduling & Context Switching", "description": "How the OS decides who runs next."},
+        {"id": "ipc", "title": "9. Inter-Process Communication (IPC)", "description": "Pipes, Shared Memory, and Message Queues."},
         {"id": "resources", "title": "📚 Standard Resources", "description": "Recommended books and documentation."},
     ]
 
@@ -226,6 +227,136 @@ def linux_scheduling(request):
 
 def linux_resources(request):
     return render(request, 'linux_resources.html', {'chapters': get_chapters()})
+
+def linux_ipc(request):
+    ipc_methods = [
+        {
+            "name": "Shared Memory (shm)",
+            "description": "The fastest form of IPC. Processes share a common memory segment. Ideal for high-performance graphics where large buffers (pixel data) need to be accessed by both the producer and consumer.",
+            "icon": "🧠",
+            "commands": ["ipcs -m", "ipcrm -m <id>"]
+        },
+        {
+            "name": "Message Queues (msg)",
+            "description": "Asynchronous communication where processes send/receive messages. Useful for control signals and non-blocking event handling in graphics engines.",
+            "icon": "📨",
+            "commands": ["ipcs -q", "ipcrm -q <id>"]
+        },
+        {
+            "name": "Semaphores (sem)",
+            "description": "Synchronization primitives used to prevent race conditions when multiple processes access shared graphics resources (like the framebuffer).",
+            "icon": "🚦",
+            "commands": ["ipcs -s", "ipcrm -s <id>"]
+        },
+        {
+            "name": "Unix Domain Sockets",
+            "description": "Bidirectional byte stream communication. Often used by X11 or Wayland display servers to communicate with client applications.",
+            "icon": "🔌",
+            "commands": ["ss -x", "netstat -u"]
+        }
+    ]
+    
+    code_examples = {
+        "pipes": {
+            "title": "Unidirectional Pipes",
+            "code": """#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+    int pipefd[2];
+    char buffer[30];
+    pipe(pipefd); // pipefd[0] is read, pipefd[1] is write
+
+    if (fork() == 0) {
+        close(pipefd[0]); // Close unused read end
+        char *msg = "Message from Child!";
+        write(pipefd[1], msg, strlen(msg) + 1);
+        close(pipefd[1]);
+    } else {
+        close(pipefd[1]); // Close unused write end
+        read(pipefd[0], buffer, sizeof(buffer));
+        printf("Parent received: %s\\n", buffer);
+        close(pipefd[0]);
+    }
+    return 0;
+}"""
+        },
+        "msg_queue": {
+            "title": "System V Message Queues",
+            "code": """#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+} message;
+
+int main() {
+    key_t key = ftok("progfile", 65);
+    int msgid = msgget(key, 0666 | IPC_CREAT);
+    
+    // Sender part
+    message.msg_type = 1;
+    sprintf(message.msg_text, "Hello via Queue!");
+    msgsnd(msgid, &message, sizeof(message), 0);
+    
+    // Receiver part
+    msgrcv(msgid, &message, sizeof(message), 1, 0);
+    printf("Data Received: %s\\n", message.msg_text);
+    
+    msgctl(msgid, IPC_RMID, NULL); // Destroy queue
+    return 0;
+}"""
+        },
+        "shm": {
+            "title": "Shared Memory (POSIX)",
+            "code": """#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+int main() {
+    key_t key = ftok("shmfile", 65);
+    int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
+    char *str = (char*) shmat(shmid, (void*)0, 0);
+
+    // Write to memory
+    sprintf(str, "Shared Data Content");
+    printf("Data written: %s\\n", str);
+
+    // Read would happen here or in another process...
+    
+    shmdt(str);
+    return 0;
+}"""
+        },
+        "signals": {
+            "title": "Signal Handling",
+            "code": """#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+
+void handle_sig(int sig) {
+    printf("Caught signal %d (SIGINT)\\n", sig);
+}
+
+int main() {
+    signal(SIGINT, handle_sig);
+    printf("Press Ctrl+C to trigger signal...\\n");
+    while(1) {
+        sleep(1);
+    }
+    return 0;
+}"""
+        }
+    }
+
+    return render(request, 'linux_ipc.html', {
+        'ipc_methods': ipc_methods,
+        'code_examples': code_examples,
+        'chapters': get_chapters()
+    })
 
 def linux_history(request):
     milestones = [

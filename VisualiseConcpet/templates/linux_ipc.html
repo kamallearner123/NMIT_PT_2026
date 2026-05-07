@@ -1,0 +1,662 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inter-Process Communication (IPC){% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3.5rem;">Inter-Process <span style="color: var(--accent)">Communication</span></h1>
+        <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto;">Visualizing how independent processes exchange data and synchronize their state using shared memory, pipes, and signals.</p>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+            <a href="#ipc-overview" class="nav-btn">IPC Overview</a>
+            <a href="#shm-visualization" class="nav-btn">SHM Visualization</a>
+            <a href="#c-program" class="nav-btn">C Implementation</a>
+        </div>
+    </div>
+
+    <!-- IPC Overview Section -->
+    <div id="ipc-overview" class="section-card glass-card" style="margin-bottom: 3rem;">
+        <h2 style="text-align: center; margin-bottom: 4rem; color: var(--accent); font-size: 2.5rem;">The IPC Catalog</h2>
+        
+        <div class="detailed-ipc-list">
+            <!-- 1. Pipes -->
+            <div class="ipc-detail-item glass-card">
+                <div class="ipc-detail-header">
+                    <span class="ipc-icon">💨</span>
+                    <h3>Pipes (Anonymous & Named)</h3>
+                </div>
+                <div class="ipc-detail-content">
+                    <p><strong>Mechanism:</strong> A unidirectional data channel that allows one process to write data and another to read it. In Linux, pipes are managed by the kernel as a buffer.</p>
+                    <div class="pros-cons">
+                        <div class="pc-box pro"><strong>PRO:</strong> Extremely simple to use for parent-child processes.</div>
+                        <div class="pc-box con"><strong>CON:</strong> Unidirectional and limited buffer size (usually 64KB).</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Message Queues -->
+            <div class="ipc-detail-item glass-card">
+                <div class="ipc-detail-header">
+                    <span class="ipc-icon">📨</span>
+                    <h3>Message Queues</h3>
+                </div>
+                <div class="ipc-detail-content">
+                    <p><strong>Mechanism:</strong> A linked list of messages stored within the kernel. Unlike pipes, messages can be formatted into structures and retrieved by "type", allowing priority-based communication.</p>
+                    <div class="pros-cons">
+                        <div class="pc-box pro"><strong>PRO:</strong> Asynchronous (sender doesn't wait) and structured data.</div>
+                        <div class="pc-box con"><strong>CON:</strong> Overhead of copying data into/out of the kernel.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Shared Memory -->
+            <div class="ipc-detail-item glass-card">
+                <div class="ipc-detail-header">
+                    <span class="ipc-icon">🧠</span>
+                    <h3>Shared Memory</h3>
+                </div>
+                <div class="ipc-detail-content">
+                    <p><strong>Mechanism:</strong> Two or more processes map the same physical memory segment into their virtual address spaces. This is the **fastest** IPC because it avoids kernel intervention for data transfer.</p>
+                    <div class="pros-cons">
+                        <div class="pc-box pro"><strong>PRO:</strong> Maximum performance; ideal for large data (graphics, databases).</div>
+                        <div class="pc-box con"><strong>CON:</strong> Requires manual synchronization (Semaphores) to avoid race conditions.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Semaphores -->
+            <div class="ipc-detail-item glass-card">
+                <div class="ipc-detail-header">
+                    <span class="ipc-icon">🚦</span>
+                    <h3>Semaphores</h3>
+                </div>
+                <div class="ipc-detail-content">
+                    <p><strong>Mechanism:</strong> Integer counters used to coordinate access to shared resources. They are not used to transfer data but to signal whether a resource (like shared memory) is available.</p>
+                    <div class="pros-cons">
+                        <div class="pc-box pro"><strong>PRO:</strong> Essential for synchronization and preventing data corruption.</div>
+                        <div class="pc-box con"><strong>CON:</strong> Complex to implement correctly; prone to deadlocks.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Signals -->
+            <div class="ipc-detail-item glass-card">
+                <div class="ipc-detail-header">
+                    <span class="ipc-icon">⚡</span>
+                    <h3>Signals</h3>
+                </div>
+                <div class="ipc-detail-content">
+                    <p><strong>Mechanism:</strong> Software interrupts sent to a process to notify it of an event (e.g., SIGINT on Ctrl+C). They are the simplest form of notification but carry very little data.</p>
+                    <div class="pros-cons">
+                        <div class="pc-box pro"><strong>PRO:</strong> Extremely low overhead for simple notifications.</div>
+                        <div class="pc-box con"><strong>CON:</strong> Can only send the signal number; cannot transfer complex data.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Lab Section -->
+    <div id="visual-lab" style="margin-top: 5rem;" class="section-card glass-card">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-size: 2.5rem; color: var(--accent);">Interactive IPC Lab</h2>
+            <p>Select an IPC method to see a graphical representation of how data and signals flow between processes.</p>
+        </div>
+
+        <div class="lab-selector" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem;">
+            <button class="lab-btn active" onclick="switchLab('pipes', this)">Pipes</button>
+            <button class="lab-btn" onclick="switchLab('msg_queue', this)">Msg Queues</button>
+            <button class="lab-btn" onclick="switchLab('shm', this)">Shared Memory</button>
+            <button class="lab-btn" onclick="switchLab('signals', this)">Signals</button>
+        </div>
+
+        <div class="visualization-container glass-card" style="min-height: 400px; padding: 3rem; background: rgba(0,0,0,0.3);">
+            <div id="pipes-lab" class="lab-scene">
+                <div class="process-node p-a">Process A</div>
+                <div class="pipe-track">
+                    <div class="data-packet" id="pipe-data">DATA</div>
+                </div>
+                <div class="process-node p-b">Process B</div>
+                <div class="lab-caption">Pipes: A unidirectional stream managed by the kernel.</div>
+            </div>
+
+            <div id="msg_queue-lab" class="lab-scene" style="display: none;">
+                <div class="process-node p-a">Sender</div>
+                <div class="queue-container">
+                    <div class="queue-label">Kernel Message Queue</div>
+                    <div id="queue-slots" class="queue-slots">
+                        <!-- Messages will appear here -->
+                    </div>
+                </div>
+                <div class="process-node p-b">Receiver</div>
+                <div class="lab-caption">Message Queues: Asynchronous linked list of structured data.</div>
+            </div>
+
+            <div id="shm-lab" class="lab-scene" style="display: none;">
+                <div class="process-node p-a">Process A</div>
+                <div class="shared-buffer">
+                    <div class="buffer-label">Shared RAM Segment</div>
+                    <div id="shm-grid" class="pixel-grid"></div>
+                </div>
+                <div class="process-node p-b">Process B</div>
+                <div class="lab-caption">Shared Memory: Direct access to the same physical RAM.</div>
+            </div>
+
+            <div id="signals-lab" class="lab-scene" style="display: none;">
+                <div class="process-node p-a">Kernel / Process A</div>
+                <div class="signal-path">
+                    <div id="signal-bolt" class="signal-bolt">⚡ SIGINT</div>
+                </div>
+                <div class="process-node p-b" id="target-proc">Process B</div>
+                <div class="lab-caption">Signals: Software interrupts for immediate notification.</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <button id="toggle-lab" class="nav-btn" style="background: var(--primary); cursor: pointer;">Reset Simulation</button>
+        </div>
+    </div>
+
+    <!-- C Program Section -->
+    <div id="c-program" style="margin-top: 5rem;" class="section-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div>
+                <h2 style="color: var(--accent); margin: 0;">C Implementation Paradigms</h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.7;">Select a tab to view the source code for each IPC method.</p>
+            </div>
+            <button id="copy-btn" class="nav-btn" style="background: var(--primary); padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;">Copy Code</button>
+        </div>
+        
+        <div class="code-tabs">
+            <button class="tab-btn active" onclick="showCode('pipes', this)">01. Pipes</button>
+            <button class="tab-btn" onclick="showCode('msg_queue', this)">02. Message Queues</button>
+            <button class="tab-btn" onclick="showCode('shm', this)">03. Shared Memory</button>
+            <button class="tab-btn" onclick="showCode('signals', this)">04. Signals</button>
+        </div>
+
+        <div class="code-display glass-card" style="position: relative;">
+            <div id="code-header" style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                Unidirectional Pipes Implementation
+            </div>
+            <pre class="line-numbers" style="background: transparent !important;"><code id="code-content" class="language-c">{{ code_examples.pipes.code }}</code></pre>
+        </div>
+
+        <div class="explanation-box glass-card" style="margin-top: 2rem; padding: 2rem;">
+            <h3 style="color: var(--primary); margin-bottom: 1.5rem;">Core IPC Mechanism Breakdown</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div class="syscall-item">
+                    <code>pipe()</code>
+                    <p>Creates a unidirectional channel for parent-child communication.</p>
+                </div>
+                <div class="syscall-item">
+                    <code>msgget() / msgsnd()</code>
+                    <p>Creates a message queue and sends formatted messages to it.</p>
+                </div>
+                <div class="syscall-item">
+                    <code>shmat()</code>
+                    <p>Attaches a shared memory segment to the process address space.</p>
+                </div>
+                <div class="syscall-item">
+                    <code>signal()</code>
+                    <p>Registers a handler function to be called when a specific signal occurs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.detailed-ipc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.ipc-detail-item {
+    padding: 2.5rem;
+    border-left: 5px solid var(--primary);
+    transition: all 0.3s;
+}
+
+.ipc-detail-item:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.ipc-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.ipc-detail-header h3 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--primary);
+}
+
+.ipc-detail-content p {
+    font-size: 1rem;
+    line-height: 1.8;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.pc-box {
+    padding: 1.2rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.pc-box.pro {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.pc-box.con {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Visual Lab Styles */
+.lab-btn {
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.lab-btn.active {
+    background: var(--primary);
+    color: black;
+    border-color: var(--primary);
+}
+
+.lab-scene {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.process-node {
+    width: 140px;
+    height: 140px;
+    background: var(--bg-soft);
+    border: 2px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--primary);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    z-index: 5;
+    text-align: center;
+    padding: 10px;
+}
+
+.lab-caption {
+    position: absolute;
+    bottom: -2rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    color: var(--accent);
+}
+
+.pipe-track {
+    flex-grow: 1;
+    height: 40px;
+    background: rgba(255,255,255,0.05);
+    border-top: 4px solid var(--glass-border);
+    border-bottom: 4px solid var(--glass-border);
+    margin: 0 -20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.data-packet {
+    position: absolute;
+    top: 50%;
+    left: -60px;
+    transform: translateY(-50%);
+    background: var(--accent);
+    color: black;
+    padding: 6px 15px;
+    border-radius: 6px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    box-shadow: 0 0 15px var(--accent);
+}
+
+.queue-container {
+    flex-grow: 1;
+    max-width: 400px;
+    height: 100px;
+    background: rgba(255,255,255,0.02);
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1rem;
+    position: relative;
+    margin: 0 20px;
+}
+
+.queue-label {
+    position: absolute;
+    top: -1.5rem;
+    left: 0;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--primary);
+    letter-spacing: 2px;
+}
+
+.queue-slots {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+}
+
+.msg-box {
+    min-width: 70px;
+    height: 50px;
+    background: var(--primary);
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+    border-radius: 8px;
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+.shared-buffer {
+    flex-grow: 1;
+    max-width: 500px;
+    padding: 2rem;
+    background: rgba(16, 185, 129, 0.05);
+    border: 2px dashed var(--primary);
+    border-radius: 24px;
+    margin: 0 20px;
+}
+
+.buffer-label {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+
+.signal-path {
+    flex-grow: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    margin: 0 20px;
+}
+
+.signal-bolt {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    font-size: 2rem;
+    color: var(--accent);
+    filter: drop-shadow(0 0 10px var(--accent));
+    opacity: 0;
+}
+
+.pixel-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+}
+
+.pixel {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+
+.pixel.active {
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+/* Code Tabs & Display */
+.code-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    padding: 1.2rem 2.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    cursor: pointer;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s;
+    font-weight: 700;
+}
+
+.tab-btn.active {
+    background: #1e293b;
+    border-color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.code-display {
+    padding: 2.5rem;
+    background: #0d1117 !important;
+    border-radius: 0 16px 16px 16px;
+    border: 1px solid var(--glass-border);
+    min-height: 500px;
+}
+
+pre[class*="language-"] { background: transparent !important; margin: 0 !important; }
+code[class*="language-"] { font-family: 'Fira Code', monospace !important; font-size: 0.95rem !important; }
+
+.nav-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+.syscall-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.2rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary);
+}
+
+.syscall-item code { color: var(--accent); display: block; margin-bottom: 0.5rem; }
+
+@media (max-width: 1000px) {
+    .lab-scene { flex-direction: column; gap: 3rem; height: auto; }
+    .process-node { width: 100px; height: 100px; font-size: 0.8rem; }
+    .pipe-track, .queue-container, .shared-buffer, .signal-path { width: 100%; margin: 20px 0; }
+}
+</style>
+
+<script>
+    // Lab Switcher Logic
+    function switchLab(type, btn) {
+        document.querySelectorAll('.lab-scene').forEach(s => s.style.display = 'none');
+        document.getElementById(`${type}-lab`).style.display = 'flex';
+        document.querySelectorAll('.lab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        stopAllAnimations();
+        startLabAnimation(type);
+    }
+
+    let labIntervals = [];
+
+    function stopAllAnimations() {
+        labIntervals.forEach(clearInterval);
+        labIntervals = [];
+        // Clear queue slots
+        const slots = document.getElementById('queue-slots');
+        if(slots) slots.innerHTML = '';
+        // Clear signal state
+        const bolt = document.getElementById('signal-bolt');
+        if(bolt) bolt.style.opacity = '0';
+    }
+
+    function startLabAnimation(type) {
+        if (type === 'pipes') animatePipes();
+        if (type === 'msg_queue') animateQueue();
+        if (type === 'shm') animateSHM();
+        if (type === 'signals') animateSignals();
+    }
+
+    function animatePipes() {
+        const packet = document.getElementById('pipe-data');
+        let pos = -60;
+        const interval = setInterval(() => {
+            pos += 4;
+            if (pos > 500) pos = -60;
+            packet.style.left = pos + 'px';
+        }, 20);
+        labIntervals.push(interval);
+    }
+
+    function animateQueue() {
+        const slots = document.getElementById('queue-slots');
+        const interval = setInterval(() => {
+            if (slots.children.length < 4) {
+                const msg = document.createElement('div');
+                msg.className = 'msg-box';
+                msg.innerText = 'MSG_' + (slots.children.length + 1);
+                slots.appendChild(msg);
+            } else {
+                setTimeout(() => { slots.innerHTML = ''; }, 1000);
+            }
+        }, 1200);
+        labIntervals.push(interval);
+    }
+
+    function animateSHM() {
+        const grid = document.getElementById('shm-grid');
+        if (grid.children.length === 0) {
+            for(let i=0; i<30; i++) {
+                const d = document.createElement('div');
+                d.className = 'pixel';
+                grid.appendChild(d);
+            }
+        }
+        let pos = 0;
+        const interval = setInterval(() => {
+            document.querySelectorAll('#shm-grid .pixel').forEach(p => p.classList.remove('active'));
+            if(grid.children[pos]) grid.children[pos].classList.add('active');
+            pos = (pos + 1) % 30;
+        }, 300);
+        labIntervals.push(interval);
+    }
+
+    function animateSignals() {
+        const bolt = document.getElementById('signal-bolt');
+        const target = document.getElementById('target-proc');
+        const interval = setInterval(() => {
+            bolt.style.opacity = '1';
+            bolt.animate([
+                { left: '0%', opacity: 1 },
+                { left: '100%', opacity: 1 }
+            ], { duration: 800, iterations: 1 }).onfinish = () => {
+                bolt.style.opacity = '0';
+                target.style.transform = 'scale(1.1)';
+                target.style.borderColor = 'var(--accent)';
+                target.style.boxShadow = '0 0 30px var(--accent)';
+                setTimeout(() => {
+                    target.style.transform = 'scale(1)';
+                    target.style.borderColor = 'var(--glass-border)';
+                    target.style.boxShadow = 'none';
+                }, 150);
+            };
+        }, 2000);
+        labIntervals.push(interval);
+    }
+
+    // Initial start
+    animatePipes();
+
+    document.getElementById('toggle-lab').addEventListener('click', () => {
+        const activeBtn = document.querySelector('.lab-btn.active');
+        const type = activeBtn.innerText.toLowerCase().includes('msg') ? 'msg_queue' : 
+                     activeBtn.innerText.toLowerCase().includes('shared') ? 'shm' : 
+                     activeBtn.innerText.toLowerCase();
+        stopAllAnimations();
+        startLabAnimation(type);
+    });
+
+    // Code Logic
+    const codeData = {
+        'pipes': {
+            'title': 'Unidirectional Pipes Implementation',
+            'code': `{{ code_examples.pipes.code|escapejs }}`
+        },
+        'msg_queue': {
+            'title': 'System V Message Queues Implementation',
+            'code': `{{ code_examples.msg_queue.code|escapejs }}`
+        },
+        'shm': {
+            'title': 'POSIX Shared Memory Implementation',
+            'code': `{{ code_examples.shm.code|escapejs }}`
+        },
+        'signals': {
+            'title': 'Signal Handling (SIGINT) Implementation',
+            'code': `{{ code_examples.signals.code|escapejs }}`
+        }
+    };
+
+    function showCode(type, btn) {
+        const header = document.getElementById('code-header');
+        const content = document.getElementById('code-content');
+        header.innerText = codeData[type].title;
+        content.textContent = codeData[type].code;
+        content.className = 'language-c';
+        if (window.Prism) Prism.highlightElement(content);
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    const copyBtn = document.getElementById('copy-btn');
+    copyBtn.addEventListener('click', () => {
+        const content = document.getElementById('code-content').textContent;
+        navigator.clipboard.writeText(content).then(() => {
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = 'Copied!';
+            copyBtn.style.background = 'var(--accent)';
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.style.background = 'var(--primary)';
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}

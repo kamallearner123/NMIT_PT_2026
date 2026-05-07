@@ -13,5 +13,6 @@ urlpatterns = [
     path('scripting/', views.linux_scripting, name='linux_scripting'),
     path('memory/', views.linux_memory, name='linux_memory'),
     path('scheduling/', views.linux_scheduling, name='linux_scheduling'),
+    path('ipc/', views.linux_ipc, name='linux_ipc'),
     path('resources/', views.linux_resources, name='linux_resources'),
 ]

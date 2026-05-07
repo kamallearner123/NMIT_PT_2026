@@ -10,125 +10,298 @@
         <p style="color: var(--text-muted); font-size: 1.1rem;">How Linux manages multi-tasking and switches between processes.</p>
     </div>
 
-    <!-- Section 1: Context Switching Visualizer -->
-    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">1. Context Switching</h2>
-        <p style="margin-bottom: 2rem;">When the OS switches from Process A to Process B, it must save the current state (Registers, PC) and load the new one.</p>
+    <!-- Section 1: The Process Control Block (PCB) -->
+    <div class="glass-card section-card" style="margin-bottom: 3rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">1. The Process Control Block (PCB)</h2>
+        <p>In Linux, every process is represented by a <code>task_struct</code> (the PCB). It contains all the metadata needed to manage the process lifecycle.</p>
+        
+        <div class="pcb-grid">
+            <div class="pcb-item">
+                <span class="pcb-tag">PID</span>
+                <p>Process Identifier</p>
+            </div>
+            <div class="pcb-item">
+                <span class="pcb-tag">STATE</span>
+                <p>Running, Waiting, Stopped</p>
+            </div>
+            <div class="pcb-item">
+                <span class="pcb-tag">PRIO</span>
+                <p>Dynamic Priority (Nice Value)</p>
+            </div>
+            <div class="pcb-item">
+                <span class="pcb-tag">REGS</span>
+                <p>Register Context (Saved here during switch)</p>
+            </div>
+            <div class="pcb-item">
+                <span class="pcb-tag">FILES</span>
+                <p>List of open file descriptors</p>
+            </div>
+            <div class="pcb-item">
+                <span class="pcb-tag">MEM</span>
+                <p>Memory Management Info (Page Tables)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Context Switching Mechanism -->
+    <div class="glass-card section-card" style="margin-bottom: 3rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">2. Context Switching Mechanism</h2>
+        <p style="margin-bottom: 2rem;">When the <strong>Scheduler</strong> decides to switch tasks, it triggers a context switch. This is a CPU-intensive operation where the hardware state is swapped.</p>
         
         <div class="context-visual">
             <div class="pcb-box" id="pcb-a">
-                <div class="sidebar-label">PCB A</div>
+                <div class="sidebar-label" style="color: var(--primary); font-weight: 700;">PCB (Process A)</div>
                 <div class="reg-data" id="reg-a">Registers: [saved]</div>
             </div>
             
-            <div class="cpu-core">
-                <div class="cpu-label">CPU CORE</div>
-                <div class="cpu-state" id="cpu-current">Running: Process A</div>
+            <div class="cpu-core-wrapper">
+                <div class="cpu-core">
+                    <div class="cpu-label">CPU CORE</div>
+                    <div class="cpu-state" id="cpu-current">Running: Process A</div>
+                </div>
             </div>
 
             <div class="pcb-box" id="pcb-b">
-                <div class="sidebar-label">PCB B</div>
+                <div class="sidebar-label" style="color: var(--primary); font-weight: 700;">PCB (Process B)</div>
                 <div class="reg-data" id="reg-b">Registers: [idle]</div>
             </div>
         </div>
 
         <div style="text-align: center; margin-top: 2rem;">
-            <button class="btn" onclick="runContextSwitch()">Perform Context Switch</button>
+            <button class="nav-btn" onclick="runContextSwitch()" style="background: var(--primary); cursor: pointer; padding: 0.8rem 2rem; border-radius: 30px; color: black; font-weight: bold; border: none;">Execute Context Switch</button>
         </div>
     </div>
 
-    <!-- Section 2: Scheduling Algorithms -->
-    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
-        <h2 style="color: var(--accent); margin-bottom: 2rem;">2. Scheduling Algorithms</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-            <div class="info-box" style="border-left-color: #6366f1;">
-                <h4>FCFS</h4>
-                <p>First-Come, First-Served. Simple but can lead to the "Convoy Effect".</p>
+    <!-- Section 3: Linux CFS (Completely Fair Scheduler) -->
+    <div class="glass-card section-card" style="margin-bottom: 3rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+            <div style="font-size: 2.5rem;">⚖️</div>
+            <h2 style="color: var(--primary); margin: 0;">3. Completely Fair Scheduler (CFS)</h2>
+        </div>
+        <p>Since Kernel 2.6.23, Linux uses **CFS**. Unlike traditional schedulers, CFS doesn't use standard time slices. Instead, it uses a **Red-Black Tree** to track 'vruntime' (virtual runtime).</p>
+        
+        <div class="cfs-logic">
+            <div class="cfs-box">
+                <h4>Vruntime</h4>
+                <p>The amount of time a process has spent on the CPU. CFS always picks the process with the <strong>lowest vruntime</strong>.</p>
             </div>
-            <div class="info-box" style="border-left-color: #10b981;">
-                <h4>SJF</h4>
-                <p>Shortest Job First. Minimizes average waiting time but needs prediction.</p>
+            <div class="cfs-box">
+                <h4>Nice Values</h4>
+                <p>Range: -20 to 19. A lower nice value means higher priority, causing vruntime to increase slower.</p>
             </div>
-            <div class="info-box" style="border-left-color: #fbbf24;">
-                <h4>Round Robin</h4>
-                <p>Time-sharing. Each process gets a "Time Quantum" before being swapped.</p>
-            </div>
-            <div class="info-box" style="border-left-color: #ef4444;">
-                <h4>Priority</h4>
-                <p>Highest priority runs first. Can lead to "Starvation" of low priority tasks.</p>
+            <div class="cfs-box">
+                <h4>Target Latency</h4>
+                <p>The period during which every runnable task should run at least once.</p>
             </div>
         </div>
     </div>
 
-    <!-- Section 3: Scheduling Timeline (Gantt Chart) -->
-    <div class="glass-card" style="padding: 2.5rem;">
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">3. Interactive Timeline (Round Robin)</h2>
-        <div class="gantt-chart" id="gantt">
-            <!-- Timeline blocks will go here -->
+    <!-- Section 4: Scheduling Algorithms & Metrics -->
+    <div class="glass-card section-card" style="margin-bottom: 3rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">4. Classic Algorithms & Metrics</h2>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h5>Turnaround Time</h5>
+                <p>Finish Time - Arrival Time</p>
+            </div>
+            <div class="metric-card">
+                <h5>Waiting Time</h5>
+                <p>Turnaround Time - Burst Time</p>
+            </div>
+            <div class="metric-card">
+                <h5>Response Time</h5>
+                <p>First Run Time - Arrival Time</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+            <div class="info-box" style="border-left: 4px solid #6366f1; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <h4>Round Robin (RR)</h4>
+                <p>Preemptive. Each process gets a fixed time quantum. Great for time-sharing systems.</p>
+            </div>
+            <div class="info-box" style="border-left: 4px solid #10b981; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <h4>Multilevel Feedback Queue</h4>
+                <p>Processes move between queues based on their behavior (I/O bound vs CPU bound).</p>
+            </div>
+            <div class="info-box" style="border-left: 4px solid #fbbf24; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <h4>Shortest Remaining Time First</h4>
+                <p>Preemptive version of SJF. Swaps if a new process arrives with a shorter burst.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Interactive Gantt Chart -->
+    <div class="glass-card section-card">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">5. Interactive Timeline (Round Robin)</h2>
+        <p style="margin-bottom: 2rem;">Simulating a Time Quantum of 2 units for 3 competing processes.</p>
+        <div class="gantt-container">
+            <div class="gantt-chart" id="gantt">
+                <!-- Timeline blocks will go here -->
+            </div>
+            <div class="time-axis" style="display: flex; justify-content: space-between; margin-top: 0.5rem; opacity: 0.5; font-size: 0.8rem;">
+                <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span>
+            </div>
         </div>
         <div style="text-align: center; margin-top: 2rem;">
-            <button class="btn btn-secondary" onclick="startScheduling()">Simulate Round Robin</button>
+            <button class="nav-btn" onclick="startScheduling()" style="background: var(--primary); cursor: pointer; padding: 0.8rem 2rem; border-radius: 30px; color: black; font-weight: bold; border: none;">Simulate Scheduling</button>
         </div>
     </div>
 </div>
 
 <style>
+.section-card {
+    padding: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 3rem;
+}
+
+.pcb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.pcb-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pcb-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pcb-tag {
+    font-weight: 800;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.pcb-item p {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
 .context-visual {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 3rem;
-    background: var(--bg-soft);
-    border-radius: 20px;
+    padding: 3.5rem;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 28px;
+    border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
 }
 
 .pcb-box {
-    width: 150px;
-    padding: 1rem;
+    width: 200px;
+    padding: 2rem;
     background: var(--bg-soft);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
     text-align: center;
+    transition: all 0.4s ease;
 }
 
 .reg-data {
     font-size: 0.8rem;
-    color: var(--text-muted);
-    font-family: monospace;
-    margin-top: 0.5rem;
+    color: var(--primary);
+    font-family: 'Fira Code', monospace;
+    margin-top: 1.5rem;
+    background: rgba(0,0,0,0.4);
+    padding: 0.7rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .cpu-core {
-    width: 200px;
-    height: 120px;
-    background: var(--primary);
-    border-radius: 16px;
+    width: 240px;
+    height: 150px;
+    background: linear-gradient(135deg, var(--primary), #4f46e5);
+    border-radius: 24px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
-    transition: all 0.5s ease;
+    box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
+    z-index: 2;
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.1);
 }
 
 .cpu-label {
-    font-weight: bold;
-    font-size: 0.8rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
     opacity: 0.8;
+    margin-bottom: 0.5rem;
+    color: white;
 }
 
 .cpu-state {
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
+.cfs-logic {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.cfs-box {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2.5rem;
+    border-radius: 20px;
+    border-top: 4px solid var(--primary);
+    border-left: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s;
+}
+
+.cfs-box:hover { transform: translateY(-5px); }
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.metric-card {
+    background: rgba(255,255,255,0.05);
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+}
+
+.metric-card h5 { margin: 0 0 0.8rem 0; color: var(--accent); font-size: 1.1rem; }
+.metric-card p { font-size: 0.9rem; opacity: 0.7; margin: 0; font-family: 'Fira Code', monospace; }
+
 .gantt-chart {
-    height: 60px;
-    background: var(--bg-soft);
-    border-radius: 10px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
     display: flex;
     overflow: hidden;
     border: 1px solid var(--glass-border);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
 }
 
 .gantt-block {
@@ -136,41 +309,57 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 800;
     color: white;
-    transition: width 0.3s ease;
-    border-right: 1px solid var(--bg-soft);
+    transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-right: 1px solid rgba(0,0,0,0.2);
+    font-size: 1.1rem;
 }
 
-.p1 { background: #6366f1; }
-.p2 { background: #10b981; }
-.p3 { background: #fbbf24; }
+.p1 { background: linear-gradient(to bottom right, #6366f1, #818cf8); }
+.p2 { background: linear-gradient(to bottom right, #10b981, #34d399); }
+.p3 { background: linear-gradient(to bottom right, #fbbf24, #fcd34d); }
+
+.nav-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px) scale(1.02);
+}
 </style>
 
 <script>
 let currentProc = 'A';
 function runContextSwitch() {
-    const cpu = document.getElementById('cpu-current');
+    const cpu = document.querySelector('.cpu-state');
     const regA = document.getElementById('reg-a');
     const regB = document.getElementById('reg-b');
+    const pcbA = document.getElementById('pcb-a');
+    const pcbB = document.getElementById('pcb-b');
     
-    if (currentProc === 'A') {
-        cpu.innerText = "Switching...";
-        setTimeout(() => {
-            regA.innerText = "Registers: [saved]";
+    cpu.style.opacity = '0.5';
+    cpu.innerText = "Switching...";
+    
+    setTimeout(() => {
+        if (currentProc === 'A') {
+            regA.innerText = "Registers: [SAVED]";
+            regA.style.color = "var(--accent)";
             regB.innerText = "Registers: [LOADED]";
+            regB.style.color = "var(--primary)";
             cpu.innerText = "Running: Process B";
+            pcbA.style.borderColor = "var(--glass-border)";
+            pcbB.style.borderColor = "var(--primary)";
             currentProc = 'B';
-        }, 500);
-    } else {
-        cpu.innerText = "Switching...";
-        setTimeout(() => {
-            regB.innerText = "Registers: [saved]";
+        } else {
+            regB.innerText = "Registers: [SAVED]";
+            regB.style.color = "var(--accent)";
             regA.innerText = "Registers: [LOADED]";
+            regA.style.color = "var(--primary)";
             cpu.innerText = "Running: Process A";
+            pcbB.style.borderColor = "var(--glass-border)";
+            pcbA.style.borderColor = "var(--primary)";
             currentProc = 'A';
-        }, 500);
-    }
+        }
+        cpu.style.opacity = '1';
+    }, 800);
 }
 
 function startScheduling() {
@@ -199,7 +388,7 @@ function startScheduling() {
             block.style.width = '8.33%';
         }, 50);
         i++;
-    }, 600);
+    }, 800);
 }
 </script>
 {% endblock %}
