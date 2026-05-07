@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Process Management{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Process <span style="color: var(--primary)">Management</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Visualizing how Linux handles multitasking, PIDs, and the Init system.</p>
+    </div>
+
+    <!-- Section 1: Process Lifecycle (Fork-Exec-Wait) -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">1. The Linux Process Lifecycle (Fork & Exec)</h2>
+        <p style="margin-bottom: 2rem;">In Linux, new processes are created by cloning the parent (<code>fork</code>) and then replacing the code (<code>exec</code>).</p>
+        
+        <div class="lifecycle-container">
+            <!-- Parent Column -->
+            <div class="lifecycle-col">
+                <div class="sidebar-label" style="text-align: center; margin: 0 0 1rem 0;">Parent (Process A)</div>
+                <div class="life-node active" id="node-parent-start">Process A</div>
+                <div class="life-call" id="call-fork">fork()</div>
+                <div class="life-node" id="node-parent-waiting">Process A (waiting)</div>
+                <div class="life-call" id="call-wait">wait()</div>
+                <div class="life-node" id="node-parent-cleanup">Cleanup Proc Table</div>
+            </div>
+
+            <!-- Signal / Interaction Middle -->
+            <div class="lifecycle-mid">
+                <div class="sig-arrow" id="sig-fork">NEW PID ➔</div>
+                <div class="sig-arrow" id="sig-chld" style="transform: rotate(180deg); opacity: 0.2;">➔ SIGCHLD</div>
+            </div>
+
+            <!-- Child Column -->
+            <div class="lifecycle-col">
+                <div class="sidebar-label" style="text-align: center; margin: 0 0 1rem 0;">Child (Process B)</div>
+                <div class="life-node" id="node-child-born" style="opacity: 0.2;">Process B</div>
+                <div class="life-call" id="call-exec" style="opacity: 0.2;">execve()</div>
+                <div class="life-node" id="node-child-running" style="opacity: 0.2;">Process B (New Program)</div>
+                <div class="life-call" id="call-exit" style="opacity: 0.2;">exit()</div>
+                <div class="life-node" id="node-child-zombie" style="opacity: 0.2; background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">Zombie</div>
+            </div>
+        </div>
+
+        <div class="state-controls" style="margin-top: 3rem;">
+            <button class="btn btn-sm" id="btn-fork" onclick="runFork()">1. fork()</button>
+            <button class="btn btn-sm btn-secondary" id="btn-exec" onclick="runExec()" disabled>2. execve()</button>
+            <button class="btn btn-sm btn-secondary" id="btn-exit" onclick="runExit()" disabled>3. exit()</button>
+            <button class="btn btn-sm btn-secondary" id="btn-wait" onclick="runWait()" disabled>4. wait()</button>
+            <button class="btn btn-sm btn-secondary" onclick="resetLifecycle()">Reset</button>
+        </div>
+        
+        <div id="lifecycle-info" class="glass-card" style="margin-top: 1.5rem; border-color: var(--primary); padding: 1rem;">
+            <strong>Step:</strong> <span id="life-text">Ready to start. Click fork() to begin.</span>
+        </div>
+    </div>
+
+    <!-- Section 2: Process States (Standard 5-State Model) -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">2. Process State Machine (5-State Model)</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Beyond creation, a process lives in one of these five states. Here is how they interact:</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <!-- 1. New -->
+            <div class="glass-card" style="border-left: 4px solid var(--accent);">
+                <h3 style="color: var(--accent);">1. New</h3>
+                <p>Process is created.</p>
+                <div class="info-box">
+                    <strong>Example:</strong> You type <code>firefox</code>. Linux creates a new process.
+                </div>
+                <div class="transition-box">
+                    <code>NEW → READY</code><br>
+                    <small>Reason: OS allocates memory, PID, and resources.</small>
+                </div>
+            </div>
+
+            <!-- 2. Ready -->
+            <div class="glass-card" style="border-left: 4px solid #6366f1;">
+                <h3 style="color: #6366f1;">2. Ready</h3>
+                <p>Ready to run, but waiting for CPU.</p>
+                <div class="info-box">
+                    <strong>Example:</strong> Many apps are open, CPU can execute only one at a time.
+                </div>
+                <div class="transition-box">
+                    <code>READY → RUNNING</code><br>
+                    <small>Reason: CPU scheduler selects it.</small>
+                </div>
+            </div>
+
+            <!-- 3. Running -->
+            <div class="glass-card" style="border-left: 4px solid #10b981;">
+                <h3 style="color: #10b981;">3. Running</h3>
+                <p>Currently executing on CPU.</p>
+                <div class="info-box">
+                    <strong>Example:</strong> Your Python program is executing instructions.
+                </div>
+                <div class="transition-box">
+                    <code>RUNNING → READY</code> (Timeout)<br>
+                    <code>RUNNING → WAITING</code> (I/O)
+                </div>
+            </div>
+
+            <!-- 4. Waiting -->
+            <div class="glass-card" style="border-left: 4px solid #fbbf24;">
+                <h3 style="color: #fbbf24;">4. Waiting / Blocked</h3>
+                <p>Waiting for an event (I/O).</p>
+                <div class="info-box">
+                    <strong>Examples:</strong> Disk read, Keyboard input, Network response.
+                </div>
+                <div class="transition-box">
+                    <code>WAITING → READY</code><br>
+                    <small>Reason: I/O completed.</small>
+                </div>
+            </div>
+
+            <!-- 5. Terminated -->
+            <div class="glass-card" style="border-left: 4px solid #ef4444;">
+                <h3 style="color: #ef4444;">5. Terminated</h3>
+                <p>Process finishes execution.</p>
+                <div class="info-box">
+                    <strong>Example:</strong> Program ends.
+                </div>
+                <div class="transition-box">
+                    <code>RUNNING → TERMINATED</code><br>
+                    <small>Reason: Exit signal or Completion.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Process Tree Visualizer -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="color: var(--primary);">3. Visual Process Tree</h2>
+            <button class="btn" onclick="spawnProcess()">Spawn New Process</button>
+        </div>
+        
+        <div class="process-container" id="processContainer">
+            <!-- Root Process -->
+            <div class="process-node root-proc" id="proc-1">
+                <div class="proc-header">PID 1: systemd</div>
+                <div class="proc-children" id="children-1">
+                    <!-- Child processes will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commands Table -->
+    <div class="glass-card">
+        <h3>Essential Process Commands</h3>
+        <table class="complexity-table" style="width: 100%; margin-top: 1rem;">
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>ps aux</code></td>
+                    <td>List all running processes.</td>
+                    <td><code>ps aux | grep python</code></td>
+                </tr>
+                <tr>
+                    <td><code>top</code> / <code>htop</code></td>
+                    <td>Real-time system monitor.</td>
+                    <td><code>htop</code></td>
+                </tr>
+                <tr>
+                    <td><code>kill</code></td>
+                    <td>Send a signal to a process (usually to stop it).</td>
+                    <td><code>kill -9 1234</code></td>
+                </tr>
+                <tr>
+                    <td><code>jobs</code> / <code>bg</code> / <code>fg</code></td>
+                    <td>Manage background and foreground tasks.</td>
+                    <td><code>fg %1</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.lifecycle-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    background: rgba(0,0,0,0.2);
+    padding: 3rem;
+    border-radius: 20px;
+}
+
+.lifecycle-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 200px;
+}
+
+.lifecycle-mid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5rem;
+    padding-top: 100px;
+}
+
+.life-node {
+    width: 160px;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--glass-border);
+    border-radius: 50px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.4s ease;
+}
+
+.life-node.active {
+    background: var(--primary);
+    border-color: white;
+    box-shadow: 0 0 20px var(--primary);
+}
+
+.life-call {
+    width: 120px;
+    padding: 0.5rem;
+    background: white;
+    color: black;
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.sig-arrow {
+    font-family: monospace;
+    font-weight: bold;
+    color: var(--accent);
+    transition: all 0.5s;
+}
+
+/* Override btn-secondary for step progression */
+.btn-secondary:disabled {
+    opacity: 0.3;
+}
+
+.process-container {
+    padding: 2rem;
+    overflow-x: auto;
+    min-height: 400px;
+}
+
+.process-node {
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(99, 102, 241, 0.05);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.proc-header {
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    justify-content: space-between;
+}
+
+.proc-children {
+    margin-left: 3rem;
+    border-left: 2px dashed var(--glass-border);
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.child-proc {
+    border-color: var(--accent);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.child-proc .proc-header {
+    color: var(--accent);
+}
+
+.kill-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+@keyframes spawn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.new-spawn {
+    animation: spawn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.info-box {
+    padding: 1rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border-left: 4px solid;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.transition-box {
+    background: rgba(0,0,0,0.3);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border: 1px dashed var(--glass-border);
+}
+</style>
+
+<script>
+const lifeText = document.getElementById('life-text');
+
+function runFork() {
+    document.getElementById('node-child-born').style.opacity = '1';
+    document.getElementById('node-child-born').classList.add('active');
+    document.getElementById('node-parent-start').classList.remove('active');
+    document.getElementById('node-parent-waiting').classList.add('active');
+    
+    document.getElementById('btn-fork').disabled = true;
+    document.getElementById('btn-exec').disabled = false;
+    
+    lifeText.innerText = "fork() called. A clone (Process B) is created with a NEW PID. Parent waits.";
+}
+
+function runExec() {
+    document.getElementById('node-child-born').classList.remove('active');
+    document.getElementById('call-exec').style.opacity = '1';
+    document.getElementById('node-child-running').style.opacity = '1';
+    document.getElementById('node-child-running').classList.add('active');
+    
+    document.getElementById('btn-exec').disabled = true;
+    document.getElementById('btn-exit').disabled = false;
+    
+    lifeText.innerText = "execve() called. Child replaces its memory with a DIFFERENT program.";
+}
+
+function runExit() {
+    document.getElementById('node-child-running').classList.remove('active');
+    document.getElementById('call-exit').style.opacity = '1';
+    document.getElementById('node-child-zombie').style.opacity = '1';
+    document.getElementById('node-child-zombie').classList.add('active');
+    document.getElementById('sig-chld').style.opacity = '1';
+    
+    document.getElementById('btn-exit').disabled = true;
+    document.getElementById('btn-wait').disabled = false;
+    
+    lifeText.innerText = "exit() called. Child sends SIGCHLD to Parent and becomes a ZOMBIE.";
+}
+
+function runWait() {
+    document.getElementById('node-parent-waiting').classList.remove('active');
+    document.getElementById('node-parent-cleanup').classList.add('active');
+    document.getElementById('node-child-zombie').classList.remove('active');
+    document.getElementById('node-child-zombie').style.opacity = '0.3';
+    
+    document.getElementById('btn-wait').disabled = true;
+    
+    lifeText.innerText = "wait() called. Parent collects status, Child is removed from Process Table.";
+}
+
+function resetLifecycle() {
+    location.reload();
+}
+
+let nextPid = 100;
+const appNames = ['bash', 'python3', 'nginx', 'ssh-agent', 'docker-d', 'chrome', 'vscode'];
+
+function spawnProcess() {
+    const parent = document.getElementById('children-1');
+    const pid = nextPid++;
+    const name = appNames[Math.floor(Math.random() * appNames.length)];
+    
+    const procDiv = document.createElement('div');
+    procDiv.className = 'process-node child-proc new-spawn';
+    procDiv.id = 'proc-' + pid;
+    
+    procDiv.innerHTML = `
+        <div class="proc-header">
+            <span>PID ${pid}: ${name}</span>
+            <button class="kill-btn" onclick="killProcess(${pid})">KILL</button>
+        </div>
+    `;
+    
+    parent.appendChild(procDiv);
+}
+
+function killProcess(pid) {
+    const proc = document.getElementById('proc-' + pid);
+    proc.style.opacity = '0';
+    proc.style.transform = 'scale(0.8)';
+    setTimeout(() => proc.remove(), 300);
+}
+</script>
+{% endblock %}

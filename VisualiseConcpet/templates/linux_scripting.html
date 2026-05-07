@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Shell & Scripting{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Shell & <span style="color: var(--accent)">Scripting</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Visualizing data flow through Pipes, Redirection, and basic Automation.</p>
+    </div>
+
+    <!-- Pipe Visualizer -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 3rem;">
+        <h2 style="margin-bottom: 2rem; color: var(--primary);">Interactive Pipe Visualizer</h2>
+        <p style="margin-bottom: 2rem;">Pipes (<code>|</code>) allow the output of one command to become the input of another.</p>
+        
+        <div class="pipe-flow">
+            <div class="command-box">
+                <div class="cmd-tag">Command 1</div>
+                <code>cat users.txt</code>
+                <div class="data-stream" id="stream-1"></div>
+            </div>
+            <div class="pipe-icon">|</div>
+            <div class="command-box">
+                <div class="cmd-tag">Command 2</div>
+                <code>grep "admin"</code>
+                <div class="data-stream" id="stream-2"></div>
+            </div>
+            <div class="pipe-icon">|</div>
+            <div class="command-box">
+                <div class="cmd-tag">Command 3</div>
+                <code>wc -l</code>
+                <div class="data-stream" id="stream-3"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn" onclick="startPipeFlow()">Run Pipeline</button>
+        </div>
+    </div>
+
+    <!-- Scripting Basics -->
+    <div class="glass-card">
+        <h3>Shell Scripting Essentials</h3>
+        <pre class="language-python"><code>#!/bin/bash
+# A simple backup script
+NAME="Kamal"
+echo "Hello $NAME, starting backup..."
+tar -czf backup.tar.gz /home/$NAME/documents
+echo "Backup complete!"</code></pre>
+        <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="info-box" style="border-left-color: var(--accent);">
+                <h4>Shebang (<code>#!</code>)</h4>
+                <p>The first line tells the system which interpreter to use (usually <code>/bin/bash</code>).</p>
+            </div>
+            <div class="info-box" style="border-left-color: var(--primary);">
+                <h4>Variables</h4>
+                <p>Defined as <code>VAR="value"</code> and accessed using <code>$VAR</code>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pipe-flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+    position: relative;
+}
+
+.command-box {
+    background: var(--bg-main);
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    border-radius: 12px;
+    width: 180px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.cmd-tag {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.pipe-icon {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.data-stream {
+    position: absolute;
+    height: 4px;
+    background: var(--accent);
+    top: 50%;
+    left: 100%;
+    width: 0;
+    z-index: 1;
+    transition: width 1s linear;
+}
+
+.packet {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    top: -4px;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.info-box {
+    padding: 1rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+</style>
+
+<script>
+function startPipeFlow() {
+    const s1 = document.getElementById('stream-1');
+    const s2 = document.getElementById('stream-2');
+    
+    // Reset
+    s1.style.width = '0';
+    s2.style.width = '0';
+    
+    // Step 1: Flow to Command 2
+    setTimeout(() => {
+        s1.style.width = '100px'; // Approx distance to next box
+    }, 100);
+    
+    // Step 2: Flow to Command 3
+    setTimeout(() => {
+        s2.style.width = '100px';
+    }, 1100);
+}
+</script>
+{% endblock %}

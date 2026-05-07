@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Permissions Visualizer{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Linux <span style="color: var(--accent)">Permissions</span> Master</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Understand <code>rwx</code>, Octal values, and Ownership with interactive tools.</p>
+    </div>
+
+    <!-- Interactive Calculator -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem;">
+        <h2 style="margin-bottom: 2rem; color: var(--primary);">Interactive <code>chmod</code> Calculator</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center;">
+            <!-- Owner -->
+            <div class="perm-group">
+                <h3>Owner (User)</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="u-r" onchange="updatePerms()"> Read (4)</label>
+                    <label><input type="checkbox" id="u-w" onchange="updatePerms()"> Write (2)</label>
+                    <label><input type="checkbox" id="u-x" onchange="updatePerms()"> Execute (1)</label>
+                </div>
+                <div class="digit" id="u-digit">0</div>
+            </div>
+            <!-- Group -->
+            <div class="perm-group">
+                <h3>Group</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="g-r" onchange="updatePerms()"> Read (4)</label>
+                    <label><input type="checkbox" id="g-w" onchange="updatePerms()"> Write (2)</label>
+                    <label><input type="checkbox" id="g-x" onchange="updatePerms()"> Execute (1)</label>
+                </div>
+                <div class="digit" id="g-digit">0</div>
+            </div>
+            <!-- Others -->
+            <div class="perm-group">
+                <h3>Others</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="o-r" onchange="updatePerms()"> Read (4)</label>
+                    <label><input type="checkbox" id="o-w" onchange="updatePerms()"> Write (2)</label>
+                    <label><input type="checkbox" id="o-x" onchange="updatePerms()"> Execute (1)</label>
+                </div>
+                <div class="digit" id="o-digit">0</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; text-align: center;">
+            <div style="font-size: 1.5rem; color: var(--text-muted); margin-bottom: 1rem;">Command to run:</div>
+            <code id="chmod-cmd" style="font-size: 2.5rem; background: rgba(99, 102, 241, 0.2); padding: 1rem 2rem; border-radius: 12px; color: white;">chmod 000 filename</code>
+            <div id="perm-string" style="font-size: 1.2rem; color: var(--accent); margin-top: 1rem; font-family: monospace;">---------</div>
+        </div>
+    </div>
+
+    <!-- Explanations -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="glass-card">
+            <h3>What do they mean?</h3>
+            <ul style="margin-top: 1rem; color: var(--text-muted); line-height: 1.8;">
+                <li><strong style="color: white;">Read (r):</strong> Ability to see file contents or list directory files.</li>
+                <li><strong style="color: white;">Write (w):</strong> Ability to modify file or add/remove files in directory.</li>
+                <li><strong style="color: white;">Execute (x):</strong> Ability to run file as a program or enter directory.</li>
+            </ul>
+        </div>
+        <div class="glass-card">
+            <h3>Common Permissions</h3>
+            <ul style="margin-top: 1rem; color: var(--text-muted); line-height: 1.8;">
+                <li><code>777</code>: Everyone can do everything (Dangerous!)</li>
+                <li><code>755</code>: Owner can do all, others can read/execute.</li>
+                <li><code>644</code>: Owner can read/write, others read-only.</li>
+                <li><code>400</code>: Only owner can read (Typical for SSH keys).</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.perm-group {
+    background: rgba(255,255,255,0.03);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.checkbox-group label {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.checkbox-group label:hover {
+    color: var(--primary);
+}
+
+.digit {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+</style>
+
+<script>
+function updatePerms() {
+    const roles = ['u', 'g', 'o'];
+    let octal = "";
+    let str = "";
+    
+    roles.forEach(role => {
+        let sum = 0;
+        let r = document.getElementById(role + '-r').checked;
+        let w = document.getElementById(role + '-w').checked;
+        let x = document.getElementById(role + '-x').checked;
+        
+        if (r) sum += 4;
+        if (w) sum += 2;
+        if (x) sum += 1;
+        
+        document.getElementById(role + '-digit').innerText = sum;
+        octal += sum;
+        
+        str += r ? 'r' : '-';
+        str += w ? 'w' : '-';
+        str += x ? 'x' : '-';
+    });
+    
+    document.getElementById('chmod-cmd').innerText = "chmod " + octal + " filename";
+    document.getElementById('perm-string').innerText = str;
+}
+</script>
+{% endblock %}

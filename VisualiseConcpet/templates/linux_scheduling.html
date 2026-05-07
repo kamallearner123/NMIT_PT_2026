@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CPU Scheduling & Context Switching{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">CPU <span style="color: var(--accent)">Scheduling</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">How Linux manages multi-tasking and switches between processes.</p>
+    </div>
+
+    <!-- Section 1: Context Switching Visualizer -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">1. Context Switching</h2>
+        <p style="margin-bottom: 2rem;">When the OS switches from Process A to Process B, it must save the current state (Registers, PC) and load the new one.</p>
+        
+        <div class="context-visual">
+            <div class="pcb-box" id="pcb-a">
+                <div class="sidebar-label">PCB A</div>
+                <div class="reg-data" id="reg-a">Registers: [saved]</div>
+            </div>
+            
+            <div class="cpu-core">
+                <div class="cpu-label">CPU CORE</div>
+                <div class="cpu-state" id="cpu-current">Running: Process A</div>
+            </div>
+
+            <div class="pcb-box" id="pcb-b">
+                <div class="sidebar-label">PCB B</div>
+                <div class="reg-data" id="reg-b">Registers: [idle]</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn" onclick="runContextSwitch()">Perform Context Switch</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Scheduling Algorithms -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">2. Scheduling Algorithms</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div class="info-box" style="border-left-color: #6366f1;">
+                <h4>FCFS</h4>
+                <p>First-Come, First-Served. Simple but can lead to the "Convoy Effect".</p>
+            </div>
+            <div class="info-box" style="border-left-color: #10b981;">
+                <h4>SJF</h4>
+                <p>Shortest Job First. Minimizes average waiting time but needs prediction.</p>
+            </div>
+            <div class="info-box" style="border-left-color: #fbbf24;">
+                <h4>Round Robin</h4>
+                <p>Time-sharing. Each process gets a "Time Quantum" before being swapped.</p>
+            </div>
+            <div class="info-box" style="border-left-color: #ef4444;">
+                <h4>Priority</h4>
+                <p>Highest priority runs first. Can lead to "Starvation" of low priority tasks.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Scheduling Timeline (Gantt Chart) -->
+    <div class="glass-card" style="padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">3. Interactive Timeline (Round Robin)</h2>
+        <div class="gantt-chart" id="gantt">
+            <!-- Timeline blocks will go here -->
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary" onclick="startScheduling()">Simulate Round Robin</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.context-visual {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 3rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+}
+
+.pcb-box {
+    width: 150px;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.reg-data {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    margin-top: 0.5rem;
+}
+
+.cpu-core {
+    width: 200px;
+    height: 120px;
+    background: var(--primary);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+    transition: all 0.5s ease;
+}
+
+.cpu-label {
+    font-weight: bold;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.cpu-state {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.gantt-chart {
+    height: 60px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.gantt-block {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    transition: width 0.3s ease;
+    border-right: 1px solid rgba(0,0,0,0.2);
+}
+
+.p1 { background: #6366f1; }
+.p2 { background: #10b981; }
+.p3 { background: #fbbf24; }
+</style>
+
+<script>
+let currentProc = 'A';
+function runContextSwitch() {
+    const cpu = document.getElementById('cpu-current');
+    const regA = document.getElementById('reg-a');
+    const regB = document.getElementById('reg-b');
+    
+    if (currentProc === 'A') {
+        cpu.innerText = "Switching...";
+        setTimeout(() => {
+            regA.innerText = "Registers: [saved]";
+            regB.innerText = "Registers: [LOADED]";
+            cpu.innerText = "Running: Process B";
+            currentProc = 'B';
+        }, 500);
+    } else {
+        cpu.innerText = "Switching...";
+        setTimeout(() => {
+            regB.innerText = "Registers: [saved]";
+            regA.innerText = "Registers: [LOADED]";
+            cpu.innerText = "Running: Process A";
+            currentProc = 'A';
+        }, 500);
+    }
+}
+
+function startScheduling() {
+    const gantt = document.getElementById('gantt');
+    gantt.innerHTML = '';
+    const procs = [
+        {name: 'P1', class: 'p1'},
+        {name: 'P2', class: 'p2'},
+        {name: 'P3', class: 'p3'}
+    ];
+    
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i >= 12) {
+            clearInterval(interval);
+            return;
+        }
+        const p = procs[i % 3];
+        const block = document.createElement('div');
+        block.className = `gantt-block ${p.class}`;
+        block.style.width = '0%';
+        block.innerText = p.name;
+        gantt.appendChild(block);
+        
+        setTimeout(() => {
+            block.style.width = '8.33%';
+        }, 50);
+        i++;
+    }, 600);
+}
+</script>
+{% endblock %}

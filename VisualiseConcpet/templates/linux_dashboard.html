@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Linux Mastery Hub</h1>
+    <p>Explore the power of the open-source world, from its historical roots to modern system administration.</p>
+    
+    <div style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+        {% for chap in chapters %}
+        <a href="{% if chap.id == 'history' %}{% url 'Linux:linux_history' %}{% elif chap.id == 'architecture' %}{% url 'Linux:linux_architecture' %}{% elif chap.id == 'permissions' %}{% url 'Linux:linux_permissions' %}{% elif chap.id == 'processes' %}{% url 'Linux:linux_processes' %}{% elif chap.id == 'scripting' %}{% url 'Linux:linux_scripting' %}{% elif chap.id == 'memory' %}{% url 'Linux:linux_memory' %}{% elif chap.id == 'scheduling' %}{% url 'Linux:linux_scheduling' %}{% elif chap.id == 'resources' %}{% url 'Linux:linux_resources' %}{% else %}#{% endif %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid var(--accent);">
+                <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.3rem;">{{ chap.title }}</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">{{ chap.description }}</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.nav-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
+}
+</style>
+{% endblock %}

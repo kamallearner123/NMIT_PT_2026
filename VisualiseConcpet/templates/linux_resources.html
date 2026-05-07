@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Linux Resources & References{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Standard <span style="color: var(--primary)">Resources</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">The industry-standard materials for mastering Linux.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+        <!-- Books -->
+        <div class="glass-card">
+            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">📚 Essential Books</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>The Linux Command Line</strong> by William Shotts
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">The absolute best starting point for beginners. Available free online at <a href="linuxcommand.org" target="_blank" style="color: var(--accent);">linuxcommand.org</a>.</p>
+                </li>
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>How Linux Works</strong> by Brian Ward
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">A deep dive into the kernel, networking, and system initialization.</p>
+                </li>
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>Linux Bible</strong> by Christopher Negus
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">A comprehensive guide for system administrators and power users.</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Documentation & Tools -->
+        <div class="glass-card">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;">🛠️ Official Docs & Labs</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>The Linux Foundation (LFS101x)</strong>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Free "Introduction to Linux" course on edX by the official foundation.</p>
+                </li>
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>Arch Wiki</strong>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">The gold standard for Linux documentation. Detailed guides for almost every Linux concept.</p>
+                </li>
+                <li style="margin-bottom: 1.5rem;">
+                    <strong>Explainshell.com</strong>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">An incredible visual tool where you paste a complex command and it explains every flag.</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 3rem; background: rgba(99, 102, 241, 0.1);">
+        <h2>🚀 Career Tip</h2>
+        <p>For software engineering placements, focus on mastering <strong>Shell Scripting</strong> and <strong>Process Management</strong>. Interviewers love asking about how pipes work and how to find performance bottlenecks in a running system.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisualiseDSA - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <!-- MathJax for mathematical notation -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="sidebar">
+        <div class="sidebar-header">VisualiseConcpet</div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'main_dashboard' %}" class="nav-item">Home</a>
+            <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1rem 0;">
+            
+            <!-- MAIN MODULES -->
+            <div class="sidebar-label">Modules</div>
+            <a href="{% url 'DSA:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'DSA' %}active{% endif %}">DSA</a>
+            <a href="{% url 'Linux:linux_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Linux' %}active{% endif %}">Linux</a>
+            <a href="{% url 'RustProgramming:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'RustProgramming' %}active{% endif %}">Rust</a>
+            <a href="{% url 'Cpp:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Cpp' %}active{% endif %}">C & C++</a>
+
+            <!-- DYNAMIC CHAPTERS (Only shows for active module) -->
+            {% if chapters %}
+                <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
+                <div class="sidebar-label">Chapters</div>
+                
+                {% if request.resolver_match.app_name == 'DSA' %}
+                    {% for chap in chapters %}
+                        <a href="{% url 'DSA:chapter_detail' chap.id %}" class="nav-item sub-item {% if chapter.id == chap.id %}active{% endif %}">
+                            {{ chap.title }}
+                        </a>
+                    {% endfor %}
+                {% elif request.resolver_match.app_name == 'Linux' %}
+                    {% for chap in chapters %}
+                        <a href="{% if chap.id == 'history' %}{% url 'Linux:linux_history' %}{% elif chap.id == 'architecture' %}{% url 'Linux:linux_architecture' %}{% elif chap.id == 'permissions' %}{% url 'Linux:linux_permissions' %}{% elif chap.id == 'processes' %}{% url 'Linux:linux_processes' %}{% elif chap.id == 'scripting' %}{% url 'Linux:linux_scripting' %}{% elif chap.id == 'memory' %}{% url 'Linux:linux_memory' %}{% elif chap.id == 'scheduling' %}{% url 'Linux:linux_scheduling' %}{% elif chap.id == 'resources' %}{% url 'Linux:linux_resources' %}{% else %}#{% endif %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'linux_'|add:chap.id %}active{% endif %}">
+                            {{ chap.title }}
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </nav>
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

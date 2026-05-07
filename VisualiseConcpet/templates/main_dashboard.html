@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Main Dashboard{% endblock %}
+
+{% block body_class %}no-sidebar{% endblock %}
+
+{% block content %}
+<div class="main-dashboard-container">
+    <div class="welcome-banner">
+        <h1>Welcome to <span style="color: var(--primary)">VisualiseConcpet</span></h1>
+        <p>Your portal to mastering Data Structures, Algorithms, and System Administration through interactive visualization.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <a href="{% url 'DSA:dashboard' %}" class="glass-card topic-card topic-dsa">
+            <div class="topic-icon">📊</div>
+            <h2>DSA</h2>
+            <p>Master complexity, data structures, and algorithms with real-time visual step-throughs.</p>
+        </a>
+        
+        <a href="{% url 'Linux:linux_dashboard' %}" class="glass-card topic-card topic-linux">
+            <div class="topic-icon">🐧</div>
+            <h2>Linux</h2>
+            <p>Deep dive into the Linux kernel, shell scripting, and process management.</p>
+        </a>
+
+        <a href="{% url 'RustProgramming:dashboard' %}" class="glass-card topic-card topic-rust">
+            <div class="topic-icon">🦀</div>
+            <h2>Rust</h2>
+            <p>Master safety and performance with the language of the future.</p>
+        </a>
+
+        <a href="{% url 'Cpp:dashboard' %}" class="glass-card topic-card topic-cpp">
+            <div class="topic-icon">🚀</div>
+            <h2>C & C++</h2>
+            <p>Understand the foundations of high-performance software engineering.</p>
+        </a>
+    </div>
+
+    <div class="quote-section">
+        <div class="quote-card">
+            "{{ quotes|random }}"
+        </div>
+    </div>
+
+    <div style="margin-top: 5rem;">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem;">Today's Challenges</h2>
+        <div class="challenge-grid">
+            {% for challenge in challenges %}
+            <div class="challenge-card">
+                <span class="challenge-badge badge-{{ challenge.difficulty|lower }}">{{ challenge.difficulty }}</span>
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">{{ challenge.topic }}</h3>
+                <p style="color: var(--text-main); font-size: 1.1rem;">{{ challenge.question }}</p>
+                <button class="btn btn-secondary" style="margin-top: 1.5rem; width: 100%;">Attempt Challenge</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div style="margin-top: 6rem; text-align: center; opacity: 0.6;">
+        <p>Ready to level up your engineering skills?</p>
+        <p>Pick a path above to begin your journey.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Memory Management{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Memory <span style="color: var(--primary)">Management</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">From C code <code>malloc()</code> to Kernel Page Tables.</p>
+    </div>
+
+    <!-- Section 0: Process Memory Layout (Segments) -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">0. Process Memory Layout (Segments)</h2>
+        <p style="margin-bottom: 2rem;">When a program runs, it is organized into several segments. Here is how a C program maps to RAM:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+            <!-- Memory Map Diagram -->
+            <div class="mem-layout-container">
+                <div class="mem-segment stack-seg">Stack (Local Vars, gows ⬇)</div>
+                <div class="mem-growth-gap">Shared Libraries / Empty Space</div>
+                <div class="mem-segment heap-seg">Heap (malloc, grows ⬆)</div>
+                <div class="mem-segment bss-seg">BSS (Uninitialized Globals)</div>
+                <div class="mem-segment data-seg">Data (Initialized Globals)</div>
+                <div class="mem-segment text-seg">Text (Binary Code)</div>
+            </div>
+
+            <!-- Annotated Code -->
+            <div class="code-block" style="font-size: 0.85rem;">
+                <pre class="language-c"><code>#include &lt;stdlib.h&gt;
+
+int global_init = 10;        // [Data Segment]
+int global_uninit;           // [BSS Segment]
+
+int main() {
+    int local_var = 5;       // [Stack Segment]
+    static int s_var = 2;    // [Data Segment]
+    
+    // [Heap Segment]
+    int *ptr = malloc(100); 
+    
+    // [Text Segment]
+    printf("Hello World");   
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: The Basics -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 1.5rem;">1. Core Concepts</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            <div class="info-box" style="border-left-color: var(--primary);">
+                <h4>Virtual Memory</h4>
+                <p>Each process thinks it has its own private, contiguous memory space. This is an illusion provided by the OS.</p>
+            </div>
+            <div class="info-box" style="border-left-color: var(--accent);">
+                <h4>Paging</h4>
+                <p>Physical RAM is divided into small chunks called <strong>Pages</strong> (usually 4KB). The OS maps Virtual pages to Physical pages.</p>
+            </div>
+            <div class="info-box" style="border-left-color: #fbbf24;">
+                <h4>Swapping</h4>
+                <p>When RAM is full, the OS moves inactive pages to the disk (Swap Partition/File) to free up physical space.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: The Journey of a Malloc -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">2. The Journey: From App to Hardware</h2>
+        <p style="margin-bottom: 2rem;">What happens when you run <code>malloc(1024)</code> in C?</p>
+        
+        <div class="flow-container">
+            <div class="flow-step user-step" id="step-1">
+                <span class="step-num">1</span>
+                <strong>User Program</strong>
+                <p>Calls <code>malloc(100)</code> in C.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step user-step" id="step-2">
+                <span class="step-num">2</span>
+                <strong>Standard C Library (glibc)</strong>
+                <p>Checks internal free list. If empty, asks OS for more memory.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step kernel-step" id="step-3">
+                <span class="step-num">3</span>
+                <strong>System Call (brk / mmap)</strong>
+                <p>A "soft interrupt" switches CPU to <strong>Kernel Mode</strong>.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step kernel-step" id="step-4">
+                <span class="step-num">4</span>
+                <strong>Linux Kernel Memory Manager</strong>
+                <p>Updates Process Address Space and Page Tables.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn" onclick="animateMalloc()">Simulate Allocation</button>
+        </div>
+    </div>
+
+    <!-- Section 3: C Code Example -->
+    <div class="glass-card" style="padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 1.5rem;">3. C Example: Allocate & Free</h2>
+        <div class="code-block">
+            <pre class="language-c"><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    // 1. Requesting memory for 5 integers
+    int *ptr = (int*)malloc(5 * sizeof(int));
+
+    if (ptr == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+
+    // 2. Using the memory
+    for (int i = 0; i < 5; i++) {
+        ptr[i] = i * 10;
+        printf("Value at index %d: %d\n", i, ptr[i]);
+    }
+
+    // 3. FREEING the memory (Very important!)
+    // This tells the OS/glibc that we are done.
+    free(ptr);
+
+    return 0;
+}</code></pre>
+        </div>
+        <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="info-box">
+                <h4>What <code>malloc</code> does:</h4>
+                <p>It reserves a block of bytes on the <strong>Heap</strong>. It returns a pointer to the first byte.</p>
+            </div>
+            <div class="info-box">
+                <h4>What <code>free</code> does:</h4>
+                <p>It marks the block as "available" for future <code>malloc</code> calls. If you don't call it, you get a <strong>Memory Leak</strong>.</p>
+            </div>
+        </div>
+    <!-- Section 4: The Free List Data Structure -->
+    <div class="glass-card" style="margin-top: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">4. The Free List (Data Structure)</h2>
+        <p style="margin-bottom: 2rem;">Internally, <code>malloc</code> keeps track of free memory blocks using a <strong>Linked List</strong>. Each node represents a "hole" in the heap.</p>
+        
+        <div class="free-list-visual" id="freeList">
+            <!-- Nodes will be injected here -->
+            <div class="free-node">
+                <div class="node-meta">Size: 512B</div>
+                <div class="node-link">Next →</div>
+            </div>
+            <div class="free-node">
+                <div class="node-meta">Size: 1024B</div>
+                <div class="node-link">Next →</div>
+            </div>
+            <div class="free-node">
+                <div class="node-meta">Size: 256B</div>
+                <div class="node-link">NULL</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="info-box" style="border-left-color: var(--accent);">
+                <h4>Fragmentation</h4>
+                <p>Over time, as blocks are allocated and freed, the "holes" get smaller and scattered. This is called External Fragmentation.</p>
+            </div>
+            <div class="info-box" style="border-left-color: var(--primary);">
+                <h4>Coalescing</h4>
+                <p>When two adjacent blocks are freed, the kernel merges them back into one large block to keep the list efficient.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.free-list-visual {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 16px;
+    overflow-x: auto;
+}
+
+.free-node {
+    background: rgba(16, 185, 129, 0.1);
+    border: 2px solid var(--accent);
+    padding: 1rem;
+    border-radius: 12px;
+    width: 120px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+}
+
+.node-meta {
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.node-link {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--glass-border);
+    padding-top: 0.5rem;
+}
+
+.free-node::after {
+    content: '➔';
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--glass-border);
+}
+
+.free-node:last-child::after {
+    display: none;
+}
+
+.mem-layout-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 2px solid var(--glass-border);
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+}
+
+.mem-segment {
+    padding: 1.2rem;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 6px;
+    color: white;
+}
+
+.stack-seg { background: #6366f1; }
+.mem-growth-gap { 
+    height: 60px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.8rem;
+}
+.heap-seg  { background: #10b981; }
+.bss-seg   { background: #fbbf24; color: black; }
+.data-seg  { background: #f97316; }
+.text-seg  { background: #3b82f6; }
+
+.flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2rem 0;
+}
+
+.flow-step {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+    position: relative;
+    transition: all 0.3s;
+}
+
+.step-num {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.user-step { border-top: 4px solid #6366f1; }
+.kernel-step { border-top: 4px solid #fbbf24; }
+
+.flow-arrow {
+    font-size: 2rem;
+    color: var(--glass-border);
+}
+
+.active-step {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.info-box {
+    padding: 1.2rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+</style>
+
+<script>
+function animateMalloc() {
+    const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+    let delay = 0;
+    
+    steps.forEach((id, index) => {
+        const el = document.getElementById(id);
+        el.classList.remove('active-step');
+        
+        setTimeout(() => {
+            el.classList.add('active-step');
+        }, delay);
+        
+        delay += 1000;
+        
+        if (index === steps.length - 1) {
+            setTimeout(() => {
+                steps.forEach(s => document.getElementById(s).classList.remove('active-step'));
+            }, delay + 1000);
+        }
+    });
+}
+</script>
+{% endblock %}

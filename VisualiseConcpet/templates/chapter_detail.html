@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ chapter.title }}{% endblock %}
+
+{% block content %}
+<div class="variable-panel glass-card" id="variablePanel" style="display: none;">
+    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Variables</h3>
+    <div id="variableList">
+        <!-- Variables will be injected here -->
+    </div>
+</div>
+
+<div class="glass-card">
+    <h1>{{ chapter.title }}</h1>
+    
+    {% if is_arrays_strings %}
+        <!-- Chapter 02: Arrays and Strings Content (Existing) -->
+        <p>In this chapter, we explore how arrays and strings work, including common operations like searching and sorting.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <optgroup label="Sorting">
+                        <option value="bubbleSort">Bubble Sort</option>
+                        <option value="selectionSort">Selection Sort</option>
+                        <option value="insertionSort">Insertion Sort</option>
+                        <option value="mergeSort">Merge Sort</option>
+                        <option value="quickSort">Quick Sort</option>
+                    </optgroup>
+                    <optgroup label="Searching">
+                        <option value="linearSearch">Linear Search</option>
+                        <option value="binarySearch">Binary Search</option>
+                    </optgroup>
+                    <optgroup label="Strings">
+                        <option value="reverseString">Reverse String</option>
+                        <option value="palindromeCheck">Palindrome Check</option>
+                    </optgroup>
+                </select>
+                <button class="btn" onclick="generateArray()">New Input</button>
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="arrayContainer" class="array-container">
+                <!-- Bars or Characters will be generated here -->
+            </div>
+
+            <div id="diagramContainer" class="glass-card" style="display: none; margin-top: 2rem; text-align: center;">
+                <h3>Divide & Conquer Strategy</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Visualizing the recursive splitting and merging process.</p>
+                <img id="algoDiagram" src="/static/img/merge_sort_diagram.png" alt="Merge Sort Diagram" style="max-width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);">
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Algorithm Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "01_Complexity_Analysis" %}
+        <p>Big O notation is used to describe the efficiency of an algorithm in terms of time and space as the input size grows.</p>
+        
+        <div class="visualizer-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="glass-card">
+                    <h3>Big O Growth Chart</h3>
+                    <canvas id="complexityChart" style="margin-top: 1rem;"></canvas>
+                    <div class="controls" style="margin-top: 1rem;">
+                        <label>Input Size (n): </label>
+                        <input type="range" id="nSlider" min="1" max="100" value="20" style="width: 100%;">
+                    </div>
+                </div>
+                
+                <div class="glass-card">
+                    <h3>Complexity Race</h3>
+                    <div id="raceContainer" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Race tracks injected here -->
+                    </div>
+                    <button class="btn" style="margin-top: 1rem; width: 100%;" onclick="startRace()">Start Race</button>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3>Data Structure Complexities</h3>
+                <table class="complexity-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Data Structure</th>
+                            <th>Access</th>
+                            <th>Search</th>
+                            <th>Insertion</th>
+                            <th>Deletion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Array</td>
+                            <td class="O1">O(1)</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                        </tr>
+                        <tr>
+                            <td>Linked List</td>
+                            <td class="On">O(n)</td>
+                            <td class="On">O(n)</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                        </tr>
+                        <tr>
+                            <td>Binary Search Tree</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                            <td class="Ologn">O(log n)</td>
+                        </tr>
+                        <tr>
+                            <td>Hash Table</td>
+                            <td>N/A</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                            <td class="O1">O(1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% elif chapter.id == "03_Linked_Lists" %}
+        <p>A Linked List is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="append">Append Node</option>
+                    <option value="insert">Insert at Index</option>
+                    <option value="find">Find Value</option>
+                    <option value="delete">Delete Node</option>
+                    <option value="reverse">Reverse List</option>
+                    <option value="detect_loop">Detect Loop (Floyd's Cycle)</option>
+                </select>
+                <input type="number" id="nodeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateRandomList()">Random List</button>
+                <button class="btn btn-secondary" id="withLoopBtn" onclick="generateListWithLoop()" style="display: none;">List with Loop</button>
+                <button class="btn btn-secondary" id="withoutLoopBtn" onclick="generateListWithoutLoop()" style="display: none;">List without Loop</button>
+            </div>
+
+            <div id="listContainer" class="list-container">
+                <!-- Linked list nodes will be generated here -->
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Linked List Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "04_Stacks_and_Queues" %}
+        <p>Stacks (LIFO) and Queues (FIFO) are fundamental linear data structures used to store and retrieve data in a specific order.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="stack">Stack (Push/Pop)</option>
+                    <option value="queue">Queue (Enqueue/Dequeue)</option>
+                </select>
+                <input type="number" id="elementValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" onclick="performOperation('push')">Push/Enqueue</button>
+                <button class="btn btn-secondary" onclick="performOperation('pop')">Pop/Dequeue</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <div id="structureContainer" class="list-container" style="justify-content: center; height: 400px; flex-direction: column-reverse;">
+                <!-- Stack/Queue elements will be generated here -->
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "05_Trees_and_Heaps" %}
+        <p>Trees are hierarchical data structures. A Binary Search Tree (BST) maintains sorted order, while Heaps are specialized trees for priority management.</p>
+        
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <option value="bst_insert">BST Insert</option>
+                    <option value="bst_search">BST Search</option>
+                    <option value="bst_delete">BST Delete</option>
+                    <option value="bst_inorder">BST In-order Traversal</option>
+                    <option value="bst_preorder">BST Pre-order Traversal</option>
+                    <option value="bst_postorder">BST Post-order Traversal</option>
+                    <option value="heap_insert">Max Heap Insert</option>
+                </select>
+                <input type="number" id="treeValue" placeholder="Value" class="btn btn-secondary" style="width: 100px;">
+                <button class="btn" id="startBtn" onclick="startVisualization()">Start</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateLargeBST()">Generate Large BST</button>
+            </div>
+
+            <div id="treeContainer" class="list-container" style="justify-content: center; height: 500px; position: relative; overflow: visible;">
+                <!-- SVG lines and Nodes will be generated here -->
+                <svg id="treeSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+
+            <div id="traversalDisplay" class="glass-card" style="display: none; margin-top: 1rem; padding: 1rem;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Traversal Path:</h4>
+                <div id="traversalPath" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3 id="algoTitle">Implementation</h3>
+                <p id="algoDesc" style="margin-bottom: 1rem; font-size: 0.9rem;"></p>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% elif chapter.id == "06_Graphs" %}
+        <div class="theory-section glass-card" style="margin-bottom: 2rem;">
+            <h3>Graph Theory Essentials</h3>
+            <p>Graphs are versatile data structures used to represent relationships between objects. A graph $G = (V, E)$ consists of a set of <strong>Vertices</strong> (nodes) and <strong>Edges</strong> (connections).</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <h4 style="color: var(--primary);">Types of Graphs</h4>
+                    <ul style="font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong>Directed:</strong> Edges have a specific direction (A $\rightarrow$ B).</li>
+                        <li><strong>Undirected:</strong> Edges are bidirectional (A $\leftrightarrow$ B).</li>
+                        <li><strong>Weighted:</strong> Edges have associated values (costs, distances).</li>
+                        <li><strong>Cyclic/Acyclic:</strong> Whether the graph contains paths that return to the starting node.</li>
+                    </ul>
+                </div>
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <h4 style="color: var(--primary);">Representations</h4>
+                    <ul style="font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong>Adjacency Matrix:</strong> A 2D array where <code>adj[i][j]</code> is 1 (or weight) if an edge exists. Space: $O(V^2)$.</li>
+                        <li><strong>Adjacency List:</strong> An array of lists where <code>adj[i]</code> contains neighbors of $i$. Space: $O(V + E)$.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 1.5rem; background: rgba(var(--primary-rgb), 0.05); border: 1px solid var(--primary);">
+                <h4 style="color: var(--primary);">🔥 Common Interview Patterns</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem; margin-top: 0.5rem;">
+                    <div>
+                        <strong>1. Connectivity:</strong> Can we reach B from A? (Use BFS/DFS)
+                        <br><strong>2. Shortest Path:</strong> Dijkstra (weights $\ge 0$), Bellman-Ford (negative weights).
+                        <br><strong>3. Cycle Detection:</strong> DFS (back edges) or Kahn's Algorithm (topological sort).
+                    </div>
+                    <div>
+                        <strong>4. MST:</strong> Prim's or Kruskal's for minimum cost connections.
+                        <br><strong>5. Topological Sort:</strong> Ordering tasks with dependencies (Kahn's/DFS).
+                        <br><strong>6. Island Problems:</strong> Finding connected components in a grid (DFS).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <optgroup label="Searching & Traversal">
+                        <option value="bfs">BFS (Breadth First Search)</option>
+                        <option value="dfs">DFS (Depth First Search)</option>
+                    </optgroup>
+                    <optgroup label="Shortest Path">
+                        <option value="dijkstra">Dijkstra's Algorithm</option>
+                        <option value="bellmanFord">Bellman-Ford Algorithm</option>
+                    </optgroup>
+                    <optgroup label="Minimum Spanning Tree (MST)">
+                        <option value="prim">Prim's Algorithm</option>
+                        <option value="kruskal">Kruskal's Algorithm</option>
+                    </optgroup>
+                </select>
+                <button class="btn" id="startBtn" onclick="startVisualization()">Initialize</button>
+                <button class="btn btn-secondary" id="playBtn" onclick="toggleAutoPlay()" disabled>Play</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next Step</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                <button class="btn btn-secondary" onclick="generateRandomGraph()">New Graph</button>
+            </div>
+
+            <div id="graphContainer" class="list-container" style="justify-content: center; height: 500px; position: relative; overflow: visible; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.02);">
+                <svg id="graphSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+            </div>
+
+            <div id="algoInfoPanel" class="glass-card" style="margin-top: 1rem; border-left: 4px solid var(--primary);">
+                <h3 id="algoTitle">Algorithm</h3>
+                <p id="algoDesc" style="margin-top: 0.5rem;"></p>
+            </div>
+
+            <div id="traversalDisplay" class="glass-card" style="display: none; margin-top: 1rem; padding: 1rem;">
+                <h4 id="traversalTitle" style="color: var(--primary); margin-bottom: 0.5rem;">Sequence:</h4>
+                <div id="traversalPath" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3>Implementation (Python)</h3>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Content for {{ chapter.title }} is coming soon!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if is_arrays_strings %}
+<script src="{% static 'js/visualizer.js' %}"></script>
+{% elif chapter.id == "01_Complexity_Analysis" %}
+<script src="{% static 'js/complexity_visualizer.js' %}"></script>
+{% elif chapter.id == "03_Linked_Lists" %}
+<script src="{% static 'js/linked_list_visualizer.js' %}"></script>
+{% elif chapter.id == "04_Stacks_and_Queues" %}
+<script src="{% static 'js/stack_queue_visualizer.js' %}"></script>
+{% elif chapter.id == "05_Trees_and_Heaps" %}
+<script src="{% static 'js/tree_heap_visualizer.js' %}"></script>
+{% elif chapter.id == "06_Graphs" %}
+<script src="{% static 'js/graph_visualizer.js' %}"></script>
+{% endif %}
+{% endblock %}

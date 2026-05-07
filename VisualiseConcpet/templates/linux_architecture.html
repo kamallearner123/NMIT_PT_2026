@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Architecture & File System{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Linux <span style="color: var(--accent)">Architecture</span> & Core Concepts</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Understanding the layers that power the world's most versatile operating system.</p>
+    </div>
+
+    <!-- Section 1: Layered Architecture -->
+    <div class="glass-card" style="margin-bottom: 4rem; padding: 3rem;">
+        <h2 style="margin-bottom: 2rem; color: var(--primary);">1. The Layered Design</h2>
+        <div class="architecture-visual">
+            <div class="arch-layer user-space" title="Where your browser, terminal, and apps run.">
+                <span>User Space (Applications)</span>
+                <p style="font-size: 0.8rem; opacity: 0.8;">Browser, Shell, Editors, Games</p>
+            </div>
+            <div class="arch-layer system-call" title="The interface between user apps and the kernel.">
+                <span>System Call Interface (SCI)</span>
+            </div>
+            <div class="arch-layer kernel-space" title="The heart of the OS. Manages memory, processes, and drivers.">
+                <span>Kernel Space</span>
+                <p style="font-size: 0.8rem; opacity: 0.8;">Process Mgmt, Memory Mgmt, VFS, Network Stack</p>
+            </div>
+            <div class="arch-layer hardware" title="The physical machine.">
+                <span>Hardware</span>
+                <p style="font-size: 0.8rem; opacity: 0.8;">CPU, RAM, Disk, NIC, GPU</p>
+            </div>
+        </div>
+        <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div class="info-box">
+                <h4>Kernel Space</h4>
+                <p>Runs in privileged mode. It has direct access to hardware and manages system resources for everyone.</p>
+            </div>
+            <div class="info-box">
+                <h4>User Space</h4>
+                <p>Runs in restricted mode. Applications here must ask the kernel for permission to use hardware via System Calls.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: File System Hierarchy -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="margin-bottom: 2rem; color: var(--accent);">2. File System Hierarchy (FHS)</h2>
+        <p style="margin-bottom: 2rem;">In Linux, <strong>"Everything is a file"</strong>. All directories start from the root <code>/</code>.</p>
+        
+        <div class="fhs-tree">
+            <div class="fhs-node root">
+                <code>/</code> (Root)
+                <div class="fhs-children">
+                    <div class="fhs-node" onclick="showFhsInfo('bin', 'Essential user command binaries (e.g., ls, cp, cd).')">/bin</div>
+                    <div class="fhs-node" onclick="showFhsInfo('etc', 'System-wide configuration files (e.g., /etc/passwd).')">/etc</div>
+                    <div class="fhs-node" onclick="showFhsInfo('home', 'Personal directories for users.')">/home</div>
+                    <div class="fhs-node" onclick="showFhsInfo('root', 'The home directory for the root user.')">/root</div>
+                    <div class="fhs-node" onclick="showFhsInfo('var', 'Variable data files (logs, databases, mail).')">/var</div>
+                    <div class="fhs-node" onclick="showFhsInfo('proc', 'Virtual file system providing process and kernel information.')">/proc</div>
+                    <div class="fhs-node" onclick="showFhsInfo('dev', 'Device files (hardware representations).')">/dev</div>
+                    <div class="fhs-node" onclick="showFhsInfo('tmp', 'Temporary files (cleared on reboot).')">/tmp</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="fhsInfoBox" class="glass-card" style="margin-top: 2rem; border-color: var(--accent); display: none;">
+            <h3 id="fhsTitle" style="color: var(--accent);"></h3>
+            <p id="fhsDesc"></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.architecture-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.arch-layer {
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.3s;
+    cursor: help;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-space { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+.system-call { background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.9rem; }
+.kernel-space { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 2px solid #fbbf24; }
+.hardware { background: rgba(100, 116, 139, 0.3); color: #94a3b8; }
+
+.arch-layer:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+.info-box {
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    border-left: 4px solid var(--primary);
+}
+
+.fhs-tree {
+    padding: 2rem;
+    font-family: 'Fira Code', monospace;
+}
+
+.fhs-node {
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+.fhs-node:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.fhs-children {
+    margin-left: 2rem;
+    padding-left: 1rem;
+    border-left: 2px dashed var(--glass-border);
+    margin-top: 1rem;
+}
+
+.root {
+    background: var(--primary);
+    color: white;
+}
+</style>
+
+<script>
+function showFhsInfo(title, desc) {
+    const box = document.getElementById('fhsInfoBox');
+    const titleEl = document.getElementById('fhsTitle');
+    const descEl = document.getElementById('fhsDesc');
+    
+    titleEl.innerText = '/' + title;
+    descEl.innerText = desc;
+    box.style.display = 'block';
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+{% endblock %}

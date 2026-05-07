@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux History{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3.5rem;">The Evolution of <span style="color: var(--accent)">Linux</span></h1>
+        <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto;">From a small student project to the most powerful operating system on the planet.</p>
+    </div>
+
+    <div class="timeline-container">
+        {% for stone in milestones %}
+        <div class="timeline-item">
+            <div class="timeline-year">{{ stone.year }}</div>
+            <div class="timeline-content glass-card">
+                <div class="timeline-icon">{{ stone.icon }}</div>
+                <h3>{{ stone.title }}</h3>
+                <h4 style="color: var(--primary); margin-bottom: 1rem;">By {{ stone.author }}</h4>
+                <p>{{ stone.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="margin-top: 5rem; text-align: center;" class="glass-card">
+        <h2 style="margin-bottom: 2rem;">Why Linux Matters Today?</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+            <div class="stat-box">
+                <div style="font-size: 2.5rem; color: var(--accent);">100%</div>
+                <p>Of the world's Top 500 Supercomputers</p>
+            </div>
+            <div class="stat-box">
+                <div style="font-size: 2.5rem; color: var(--accent);">90%</div>
+                <p>Of all cloud infrastructure (AWS, Azure, GCP)</p>
+            </div>
+            <div class="stat-box">
+                <div style="font-size: 2.5rem; color: var(--accent);">3.5B</div>
+                <p>Android devices powered by Linux</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-container {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.timeline-container::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--primary), var(--accent));
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2px;
+    border-radius: 2px;
+}
+
+.timeline-item {
+    padding: 2rem 0;
+    position: relative;
+    width: 50%;
+    transition: all 0.5s ease;
+}
+
+.timeline-item:nth-child(odd) { left: 0; padding-right: 3rem; text-align: right; }
+.timeline-item:nth-child(even) { left: 50%; padding-left: 3rem; }
+
+.timeline-year {
+    position: absolute;
+    top: 2rem;
+    width: 80px;
+    height: 80px;
+    background: var(--bg-main);
+    border: 3px solid var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--primary);
+    z-index: 10;
+}
+
+.timeline-item:nth-child(odd) .timeline-year { right: -40px; }
+.timeline-item:nth-child(even) .timeline-year { left: -40px; }
+
+.timeline-content {
+    position: relative;
+    padding: 2rem;
+    transition: all 0.3s;
+}
+
+.timeline-content:hover {
+    transform: scale(1.05);
+    border-color: var(--accent);
+    box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+}
+
+.timeline-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.stat-box {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .timeline-container::after { left: 31px; }
+    .timeline-item { width: 100%; padding-left: 70px; text-align: left !important; }
+    .timeline-item:nth-child(even) { left: 0; }
+    .timeline-year { left: -9px !important; width: 60px; height: 60px; font-size: 0.9rem; }
+    .timeline-item:nth-child(odd) .timeline-year { right: auto; }
+}
+</style>
+{% endblock %}
