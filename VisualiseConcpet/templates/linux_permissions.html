@@ -53,24 +53,107 @@
         </div>
     </div>
 
-    <!-- Explanations -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-        <div class="glass-card">
-            <h3>What do they mean?</h3>
-            <ul style="margin-top: 1rem; color: var(--text-muted); line-height: 1.8;">
-                <li><strong style="color: white;">Read (r):</strong> Ability to see file contents or list directory files.</li>
-                <li><strong style="color: white;">Write (w):</strong> Ability to modify file or add/remove files in directory.</li>
-                <li><strong style="color: white;">Execute (x):</strong> Ability to run file as a program or enter directory.</li>
-            </ul>
+    </div>
+
+    <!-- Section: Users & Groups Management -->
+    <div class="glass-card" style="margin-top: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">User & Group Management</h2>
+        <p style="margin-bottom: 2rem;">Visualise how Linux manages users and groups. Commands like <code>useradd</code> and <code>groupadd</code> update system files.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+            <!-- Actions -->
+            <div class="glass-card" style="background: var(--bg-soft);">
+                <h3>Commands (Lab)</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="username-input" placeholder="Enter Username" class="btn btn-secondary" style="background: white; color: black; flex: 1;">
+                        <button class="btn" onclick="addUser()">useradd</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="groupname-input" placeholder="Enter Group Name" class="btn btn-secondary" style="background: white; color: black; flex: 1;">
+                        <button class="btn" onclick="addGroup()" style="background: var(--accent);">groupadd</button>
+                    </div>
+                    <div style="border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                        <small>Assign User to Group:</small>
+                        <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
+                            <select id="user-select" class="btn btn-secondary" style="background: white; color: black; flex: 1;"></select>
+                            <select id="group-select" class="btn btn-secondary" style="background: white; color: black; flex: 1;"></select>
+                            <button class="btn" onclick="assignUser()" style="background: #6366f1;">usermod -aG</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Files -->
+            <div class="glass-card" style="background: #0d1117; font-family: monospace; font-size: 0.8rem;">
+                <h3 style="color: #aaa;">System Config & Files</h3>
+                <div style="margin-top: 1rem;">
+                    <div style="color: #6366f1;">/etc/passwd (Users)</div>
+                    <div id="passwd-content" style="color: #ddd; padding: 5px; min-height: 30px;">root:x:0:0:root:/root:/bin/bash</div>
+                    
+                    <div style="color: #10b981; margin-top: 1rem;">/etc/group (Groups)</div>
+                    <div id="group-content" style="color: #ddd; padding: 5px; min-height: 30px;">root:x:0:</div>
+
+                    <div style="color: #fbbf24; margin-top: 1rem;">ls -l (File Listing)</div>
+                    <div id="ls-content" style="color: #ddd; padding: 5px; min-height: 50px;">-rwxr-xr-x 1 root root 4096 May 7 script.sh</div>
+                </div>
+            </div>
         </div>
-        <div class="glass-card">
-            <h3>Common Permissions</h3>
-            <ul style="margin-top: 1rem; color: var(--text-muted); line-height: 1.8;">
-                <li><code>777</code>: Everyone can do everything (Dangerous!)</li>
-                <li><code>755</code>: Owner can do all, others can read/execute.</li>
-                <li><code>644</code>: Owner can read/write, others read-only.</li>
-                <li><code>400</code>: Only owner can read (Typical for SSH keys).</li>
-            </ul>
+
+        <!-- File Lab -->
+        <div class="glass-card" style="background: var(--bg-soft); margin-bottom: 3rem;">
+            <h3>File Permission Lab (touch & chown)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+                <div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <input type="text" id="filename-input" placeholder="filename.txt" class="btn btn-secondary" style="background: white; color: black; flex: 1;">
+                        <button class="btn" onclick="createFile()" style="background: #fbbf24; color: black;">touch</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <select id="owner-select" class="btn btn-secondary" style="background: white; color: black;"></select>
+                        <select id="file-group-select" class="btn btn-secondary" style="background: white; color: black;"></select>
+                    </div>
+                    <button class="btn" onclick="changeOwnership()" style="width: 100%; margin-top: 10px; background: #6366f1;">chown user:group</button>
+                    
+                    <div style="margin-top: 1.5rem; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 12px;">
+                        <small>Set Permissions (chmod):</small>
+                        <input type="number" id="chmod-input" placeholder="755" class="btn btn-secondary" style="background: white; color: black; width: 100px; margin-left: 10px;">
+                        <button class="btn" onclick="applyChmod()" style="background: var(--accent);">chmod</button>
+                    </div>
+                </div>
+                
+                <div id="file-viz-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--glass-border); border-radius: 16px;">
+                    <div id="file-card" style="display: none; padding: 1.5rem; background: white; color: black; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-align: center;">
+                        <div style="font-size: 2rem;">📄</div>
+                        <div id="viz-filename" style="font-weight: 800; margin-bottom: 0.5rem;">file.txt</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7;">Owner: <span id="viz-owner">root</span></div>
+                        <div style="font-size: 0.8rem; opacity: 0.7;">Group: <span id="viz-group">root</span></div>
+                        
+                        <div style="margin-top: 1rem; display: flex; gap: 5px; justify-content: center;">
+                            <div class="perm-bit" id="bit-r">R</div>
+                            <div class="perm-bit" id="bit-w">W</div>
+                            <div class="perm-bit" id="bit-x">X</div>
+                        </div>
+                    </div>
+                    <div id="no-file-msg" style="color: var(--text-muted);">No file created yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphical Representation -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="visual-pool" id="users-pool">
+                <div class="pool-header">👤 ACTIVE USERS</div>
+                <div class="pool-content" id="users-list">
+                    <div class="user-icon">root</div>
+                </div>
+            </div>
+            <div class="visual-pool" id="groups-pool">
+                <div class="pool-header">👥 ACTIVE GROUPS</div>
+                <div class="pool-content" id="groups-list">
+                    <div class="group-box">root <small>(root)</small></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -105,6 +188,82 @@
     font-weight: 800;
     color: var(--primary);
 }
+
+/* User & Group Visuals */
+.visual-pool {
+    background: var(--bg-soft);
+    border-radius: 16px;
+    border: 2px dashed var(--glass-border);
+    min-height: 200px;
+    padding: 1.5rem;
+}
+
+.pool-header {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.pool-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+.user-icon {
+    width: 60px;
+    height: 60px;
+    background: white;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.group-box {
+    padding: 10px 20px;
+    background: var(--accent); /* Fallback */
+    color: white;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.group-box small { font-size: 0.6rem; opacity: 0.8; }
+
+.perm-bit {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    background: #444;
+}
+
+.perm-bit.active { background: #10b981; }
+.perm-bit.denied { background: #ef4444; }
+
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
 </style>
 
 <script>
@@ -134,5 +293,201 @@ function updatePerms() {
     document.getElementById('chmod-cmd').innerText = "chmod " + octal + " filename";
     document.getElementById('perm-string').innerText = str;
 }
+
+// User & Group Management Logic
+let users = [{ name: 'root', groups: ['root'] }];
+let groups = [{ name: 'root', members: ['root'] }];
+let nextUid = 1001;
+let nextGid = 1001;
+
+const groupColors = [
+    '#6366f1', // Indigo
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#8b5cf6', // Violet
+    '#ec4899', // Pink
+    '#06b6d4', // Cyan
+    '#f97316'  // Orange
+];
+
+function updatePools() {
+    const userList = document.getElementById('users-list');
+    const groupList = document.getElementById('groups-list');
+    const userSelect = document.getElementById('user-select');
+    const groupSelect = document.getElementById('group-select');
+    const ownerSelect = document.getElementById('owner-select');
+    const fileGroupSelect = document.getElementById('file-group-select');
+    
+    const passwd = document.getElementById('passwd-content');
+    const groupFile = document.getElementById('group-content');
+
+    userList.innerHTML = '';
+    groupList.innerHTML = '';
+    userSelect.innerHTML = '';
+    groupSelect.innerHTML = '';
+    ownerSelect.innerHTML = '<option value="root">root</option>';
+    fileGroupSelect.innerHTML = '<option value="root">root</option>';
+    
+    passwd.innerHTML = 'root:x:0:0:root:/root:/bin/bash<br>';
+    groupFile.innerHTML = 'root:x:0:<br>';
+
+    users.forEach(u => {
+        if(u.name === 'root') return;
+        userList.innerHTML += `
+            <div class="user-icon" style="position:relative;">
+                ${u.name}
+                <button onclick="delUser('${u.name}')" style="position:absolute; top:-5px; right:-5px; background:red; border:none; color:white; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+            </div>`;
+        userSelect.innerHTML += `<option value="${u.name}">${u.name}</option>`;
+        ownerSelect.innerHTML += `<option value="${u.name}">${u.name}</option>`;
+        passwd.innerHTML += `${u.name}:x:${u.uid}:${u.uid}:,,,:/home/${u.name}:/bin/bash<br>`;
+    });
+
+    groups.forEach((g, index) => {
+        if(g.name === 'root') return;
+        const color = groupColors[index % groupColors.length];
+        groupList.innerHTML += `
+            <div class="group-box" style="background: ${color}; position:relative;">
+                ${g.name} <small>(${g.members.join(',')})</small>
+                <button onclick="delGroup('${g.name}')" style="position:absolute; top:-5px; right:-5px; background:red; border:none; color:white; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+            </div>`;
+        groupSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`;
+        fileGroupSelect.innerHTML += `<option value="${g.name}">${g.name}</option>`;
+        groupFile.innerHTML += `${g.name}:x:${g.gid}:${g.members.join(',')}<br>`;
+    });
+    
+    updateLS();
+}
+
+function createFile() {
+    const name = document.getElementById('filename-input').value.trim() || 'file.txt';
+    const owner = document.getElementById('owner-select').value;
+    const group = document.getElementById('file-group-select').value;
+    
+    const ownerObj = users.find(u => u.name === owner);
+    const groupObj = groups.find(g => g.name === group);
+
+    currentFile = {
+        name: name,
+        owner: owner,
+        group: group,
+        uid: ownerObj ? ownerObj.uid : 0,
+        gid: groupObj ? groupObj.gid : 0,
+        mode: '644'
+    };
+    updateLS();
+}
+
+function changeOwnership() {
+    if(!currentFile) return;
+    const owner = document.getElementById('owner-select').value;
+    const group = document.getElementById('file-group-select').value;
+    
+    const ownerObj = users.find(u => u.name === owner);
+    const groupObj = groups.find(g => g.name === group);
+
+    currentFile.owner = owner;
+    currentFile.group = group;
+    currentFile.uid = ownerObj ? ownerObj.uid : 0;
+    currentFile.gid = groupObj ? groupObj.gid : 0;
+    updateLS();
+}
+
+function applyChmod() {
+    if(!currentFile) return;
+    const mode = document.getElementById('chmod-input').value;
+    if(mode.length === 3) {
+        currentFile.mode = mode;
+        updateLS();
+    }
+}
+
+function updateLS() {
+    if(!currentFile) return;
+    document.getElementById('file-card').style.display = 'block';
+    document.getElementById('no-file-msg').style.display = 'none';
+    
+    // Check if owner/group still exists
+    const ownerObj = users.find(u => u.name === currentFile.owner);
+    const groupObj = groups.find(g => g.name === currentFile.group);
+    
+    const ownerDisplay = ownerObj ? ownerObj.name : `UID:${currentFile.uid || '1001'}`;
+    const groupDisplay = groupObj ? groupObj.name : `GID:${currentFile.gid || '1001'}`;
+
+    document.getElementById('viz-filename').innerText = currentFile.name;
+    document.getElementById('viz-owner').innerText = ownerDisplay;
+    document.getElementById('viz-group').innerText = groupDisplay;
+    
+    if (!ownerObj) {
+        document.getElementById('viz-owner').style.color = 'red';
+        document.getElementById('viz-owner').innerHTML += " (Deleted!)";
+    } else {
+        document.getElementById('viz-owner').style.color = 'inherit';
+    }
+
+    // Parse mode for graphical bits
+    const ownerMode = parseInt(currentFile.mode[0]);
+    document.getElementById('bit-r').className = 'perm-bit ' + (ownerMode & 4 ? 'active' : 'denied');
+    document.getElementById('bit-w').className = 'perm-bit ' + (ownerMode & 2 ? 'active' : 'denied');
+    document.getElementById('bit-x').className = 'perm-bit ' + (ownerMode & 1 ? 'active' : 'denied');
+
+    // Update ls output
+    const rwx = (m) => {
+        let s = "";
+        s += m & 4 ? 'r' : '-';
+        s += m & 2 ? 'w' : '-';
+        s += m & 1 ? 'x' : '-';
+        return s;
+    };
+    const modeStr = '-' + rwx(currentFile.mode[0]) + rwx(currentFile.mode[1]) + rwx(currentFile.mode[2]);
+    document.getElementById('ls-content').innerText = `${modeStr} 1 ${ownerDisplay} ${groupDisplay} 4096 May 7 ${currentFile.name}`;
+}
+
+function addUser() {
+    const input = document.getElementById('username-input');
+    const name = input.value.trim();
+    if (name && !users.find(u => u.name === name)) {
+        const uid = nextUid++;
+        users.push({ name: name, uid: uid });
+        groups.push({ name: name, gid: uid, members: [name] });
+        input.value = '';
+        updatePools();
+    }
+}
+
+function delUser(name) {
+    users = users.filter(u => u.name !== name);
+    // Note: We don't change the file owner, mirroring Linux behavior where the UID remains.
+    updatePools();
+}
+
+function addGroup() {
+    const input = document.getElementById('groupname-input');
+    const name = input.value.trim();
+    if (name && !groups.find(g => g.name === name)) {
+        groups.push({ name: name, gid: nextGid++, members: [] });
+        input.value = '';
+        updatePools();
+    }
+}
+
+function delGroup(name) {
+    groups = groups.filter(g => g.name !== name);
+    updatePools();
+}
+
+function assignUser() {
+    const user = document.getElementById('user-select').value;
+    const group = document.getElementById('group-select').value;
+    const gObj = groups.find(g => g.name === group);
+    if (gObj && !gObj.members.includes(user)) {
+        gObj.members.push(user);
+        updatePools();
+    }
+}
+
+// Initial update
+updatePools();
 </script>
 {% endblock %}

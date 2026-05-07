@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux System Calls{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3.5rem;">Linux <span style="color: var(--accent)">System Calls</span></h1>
+        <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto;">Exploring the fundamental interface between user-space applications and the Linux Kernel.</p>
+    </div>
+
+    <div class="syscall-grid">
+        {% for example in examples %}
+        <div class="syscall-card glass-card" id="example-{{ forloop.counter }}">
+            <div class="syscall-header">
+                <h2>{{ example.title }}</h2>
+                <div class="topic-badge">Topic {{ forloop.counter }}</div>
+            </div>
+            
+            <p class="syscall-description">{{ example.description }}</p>
+            
+            <div class="code-section">
+                <div class="code-header">
+                    <span>example.c</span>
+                    <button class="copy-btn" onclick="copyCode('code-{{ forloop.counter }}')">Copy</button>
+                </div>
+                <pre><code id="code-{{ forloop.counter }}" class="language-c">{{ example.code }}</code></pre>
+            </div>
+
+            <div class="output-section">
+                <div class="output-header">Expected Output</div>
+                <pre class="output-content">{{ example.output }}</pre>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.syscall-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.syscall-card {
+    padding: 2.5rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+}
+
+.syscall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.syscall-header h2 {
+    color: var(--accent);
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.topic-badge {
+    background: var(--primary);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.syscall-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.code-section {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1e1e1e;
+}
+
+.code-header {
+    background: #2d2d2d;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.copy-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.output-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 4px solid var(--accent);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.output-header {
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.output-content {
+    font-family: 'Fira Code', monospace;
+    margin: 0;
+    white-space: pre-wrap;
+    color: #88ff88;
+}
+
+pre[class*="language-"] {
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+</style>
+
+<script>
+function copyCode(id) {
+    const code = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = originalText, 2000);
+    });
+}
+</script>
+{% endblock %}

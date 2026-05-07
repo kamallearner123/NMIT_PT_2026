@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.linux_dashboard, name='linux_dashboard'),
     path('history/', views.linux_history, name='linux_history'),
     path('architecture/', views.linux_architecture, name='linux_architecture'),
+    path('system-calls/', views.linux_system_calls, name='linux_system_calls'),
     path('permissions/', views.linux_permissions, name='linux_permissions'),
     path('processes/', views.linux_processes, name='linux_processes'),
     path('scripting/', views.linux_scripting, name='linux_scripting'),

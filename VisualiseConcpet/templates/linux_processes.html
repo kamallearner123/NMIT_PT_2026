@@ -56,74 +56,68 @@
         </div>
     </div>
 
-    <!-- Section 2: Process States (Standard 5-State Model) -->
+    <!-- Section 2: Process State Machine (Interactive) -->
     <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">2. Process State Machine (5-State Model)</h2>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">Beyond creation, a process lives in one of these five states. Here is how they interact:</p>
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">2. Interactive Process State Machine</h2>
+        <p style="color: var(--text-muted); margin-bottom: 3rem;">Manually transition a process through its lifecycle to understand how the scheduler manages states.</p>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-            <!-- 1. New -->
-            <div class="glass-card" style="border-left: 4px solid var(--accent);">
-                <h3 style="color: var(--accent);">1. New</h3>
-                <p>Process is created.</p>
-                <div class="info-box">
-                    <strong>Example:</strong> You type <code>firefox</code>. Linux creates a new process.
-                </div>
-                <div class="transition-box">
-                    <code>NEW → READY</code><br>
-                    <small>Reason: OS allocates memory, PID, and resources.</small>
-                </div>
+        <div class="state-machine-container">
+            <div class="state-diagram">
+                <!-- States -->
+                <div class="state-node" id="state-new">NEW</div>
+                <div class="state-node" id="state-ready">READY</div>
+                <div class="state-node" id="state-running">RUNNING</div>
+                <div class="state-node" id="state-waiting">WAITING</div>
+                <div class="state-node" id="state-terminated">TERMINATED</div>
+                <div class="state-node" id="state-ready-sus">READY-SUS</div>
+                <div class="state-node" id="state-waiting-sus">WAITING-SUS</div>
+
+                <!-- SVG Arrows for transitions -->
+                <svg class="state-arrows">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent)" />
+                        </marker>
+                    </defs>
+                    <!-- NEW -> READY -->
+                    <line x1="120" y1="50" x2="220" y2="50" class="transition-line" id="line-admit" />
+                    <!-- READY -> RUNNING -->
+                    <line x1="380" y1="50" x2="480" y2="50" class="transition-line" id="line-dispatch" />
+                    <!-- RUNNING -> TERMINATED -->
+                    <line x1="640" y1="50" x2="740" y2="50" class="transition-line" id="line-exit" />
+                    <!-- RUNNING -> READY (Interrupt) -->
+                    <path d="M 560 80 Q 430 150 300 80" class="transition-line" fill="none" id="line-interrupt" />
+                    <!-- RUNNING -> WAITING -->
+                    <line x1="560" y1="80" x2="560" y2="180" class="transition-line" id="line-io-wait" />
+                    <!-- WAITING -> READY -->
+                    <line x1="530" y1="200" x2="300" y2="80" class="transition-line" id="line-io-done" />
+                    
+                    <!-- SWAP OUTS -->
+                    <line x1="300" y1="80" x2="300" y2="180" class="transition-line" id="line-ready-swap-out" />
+                    <line x1="560" y1="240" x2="560" y2="300" class="transition-line" id="line-wait-swap-out" />
+                    
+                    <!-- SWAP INS -->
+                    <line x1="320" y1="180" x2="320" y2="80" class="transition-line" id="line-ready-swap-in" />
+                    <line x1="580" y1="300" x2="580" y2="240" class="transition-line" id="line-wait-swap-in" />
+
+                    <!-- WAITING-SUS -> READY-SUS -->
+                    <line x1="480" y1="330" x2="380" y2="210" class="transition-line" id="line-sus-io-done" />
+                </svg>
             </div>
 
-            <!-- 2. Ready -->
-            <div class="glass-card" style="border-left: 4px solid #6366f1;">
-                <h3 style="color: #6366f1;">2. Ready</h3>
-                <p>Ready to run, but waiting for CPU.</p>
-                <div class="info-box">
-                    <strong>Example:</strong> Many apps are open, CPU can execute only one at a time.
-                </div>
-                <div class="transition-box">
-                    <code>READY → RUNNING</code><br>
-                    <small>Reason: CPU scheduler selects it.</small>
-                </div>
-            </div>
-
-            <!-- 3. Running -->
-            <div class="glass-card" style="border-left: 4px solid #10b981;">
-                <h3 style="color: #10b981;">3. Running</h3>
-                <p>Currently executing on CPU.</p>
-                <div class="info-box">
-                    <strong>Example:</strong> Your Python program is executing instructions.
-                </div>
-                <div class="transition-box">
-                    <code>RUNNING → READY</code> (Timeout)<br>
-                    <code>RUNNING → WAITING</code> (I/O)
-                </div>
-            </div>
-
-            <!-- 4. Waiting -->
-            <div class="glass-card" style="border-left: 4px solid #fbbf24;">
-                <h3 style="color: #fbbf24;">4. Waiting / Blocked</h3>
-                <p>Waiting for an event (I/O).</p>
-                <div class="info-box">
-                    <strong>Examples:</strong> Disk read, Keyboard input, Network response.
-                </div>
-                <div class="transition-box">
-                    <code>WAITING → READY</code><br>
-                    <small>Reason: I/O completed.</small>
-                </div>
-            </div>
-
-            <!-- 5. Terminated -->
-            <div class="glass-card" style="border-left: 4px solid #ef4444;">
-                <h3 style="color: #ef4444;">5. Terminated</h3>
-                <p>Process finishes execution.</p>
-                <div class="info-box">
-                    <strong>Example:</strong> Program ends.
-                </div>
-                <div class="transition-box">
-                    <code>RUNNING → TERMINATED</code><br>
-                    <small>Reason: Exit signal or Completion.</small>
+            <div class="state-controls glass-card" style="padding: 2rem; background: rgba(0,0,0,0.2);">
+                <div id="state-msg" style="margin-bottom: 1.5rem; color: var(--accent); font-weight: bold; text-align: center;">Click "Create Process" to start</div>
+                <div class="controls-grid">
+                    <button class="btn btn-sm" id="btn-new" onclick="smNew()">Create Process</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-admit" onclick="smAdmit()" disabled>Admit to Ready</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-dispatch" onclick="smDispatch()" disabled>Dispatch (CPU Ready)</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-interrupt" onclick="smInterrupt()" disabled>Interrupt (Timeout)</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-wait" onclick="smWait()" disabled>I/O Wait</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-complete" onclick="smComplete()" disabled>I/O Complete</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-swap-out" onclick="smSwapOut()" disabled>Swap Out (Suspend)</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-swap-in" onclick="smSwapIn()" disabled>Swap In (Resume)</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-terminate" onclick="smTerminate()" disabled>Terminate</button>
+                    <button class="btn btn-sm btn-secondary" onclick="smReset()">Reset Machine</button>
                 </div>
             </div>
         </div>
@@ -132,18 +126,132 @@
     <!-- Section 3: Process Tree Visualizer -->
     <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2 style="color: var(--primary);">3. Visual Process Tree</h2>
-            <button class="btn" onclick="spawnProcess()">Spawn New Process</button>
+            <h2 style="color: var(--primary);">3. Interactive Process Tree (Hierarchy)</h2>
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                💡 <strong>Concept:</strong> When a parent is killed, children are <strong>re-parented</strong> to the grandparent.
+            </div>
         </div>
         
         <div class="process-container" id="processContainer">
-            <!-- Root Process -->
-            <div class="process-node root-proc" id="proc-1">
-                <div class="proc-header">PID 1: systemd</div>
-                <div class="proc-children" id="children-1">
-                    <!-- Child processes will appear here -->
+            <!-- Root Process: Swapper/Idle (PID 0) -->
+            <div class="process-node root-proc" id="proc-0">
+                <div class="proc-header">
+                    <span><strong>PID 0:</strong> Idle (Swapper)</span>
+                    <button class="spawn-btn" onclick="spawnProcess(0)">+ Spawn Child</button>
+                </div>
+                <div class="proc-children" id="children-0">
+                    <!-- PID 1 is the first child -->
+                    <div class="process-node child-proc" id="proc-1">
+                        <div class="proc-header">
+                            <span><strong>PID 1:</strong> systemd (init) <small>[PPID: 0]</small></span>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="spawn-btn" onclick="spawnProcess(1)">+ Child</button>
+                            </div>
+                        </div>
+                        <div class="proc-children" id="children-1"></div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Section 4: From Executable to CPU Execution -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;" id="journey-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="color: var(--accent);">4. Journey: From Disk to CPU Execution</h2>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-sm" onclick="nextJourneyStep()" id="btn-next-step">Start Journey</button>
+                <button class="btn btn-sm btn-secondary" onclick="resetJourney()">Reset</button>
+            </div>
+        </div>
+
+        <div id="journey-info-box" class="glass-card" style="margin-bottom: 2rem; border-color: var(--accent); padding: 1rem; display: none;">
+            <strong id="journey-step-title"></strong>: <span id="journey-step-desc"></span>
+        </div>
+        
+        <!-- Part A: Loading to RAM -->
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; margin-bottom: 4rem;">
+            <div id="step-load-info" style="opacity: 0.3; transition: all 0.5s;">
+                <h3>Step 1: Loading the ELF</h3>
+                <p>When you run <code>./program</code>, the kernel's <strong>Loader</strong> (<code>execve</code>) reads the <strong>ELF</strong> (Executable and Linkable Format) header from disk.</p>
+                <ul class="feature-list">
+                    <li>Verifies permissions</li>
+                    <li>Maps the code into RAM</li>
+                    <li>Sets up the Virtual Memory space</li>
+                </ul>
+            </div>
+            <div class="glass-card" id="step-memory-visual" style="background: rgba(0,0,0,0.4); opacity: 0.3; transition: all 0.5s;">
+                <div style="padding: 1rem; border-bottom: 1px solid var(--glass-border); text-align: center; font-weight: bold; color: var(--accent);">Process Virtual Memory Layout</div>
+                <div class="memory-layout">
+                    <div class="mem-seg stack-seg">Stack (Local Vars, Returns) <span class="arrow-down">↓</span></div>
+                    <div class="mem-empty">Shared Libraries & Mapped Memory</div>
+                    <div class="mem-seg heap-seg"><span class="arrow-up">↑</span> Heap (malloc, new)</div>
+                    <div class="mem-seg bss-seg">BSS (Uninitialized Globals)</div>
+                    <div class="mem-seg data-seg">Data (Initialized Globals)</div>
+                    <div class="mem-seg text-seg">Text (Code - Read Only)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part B: CPU Role (PC & SP) -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; margin-bottom: 4rem;">
+            <div class="cpu-visual-container" id="step-cpu-visual" style="opacity: 0.3; transition: all 0.5s;">
+                <div class="cpu-box">
+                    <div class="cpu-label">CPU CORE</div>
+                    <div class="registers-grid">
+                        <div class="reg-box" id="reg-pc">
+                            <span class="reg-name">PC (Program Counter)</span>
+                            <span class="reg-desc">Next Instruction Address</span>
+                        </div>
+                        <div class="reg-box" id="reg-sp">
+                            <span class="reg-name">SP (Stack Pointer)</span>
+                            <span class="reg-desc">Top of Stack Address</span>
+                        </div>
+                        <div class="reg-box">AX (Data)</div>
+                        <div class="reg-box">BX (Base)</div>
+                    </div>
+                </div>
+                <div class="cpu-interaction">
+                    <div class="inter-arrow" id="arrow-fetch" style="grid-area: pc-arrow; opacity: 0;">➔ Fetch</div>
+                    <div class="inter-arrow" id="arrow-stack" style="grid-area: sp-arrow; opacity: 0;">➔ Push/Pop</div>
+                </div>
+            </div>
+            <div id="step-cpu-info" style="opacity: 0.3; transition: all 0.5s;">
+                <h3>Step 2: Scheduling & Registers</h3>
+                <p>When the <strong>Scheduler</strong> picks this process to run:</p>
+                <ol class="feature-list">
+                    <li><strong>Context Switch:</strong> The OS loads the process's saved state into CPU registers.</li>
+                    <li><strong>PC Role:</strong> The CPU looks at the <strong>Program Counter</strong> to know which line of code to execute next from the <code>Text</code> segment.</li>
+                    <li><strong>SP Role:</strong> The <strong>Stack Pointer</strong> keeps track of the current function call's variables and return address.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Part C: Cache Hierarchy -->
+        <div class="glass-card" id="step-cache-visual" style="background: rgba(16, 185, 129, 0.05); border-color: var(--accent); opacity: 0.3; transition: all 0.5s;">
+            <h3 style="text-align: center; margin-bottom: 2rem;">Step 3: The Speed Gap (L1/L2 Cache)</h3>
+            <div class="cache-viz">
+                <div class="cache-layer l1" id="cache-l1">
+                    <div class="cache-box" id="box-l1-i">L1 Instruction Cache (Code)</div>
+                    <div class="cache-box" id="box-l1-d">L1 Data Cache (Variables)</div>
+                    <div class="layer-label">L1: 64KB (Fastest)</div>
+                </div>
+                <div class="cache-arrow" id="arrow-l1-l2">↑↓</div>
+                <div class="cache-layer l2" id="cache-l2">
+                    <div class="cache-box" style="width: 80%;">L2 Unified Cache</div>
+                    <div class="layer-label">L2: 256KB - 1MB</div>
+                </div>
+                <div class="cache-arrow" id="arrow-l2-ram">↑↓</div>
+                <div class="cache-layer ram" id="cache-ram">
+                    <div class="cache-box" style="width: 100%; background: var(--primary);">Main Memory (RAM)</div>
+                    <div class="layer-label">RAM: GBs (Slow)</div>
+                </div>
+            </div>
+            <p style="margin-top: 2rem; font-size: 0.9rem; text-align: center; opacity: 0.8;">
+                <strong>How data is copied:</strong> The CPU doesn't fetch 1 byte at a time. It pulls <strong>Cache Lines</strong> (usually 64 bytes). 
+                If the code needs <code>x</code>, it pulls the whole block around <code>x</code> into L2, then L1. 
+                This is why <strong>Spatial Locality</strong> (looping through arrays) is so fast!
+            </p>
         </div>
     </div>
 
@@ -161,18 +269,38 @@
             <tbody>
                 <tr>
                     <td><code>ps aux</code></td>
-                    <td>List all running processes.</td>
+                    <td>List all running processes with user info.</td>
                     <td><code>ps aux | grep python</code></td>
                 </tr>
                 <tr>
                     <td><code>top</code> / <code>htop</code></td>
-                    <td>Real-time system monitor.</td>
+                    <td>Real-time system monitor and process viewer.</td>
                     <td><code>htop</code></td>
                 </tr>
                 <tr>
-                    <td><code>kill</code></td>
-                    <td>Send a signal to a process (usually to stop it).</td>
-                    <td><code>kill -9 1234</code></td>
+                    <td><code>kill</code> / <code>pkill</code></td>
+                    <td>Send signals to processes (Stop/Terminate).</td>
+                    <td><code>kill -9 1234</code> or <code>pkill chrome</code></td>
+                </tr>
+                <tr>
+                    <td><code>nice</code> / <code>renice</code></td>
+                    <td>Set or change process priority (Niceness).</td>
+                    <td><code>nice -n 10 ./script.sh</code></td>
+                </tr>
+                <tr>
+                    <td><code>strace</code></td>
+                    <td>Trace system calls and signals of a process.</td>
+                    <td><code>strace ls</code></td>
+                </tr>
+                <tr>
+                    <td><code>lsof</code></td>
+                    <td>List open files (and the processes that opened them).</td>
+                    <td><code>lsof -i :8000</code></td>
+                </tr>
+                <tr>
+                    <td><code>pstree</code></td>
+                    <td>Display processes as a tree (Visual hierarchy).</td>
+                    <td><code>pstree -p</code></td>
                 </tr>
                 <tr>
                     <td><code>jobs</code> / <code>bg</code> / <code>fg</code></td>
@@ -302,6 +430,16 @@
     cursor: pointer;
 }
 
+.spawn-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
 @keyframes spawn {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -328,6 +466,212 @@
     font-size: 0.85rem;
     color: var(--text-muted);
     border: 1px dashed var(--glass-border);
+}
+/* Memory Layout Visuals */
+.memory-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 1rem;
+}
+
+.mem-seg {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stack-seg { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.heap-seg { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.bss-seg { background: rgba(251, 191, 36, 0.2); color: #fde68a; }
+.data-seg { background: rgba(99, 102, 241, 0.2); color: #c7d2fe; }
+.text-seg { background: rgba(107, 114, 128, 0.2); color: #e5e7eb; }
+
+.mem-empty {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    opacity: 0.5;
+    border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.arrow-up, .arrow-down { font-weight: bold; }
+
+/* CPU Visuals */
+.cpu-visual-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.cpu-box {
+    background: #2d2d2d;
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.cpu-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.registers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.reg-box {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    font-family: monospace;
+}
+
+.reg-name { font-weight: bold; color: #aaa; font-size: 0.8rem; }
+.reg-desc { font-size: 0.7rem; color: #666; }
+
+.active-reg {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+/* Cache Visuals */
+.cache-viz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cache-layer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    position: relative;
+    padding: 10px 0;
+}
+
+.cache-box {
+    background: var(--bg-soft);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.layer-label {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.cache-arrow {
+    font-size: 1.2rem;
+    color: var(--accent);
+    opacity: 0.5;
+}
+
+.feature-list {
+    padding-left: 1.2rem;
+    margin-top: 1rem;
+}
+
+.feature-list li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* State Machine Styles */
+.state-machine-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    align-items: center;
+}
+
+.state-diagram {
+    position: relative;
+    width: 900px;
+    height: 300px;
+}
+
+.state-node {
+    position: absolute;
+    width: 160px;
+    height: 60px;
+    border: 2px solid var(--glass-border);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: var(--bg-soft);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 5;
+}
+
+#state-new { left: 0; top: 20px; }
+#state-ready { left: 220px; top: 20px; }
+#state-running { left: 480px; top: 20px; }
+#state-terminated { left: 740px; top: 20px; }
+#state-waiting { left: 480px; top: 180px; }
+#state-ready-sus { left: 220px; top: 180px; border-style: dashed; }
+#state-waiting-sus { left: 480px; top: 320px; border-style: dashed; }
+
+.state-node.active-state {
+    background: var(--primary);
+    border-color: white;
+    box-shadow: 0 0 30px var(--primary);
+    transform: scale(1.1);
+}
+
+.state-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.transition-line {
+    stroke: var(--glass-border);
+    stroke-width: 3;
+    marker-end: url(#arrowhead);
+    transition: all 0.5s;
+}
+
+.line-active {
+    stroke: var(--accent);
+    stroke-width: 5;
+    filter: drop-shadow(0 0 5px var(--accent));
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
 }
 </style>
 
@@ -387,32 +731,239 @@ function resetLifecycle() {
 }
 
 let nextPid = 100;
-const appNames = ['bash', 'python3', 'nginx', 'ssh-agent', 'docker-d', 'chrome', 'vscode'];
+const appNames = ['bash', 'python3', 'nginx', 'ssh-agent', 'docker-d', 'chrome', 'vscode', 'mysql', 'redis', 'git'];
 
-function spawnProcess() {
-    const parent = document.getElementById('children-1');
+function spawnProcess(ppid) {
+    const parentContainer = document.getElementById('children-' + ppid);
     const pid = nextPid++;
     const name = appNames[Math.floor(Math.random() * appNames.length)];
     
     const procDiv = document.createElement('div');
     procDiv.className = 'process-node child-proc new-spawn';
     procDiv.id = 'proc-' + pid;
+    procDiv.setAttribute('data-ppid', ppid);
     
     procDiv.innerHTML = `
         <div class="proc-header">
-            <span>PID ${pid}: ${name}</span>
-            <button class="kill-btn" onclick="killProcess(${pid})">KILL</button>
+            <span><strong>PID ${pid}:</strong> ${name} <small>[PPID: ${ppid}]</small></span>
+            <div style="display: flex; gap: 5px;">
+                <button class="spawn-btn" onclick="spawnProcess(${pid})">+ Child</button>
+                <button class="kill-btn" onclick="killProcess(${pid})">KILL</button>
+            </div>
         </div>
+        <div class="proc-children" id="children-${pid}"></div>
     `;
     
-    parent.appendChild(procDiv);
+    parentContainer.appendChild(procDiv);
 }
 
 function killProcess(pid) {
     const proc = document.getElementById('proc-' + pid);
+    const ppid = proc.getAttribute('data-ppid');
+    const grandParentChildren = document.getElementById('children-' + ppid);
+    const childrenContainer = document.getElementById('children-' + pid);
+    
+    // Alert the user about re-parenting
+    const childrenCount = childrenContainer.children.length;
+    if (childrenCount > 0) {
+        alert(`Process ${pid} killed! Its ${childrenCount} child(ren) will be re-parented to PPID ${ppid}.`);
+    }
+
+    // Move children to grandparent
+    while (childrenContainer.firstChild) {
+        const childNode = childrenContainer.firstChild;
+        // Update the PPID label in the UI
+        const childPid = childNode.id.split('-')[1];
+        childNode.setAttribute('data-ppid', ppid);
+        const label = childNode.querySelector('.proc-header span');
+        const name = label.innerText.split(':')[1].split('[')[0].trim();
+        label.innerHTML = `<strong>PID ${childPid}:</strong> ${name} <small>[PPID: ${ppid}]</small>`;
+        
+        grandParentChildren.appendChild(childNode);
+    }
+
+    // Remove the killed process
     proc.style.opacity = '0';
     proc.style.transform = 'scale(0.8)';
     setTimeout(() => proc.remove(), 300);
+}
+
+// Journey Step-by-Step Logic
+let currentJourneyStep = 0;
+const journeySteps = [
+    {
+        title: "1. Loading the ELF",
+        desc: "Kernel reads the ELF header and maps the code to RAM.",
+        action: () => {
+            document.getElementById('step-load-info').style.opacity = '1';
+            document.getElementById('step-memory-visual').style.opacity = '1';
+            document.querySelector('.text-seg').style.boxShadow = '0 0 15px var(--accent)';
+        }
+    },
+    {
+        title: "2. Allocating Memory Segments",
+        desc: "Virtual memory space is laid out. Stack, Heap, and Data segments are initialized.",
+        action: () => {
+            document.querySelectorAll('.mem-seg').forEach(s => s.style.border = '1px solid var(--accent)');
+            document.querySelector('.stack-seg').style.transform = 'scale(1.05)';
+        }
+    },
+    {
+        title: "3. CPU Scheduling",
+        desc: "The OS context-switches. PC is set to the first instruction; SP is set to the top of the stack.",
+        action: () => {
+            document.getElementById('step-cpu-visual').style.opacity = '1';
+            document.getElementById('step-cpu-info').style.opacity = '1';
+            document.getElementById('reg-pc').classList.add('active-reg');
+            document.getElementById('reg-sp').classList.add('active-reg');
+        }
+    },
+    {
+        title: "4. Cache Warmup",
+        desc: "Code and data are pulled from RAM into L2 and L1 caches in 64-byte blocks.",
+        action: () => {
+            document.getElementById('step-cache-visual').style.opacity = '1';
+            document.getElementById('arrow-l2-ram').style.color = '#fff';
+            document.getElementById('arrow-l1-l2').style.color = '#fff';
+            document.getElementById('arrow-fetch').style.opacity = '1';
+        }
+    }
+];
+
+function nextJourneyStep() {
+    if (currentJourneyStep >= journeySteps.length) {
+        document.getElementById('btn-next-step').innerText = "Journey Complete!";
+        document.getElementById('btn-next-step').disabled = true;
+        return;
+    }
+    
+    const step = journeySteps[currentJourneyStep];
+    const infoBox = document.getElementById('journey-info-box');
+    infoBox.style.display = 'block';
+    document.getElementById('journey-step-title').innerText = step.title;
+    document.getElementById('journey-step-desc').innerText = step.desc;
+    
+    step.action();
+    currentJourneyStep++;
+    
+    if (currentJourneyStep < journeySteps.length) {
+        document.getElementById('btn-next-step').innerText = "Next: " + journeySteps[currentJourneyStep].title.split(':')[0];
+    } else {
+        document.getElementById('btn-next-step').innerText = "Finish";
+    }
+}
+
+function resetJourney() {
+    location.reload();
+}
+
+// State Machine Interactive Logic
+let currentSMState = null;
+
+function updateSMUI(newState, lineId, msg) {
+    // Deactivate all nodes and lines
+    document.querySelectorAll('.state-node').forEach(n => n.classList.remove('active-state'));
+    document.querySelectorAll('.transition-line').forEach(l => l.classList.remove('line-active'));
+    
+    // Deactivate all buttons
+    document.querySelectorAll('.state-controls .btn').forEach(b => b.disabled = true);
+    document.getElementById('btn-new').disabled = false; // Always allow reset/new
+    
+    // Activate new state
+    if (newState) {
+        document.getElementById('state-' + newState).classList.add('active-state');
+    }
+    
+    // Activate transition line
+    if (lineId) {
+        document.getElementById('line-' + lineId).classList.add('line-active');
+    }
+
+    document.getElementById('state-msg').innerText = msg;
+}
+
+function smNew() {
+    currentSMState = 'new';
+    updateSMUI('new', null, "Process Created! Resources being allocated...");
+    document.getElementById('btn-admit').disabled = false;
+}
+
+function smAdmit() {
+    currentSMState = 'ready';
+    updateSMUI('ready', 'admit', "Admitted! Process is in the Ready Queue, waiting for CPU...");
+    document.getElementById('btn-dispatch').disabled = false;
+}
+
+function smDispatch() {
+    currentSMState = 'running';
+    updateSMUI('running', 'dispatch', "Dispatched! CPU is now executing instructions...");
+    document.getElementById('btn-interrupt').disabled = false;
+    document.getElementById('btn-wait').disabled = false;
+    document.getElementById('btn-terminate').disabled = false;
+    document.getElementById('btn-swap-out').disabled = false;
+}
+
+function smInterrupt() {
+    currentSMState = 'ready';
+    updateSMUI('ready', 'interrupt', "Interrupt! Timeslice expired. Moving back to Ready...");
+    document.getElementById('btn-dispatch').disabled = false;
+    document.getElementById('btn-swap-out').disabled = false;
+}
+
+function smWait() {
+    currentSMState = 'waiting';
+    updateSMUI('waiting', 'io-wait', "I/O Wait! Process blocked waiting for disk/network...");
+    document.getElementById('btn-complete').disabled = false;
+    document.getElementById('btn-swap-out').disabled = false;
+}
+
+function smComplete() {
+    if (currentSMState === 'waiting-sus') {
+        currentSMState = 'ready-sus';
+        updateSMUI('ready-sus', 'sus-io-done', "I/O Complete for Suspended process! Moving to Ready-Suspended...");
+        document.getElementById('btn-swap-in').disabled = false;
+    } else {
+        currentSMState = 'ready';
+        updateSMUI('ready', 'io-done', "I/O Complete! Moving back to Ready Queue...");
+        document.getElementById('btn-dispatch').disabled = false;
+        document.getElementById('btn-swap-out').disabled = false;
+    }
+}
+
+function smSwapOut() {
+    if (currentSMState === 'ready' || currentSMState === 'running') {
+        currentSMState = 'ready-sus';
+        updateSMUI('ready-sus', 'ready-swap-out', "Swap Out! Process moved from Memory to Disk (Ready-Suspended).");
+        document.getElementById('btn-swap-in').disabled = false;
+    } else if (currentSMState === 'waiting') {
+        currentSMState = 'waiting-sus';
+        updateSMUI('waiting-sus', 'wait-swap-out', "Swap Out! Blocked process moved to Disk (Waiting-Suspended).");
+        document.getElementById('btn-swap-in').disabled = false;
+        document.getElementById('btn-complete').disabled = false;
+    }
+}
+
+function smSwapIn() {
+    if (currentSMState === 'ready-sus') {
+        currentSMState = 'ready';
+        updateSMUI('ready', 'ready-swap-in', "Swap In! Process loaded back to Memory (Ready).");
+        document.getElementById('btn-dispatch').disabled = false;
+        document.getElementById('btn-swap-out').disabled = false;
+    } else if (currentSMState === 'waiting-sus') {
+        currentSMState = 'waiting';
+        updateSMUI('waiting', 'wait-swap-in', "Swap In! Blocked process loaded back to Memory (Waiting).");
+        document.getElementById('btn-complete').disabled = false;
+        document.getElementById('btn-swap-out').disabled = false;
+    }
+}
+
+function smTerminate() {
+    currentSMState = 'terminated';
+    updateSMUI('terminated', 'exit', "Terminated! Process finished and resources released.");
+}
+
+function smReset() {
+    location.reload();
 }
 </script>
 {% endblock %}

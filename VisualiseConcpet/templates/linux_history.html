@@ -8,7 +8,15 @@
     <div style="text-align: center; margin-bottom: 4rem;">
         <h1 style="font-size: 3.5rem;">The Evolution of <span style="color: var(--accent)">Linux</span></h1>
         <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto;">From a small student project to the most powerful operating system on the planet.</p>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+            <a href="#linux-milestones" class="nav-btn">Linux Milestones</a>
+            <a href="#os-evolution" class="nav-btn">OS Evolution</a>
+        </div>
     </div>
+
+    <div id="linux-milestones">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Linux Development Timeline</h2>
 
     <div class="timeline-container">
         {% for stone in milestones %}
@@ -23,7 +31,38 @@
         </div>
         {% endfor %}
     </div>
+</div>
     
+    <!-- Evolution of OS Section -->
+    <div id="os-evolution" style="margin-top: 5rem;" class="glass-card">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-size: 2.5rem; color: var(--accent);">Evolution of Operating Systems</h2>
+            <p>How OS features evolved one by one over the decades.</p>
+        </div>
+
+        <div class="evolution-grid">
+            {% for step in os_evolution %}
+            <div class="evolution-card glass-card">
+                <div class="evolution-header">
+                    <span class="evolution-icon">{{ step.icon }}</span>
+                    <span class="evolution-era">{{ step.era }}</span>
+                </div>
+                <h3 class="evolution-phase">{{ step.phase }}</h3>
+                <div class="evolution-feature">Core Feature: <span>{{ step.feature }}</span></div>
+                <p class="evolution-desc">{{ step.description }}</p>
+                <div class="evolution-tech">
+                    {% for t in step.tech %}
+                    <span class="tech-tag">{{ t }}</span>
+                    {% endfor %}
+                </div>
+                {% if not forloop.last %}
+                <div class="evolution-arrow">→</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <div style="margin-top: 5rem; text-align: center;" class="glass-card">
         <h2 style="margin-bottom: 2rem;">Why Linux Matters Today?</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
@@ -44,6 +83,112 @@
 </div>
 
 <style>
+.evolution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    position: relative;
+}
+
+.evolution-card {
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--bg-soft);
+    transition: all 0.3s ease;
+}
+
+.evolution-card:hover {
+    background: var(--bg-soft);
+    opacity: 0.9;
+}
+
+.evolution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.evolution-icon {
+    font-size: 2rem;
+}
+
+.evolution-era {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.evolution-phase {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.evolution-feature {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.evolution-feature span {
+    color: var(--accent);
+}
+
+.evolution-desc {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+.evolution-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.tech-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.evolution-arrow {
+    position: absolute;
+    right: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--accent);
+    opacity: 0.5;
+}
+
+@media (max-width: 1200px) {
+    .evolution-arrow { display: none; }
+}
+.nav-btn {
+    padding: 0.8rem 1.5rem;
+    background: var(--bg-soft);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.nav-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
 .timeline-container {
     position: relative;
     max-width: 1000px;
