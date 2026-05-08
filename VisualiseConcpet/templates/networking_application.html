@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Layer: DNS & HTTP{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">The <span style="color: var(--accent)">Application</span> Layer</h1>
+        <p style="color: var(--text-muted);">Protocols that talk to humans: HTTP, DNS, SMTP, and FTP.</p>
+    </div>
+
+    <!-- Section 1: DNS Resolution -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--primary); margin-bottom: 3rem;">1. DNS: The Phonebook of the Internet</h2>
+        <p style="margin-bottom: 3rem;">DNS translates human names (google.com) into IP addresses (142.250.190.46).</p>
+        
+        <div class="dns-viz">
+            <div class="dns-node user">
+                <div class="node-icon">👤</div>
+                <span>User Browser</span>
+            </div>
+            
+            <div class="dns-path">
+                <div class="dns-step" id="dns-1">
+                    <span class="step-num">1</span>
+                    <p>Query: "google.com"</p>
+                </div>
+                <div class="dns-step" id="dns-2">
+                    <span class="step-num">2</span>
+                    <p>Checking Cache...</p>
+                </div>
+                <div class="dns-step" id="dns-3">
+                    <span class="step-num">3</span>
+                    <p>Recursive Lookup</p>
+                </div>
+            </div>
+
+            <div class="dns-node server">
+                <div class="node-icon">🛡️</div>
+                <span>DNS Resolver (8.8.8.8)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: HTTP Request / Response -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="color: var(--accent); margin-bottom: 3rem;">2. HTTP (HyperText Transfer Protocol)</h2>
+        <p style="margin-bottom: 3rem;">HTTP is a stateless <strong>Request/Response</strong> protocol used to deliver web content.</p>
+
+        <div class="http-lab">
+            <div class="http-section">
+                <h4>Browser Request</h4>
+                <div class="glass-card code-box">
+                    <pre><code>GET /index.html HTTP/1.1
+Host: example.com
+User-Agent: Chrome/120.0
+Accept: text/html</code></pre>
+                </div>
+            </div>
+            <div class="http-arrow">⇌</div>
+            <div class="http-section">
+                <h4>Server Response</h4>
+                <div class="glass-card code-box" style="border-color: #10b981;">
+                    <pre><code>HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1024
+
+&lt;html&gt; Hello World &lt;/html&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-codes-grid" style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div class="status-card s200"><strong>200 OK</strong> Success</div>
+            <div class="status-card s301"><strong>301</strong> Redirect</div>
+            <div class="status-card s404"><strong>404</strong> Not Found</div>
+            <div class="status-card s500"><strong>500</strong> Server Error</div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dns-viz {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+}
+
+.dns-node { text-align: center; font-weight: bold; }
+.node-icon { font-size: 3rem; margin-bottom: 10px; }
+
+.dns-path { flex-grow: 1; display: flex; justify-content: space-around; padding: 0 40px; }
+.dns-step {
+    background: var(--bg-soft);
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    position: relative;
+    border: 1px solid var(--glass-border);
+}
+
+.step-num {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: var(--primary);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.http-lab { display: flex; align-items: center; gap: 2rem; }
+.http-section { flex: 1; }
+.code-box { padding: 1.5rem; background: #0d1117; font-family: 'Fira Code', monospace; font-size: 0.85rem; }
+.http-arrow { font-size: 3rem; color: var(--primary); }
+
+.status-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+.s200 { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981; }
+.s301 { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid #fbbf24; }
+.s404 { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; }
+.s500 { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+</style>
+{% endblock %}

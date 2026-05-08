@@ -578,6 +578,10 @@ line.active-edge {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
+.topic-networks {
+    background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+}
+
 .quote-section {
     margin-top: 4rem;
     text-align: center;

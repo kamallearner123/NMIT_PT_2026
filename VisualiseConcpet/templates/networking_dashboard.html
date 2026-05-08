@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Computer Networks Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3.5rem;">Computer <span style="color: var(--accent)">Networks</span></h1>
+        <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 800px; margin: 0 auto;">Mastering the architecture of the internet, from physical frames to global routing and application protocols.</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        {% for chap in chapters %}
+        <a href="{% if chap.id == 'layers' %}{% url 'Networking:networking_layers' %}{% elif chap.id == 'datalink' %}{% url 'Networking:networking_datalink' %}{% elif chap.id == 'ip' %}{% url 'Networking:networking_ip' %}{% elif chap.id == 'tcp' %}{% url 'Networking:networking_tcp' %}{% elif chap.id == 'application' %}{% url 'Networking:networking_application' %}{% else %}#{% endif %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2.5rem; transition: all 0.3s ease; height: 100%; border-top: 5px solid var(--accent);">
+                <div style="font-size: 2.5rem; margin-bottom: 1.5rem;">{{ chap.icon }}</div>
+                <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.4rem;">{{ chap.title }}</h3>
+                <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.6;">{{ chap.description }}</p>
+                <div style="margin-top: 2rem; color: var(--primary); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                    EXPLORE MODULE <span style="font-size: 1.2rem;">→</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.nav-card:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+</style>
+{% endblock %}

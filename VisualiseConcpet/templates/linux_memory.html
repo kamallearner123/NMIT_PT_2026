@@ -143,36 +143,47 @@ int main() {
                 <p>It marks the block as "available" for future <code>malloc</code> calls. If you don't call it, you get a <strong>Memory Leak</strong>.</p>
             </div>
         </div>
-    <!-- Section 4: The Free List Data Structure -->
+    <!-- Section 5: Interactive Memory Lab (Malloc/Free Simulation) -->
     <div class="glass-card" style="margin-top: 3rem; padding: 2.5rem;">
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">4. The Free List (Data Structure)</h2>
-        <p style="margin-bottom: 2rem;">Internally, <code>malloc</code> keeps track of free memory blocks using a <strong>Linked List</strong>. Each node represents a "hole" in the heap.</p>
-        
-        <div class="free-list-visual" id="freeList">
-            <!-- Nodes will be injected here -->
-            <div class="free-node">
-                <div class="node-meta">Size: 512B</div>
-                <div class="node-link">Next →</div>
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">5. Interactive Memory Lab: Malloc & Free</h2>
+        <p style="color: var(--text-muted); margin-bottom: 3rem;">Manually allocate and free memory blocks to see how the kernel manages the <strong>Free List</strong> vs. <strong>Occupied Blocks</strong>.</p>
+
+        <div class="allocation-lab-container">
+            <!-- Free Pool (Linked List) -->
+            <div class="mem-pool-box" style="grid-column: 1 / span 3; min-height: auto; margin-bottom: 2rem;">
+                <h4 style="color: #10b981; margin-bottom: 2rem; text-align: center;">Kernel Free List (Linked List Structure)</h4>
+                <div class="free-list-wrapper">
+                    <div id="free-pool" class="linked-list-container">
+                        <!-- Dynamic Linked Nodes -->
+                    </div>
+                </div>
             </div>
-            <div class="free-node">
-                <div class="node-meta">Size: 1024B</div>
-                <div class="node-link">Next →</div>
+
+            <div class="lab-actions">
+                <div class="glass-card" style="padding: 1.5rem; background: rgba(0,0,0,0.2);">
+                    <label style="display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">Request Size (Bytes)</label>
+                    <input type="number" id="malloc-size" value="100" min="10" max="500" class="glass-input" style="width: 100%; margin-bottom: 1rem;">
+                    <button class="btn btn-sm" style="width: 100%;" onclick="simMalloc()">malloc()</button>
+                </div>
             </div>
-            <div class="free-node">
-                <div class="node-meta">Size: 256B</div>
-                <div class="node-link">NULL</div>
+
+            <div class="lab-status-container">
+                <div class="lab-status" id="lab-log">
+                    System Idle.
+                </div>
+            </div>
+
+            <!-- Occupied Blocks -->
+            <div class="mem-pool-box">
+                <h4 style="color: #ef4444; margin-bottom: 1rem;">Occupied Memory</h4>
+                <div id="occupied-pool" class="block-list">
+                    <!-- Dynamic Blocks -->
+                </div>
             </div>
         </div>
 
-        <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div class="info-box" style="border-left-color: var(--accent);">
-                <h4>Fragmentation</h4>
-                <p>Over time, as blocks are allocated and freed, the "holes" get smaller and scattered. This is called External Fragmentation.</p>
-            </div>
-            <div class="info-box" style="border-left-color: var(--primary);">
-                <h4>Coalescing</h4>
-                <p>When two adjacent blocks are freed, the kernel merges them back into one large block to keep the list efficient.</p>
-            </div>
+        <div class="info-box" style="margin-top: 2rem; border-left-color: var(--primary);">
+            <strong>Kernel Logic:</strong> When you call <code>free()</code>, the kernel doesn't "wipe" the data immediately. It just updates the pointers in the Free List, marking the block as available. This is why "deleted" data can sometimes be recovered!
         </div>
     </div>
 </div>
@@ -315,6 +326,140 @@ int main() {
     border-radius: 12px;
     border-left: 4px solid;
 }
+
+/* Allocation Lab Styles */
+.allocation-lab-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.linked-list-container {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    padding: 2rem;
+    overflow-x: auto;
+    justify-content: center;
+}
+
+.node-block {
+    display: flex;
+    flex-direction: column;
+    width: 140px;
+    background: var(--bg-soft);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.5s;
+}
+
+.node-data {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.node-next {
+    padding: 5px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.node-block::after {
+    content: '➔';
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+
+.node-block:last-child::after {
+    content: 'NULL';
+    font-size: 0.7rem;
+    right: -45px;
+}
+
+.mem-pool-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.block-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mem-block {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+}
+
+.mem-block:hover::after {
+    content: 'Click to Free';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+}
+
+.free-block {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+
+.occupied-block {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+
+.lab-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.lab-status {
+    padding: 1rem;
+    background: #000;
+    border-radius: 12px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #10b981;
+    min-height: 100px;
+}
+
+.glass-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: white;
+    padding: 10px;
+    font-family: monospace;
+}
 </style>
 
 <script>
@@ -339,5 +484,86 @@ function animateMalloc() {
         }
     });
 }
+
+// Memory Allocation Lab Logic
+let freeBlocks = [
+    { id: 1, size: 512 },
+    { id: 2, size: 1024 },
+    { id: 3, size: 256 }
+];
+let occupiedBlocks = [];
+let blockCounter = 4;
+
+function renderMemLab() {
+    const freePool = document.getElementById('free-pool');
+    const occPool = document.getElementById('occupied-pool');
+    
+    freePool.innerHTML = '';
+    occPool.innerHTML = '';
+
+    freeBlocks.forEach((b, index) => {
+        const node = document.createElement('div');
+        node.className = 'node-block';
+        node.innerHTML = `
+            <div class="node-data">#${b.id} (${b.size}B)</div>
+            <div class="node-next">${index < freeBlocks.length - 1 ? 'Next ➔' : 'NULL'}</div>
+        `;
+        freePool.appendChild(node);
+    });
+
+    occupiedBlocks.forEach(b => {
+        const el = document.createElement('div');
+        el.className = 'mem-block occupied-block';
+        el.innerHTML = `BLOCK #${b.id}<br>${b.size} Bytes`;
+        el.onclick = () => simFree(b.id);
+        occPool.appendChild(el);
+    });
+}
+
+function simMalloc() {
+    const size = parseInt(document.getElementById('malloc-size').value);
+    const log = document.getElementById('lab-log');
+
+    // Simple First Fit Algorithm
+    const blockIndex = freeBlocks.findIndex(b => b.size >= size);
+
+    if (blockIndex === -1) {
+        log.innerHTML = `<span style="color:#ef4444">[ERROR] Out of Memory! No free block large enough for ${size}B.</span>`;
+        return;
+    }
+
+    const targetBlock = freeBlocks[blockIndex];
+    log.innerHTML = `[KERNEL] Finding block... Found Block #${targetBlock.id} (${targetBlock.size}B).<br>`;
+    
+    // Move to occupied
+    occupiedBlocks.push({ id: targetBlock.id, size: size });
+    
+    // Split block or remove
+    if (targetBlock.size > size) {
+        log.innerHTML += `[KERNEL] Splitting block. ${size}B allocated, ${targetBlock.size - size}B left in Free List.<br>`;
+        freeBlocks[blockIndex].size -= size;
+        freeBlocks[blockIndex].id = blockCounter++; // New ID for the leftover
+    } else {
+        freeBlocks.splice(blockIndex, 1);
+    }
+
+    renderMemLab();
+}
+
+function simFree(blockId) {
+    const log = document.getElementById('lab-log');
+    const index = occupiedBlocks.findIndex(b => b.id === blockId);
+    
+    if (index !== -1) {
+        const block = occupiedBlocks.splice(index, 1)[0];
+        freeBlocks.push(block);
+        log.innerHTML = `[KERNEL] free() called for Block #${block.id}. Memory returned to Free List.<br>`;
+        log.innerHTML += `[KERNEL] Coalescing nearby free blocks (simulated)...`;
+        renderMemLab();
+    }
+}
+
+// Initial Render
+renderMemLab();
 </script>
 {% endblock %}

@@ -27,4 +27,5 @@ urlpatterns = [
     path('linux/', include('Linux.urls')),
     path('rust/', include('RustProgramming.urls')),
     path('cpp/', include('Cpp.urls')),
+    path('networking/', include('Networking.urls')),
 ]

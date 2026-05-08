@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Data Link Layer: Ethernet & ARP{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">The <span style="color: var(--primary)">Data Link</span> Layer</h1>
+        <p style="color: var(--text-muted);">Hop-to-Hop delivery using MAC addresses and ARP resolution.</p>
+    </div>
+
+    <!-- Section 1: Ethernet Frames -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--accent); margin-bottom: 3rem;">1. The Ethernet Frame</h2>
+        <p style="margin-bottom: 3rem;">Everything sent over a local wire is wrapped in an Ethernet frame. It uses <strong>MAC Addresses</strong> to find the destination device.</p>
+        
+        <div class="frame-container">
+            <div class="frame-bit preamble" title="7 Bytes: Wake up the receiver">Preamble</div>
+            <div class="frame-bit dest-mac" title="6 Bytes: Destination Hardware Address">Dest MAC</div>
+            <div class="frame-bit src-mac" title="6 Bytes: Source Hardware Address">Src MAC</div>
+            <div class="frame-bit ether-type" title="2 Bytes: Tells if the data inside is IPv4, IPv6, etc.">Type</div>
+            <div class="frame-bit payload" title="46-1500 Bytes: The actual IP Packet">Data (IP Packet)</div>
+            <div class="frame-bit fcs" title="4 Bytes: Cyclic Redundancy Check for error detection">FCS</div>
+        </div>
+    </div>
+
+    <!-- Section 2: ARP (Address Resolution Protocol) -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="color: var(--primary); margin-bottom: 3rem;">2. ARP: Mapping IP to MAC</h2>
+        <p style="margin-bottom: 3rem;">Computers know IP addresses, but switches only know MAC addresses. **ARP** is the bridge between them.</p>
+
+        <div class="arp-viz">
+            <div class="glass-card" style="padding: 2rem; background: rgba(0,0,0,0.2);">
+                <h4 style="color: var(--accent); margin-bottom: 1rem;">ARP Request (Broadcast)</h4>
+                <p style="font-family: monospace; font-size: 0.8rem; color: var(--primary);">"WHO HAS 192.168.1.5? TELL 192.168.1.10"</p>
+            </div>
+            <div style="font-size: 2rem;">➔</div>
+            <div class="glass-card" style="padding: 2rem; background: rgba(0,0,0,0.2); border-color: #10b981;">
+                <h4 style="color: #10b981; margin-bottom: 1rem;">ARP Reply (Unicast)</h4>
+                <p style="font-family: monospace; font-size: 0.8rem; color: #34d399;">"I AM 192.168.1.5. MY MAC IS 00:AA:BB:CC:DD:EE"</p>
+            </div>
+        </div>
+
+        <div class="terminal-box" style="margin-top: 3rem;">
+            <div class="term-header">kamal@linux:~$ arp -a</div>
+            <div class="term-body">
+                <div style="font-family: monospace; font-size: 0.9rem;">
+                    ? (192.168.1.1) at 50:c7:bf:32:4d:11 [ether] on eth0<br>
+                    ? (192.168.1.5) at 00:aa:bb:cc:dd:ee [ether] on eth0<br>
+                    ? (192.168.1.12) at &lt;incomplete&gt; [ether] on eth0
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.frame-container {
+    display: flex;
+    gap: 5px;
+    padding: 2rem;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+}
+
+.frame-bit {
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: help;
+}
+
+.preamble { flex: 0.5; background: #374151; }
+.dest-mac { flex: 1; background: rgba(244, 63, 94, 0.3); color: #fb7185; }
+.src-mac { flex: 1; background: rgba(244, 63, 94, 0.3); color: #fb7185; }
+.ether-type { flex: 0.5; background: rgba(16, 185, 129, 0.3); color: #34d399; }
+.payload { flex: 4; background: rgba(99, 102, 241, 0.3); color: #818cf8; }
+.fcs { flex: 0.5; background: #991b1b; color: #fff; }
+
+.arp-viz { display: flex; align-items: center; gap: 2rem; justify-content: center; }
+
+.terminal-box { background: #1e1e1e; border-radius: 12px; overflow: hidden; }
+.term-header { background: #333; padding: 10px 20px; font-family: monospace; font-size: 0.8rem; }
+.term-body { padding: 1.5rem; }
+</style>
+{% endblock %}

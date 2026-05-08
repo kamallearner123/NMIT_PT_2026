@@ -51,7 +51,7 @@
         <div class="context-visual">
             <div class="pcb-box" id="pcb-a">
                 <div class="sidebar-label" style="color: var(--primary); font-weight: 700;">PCB (Process A)</div>
-                <div class="reg-data" id="reg-a">Registers: [saved]</div>
+                <div class="reg-data" id="reg-a">Registers: [SAVED]</div>
             </div>
             
             <div class="cpu-core-wrapper">
@@ -69,6 +69,32 @@
 
         <div style="text-align: center; margin-top: 2rem;">
             <button class="nav-btn" onclick="runContextSwitch()" style="background: var(--primary); cursor: pointer; padding: 0.8rem 2rem; border-radius: 30px; color: black; font-weight: bold; border: none;">Execute Context Switch</button>
+        </div>
+
+        <div class="context-deep-dive" style="margin-top: 4rem;">
+            <h3 style="color: var(--primary); text-align: center; margin-bottom: 2rem;">What's inside the "Context"?</h3>
+            <div class="register-breakdown-grid">
+                <div class="register-card">
+                    <div class="reg-header">PC (Program Counter)</div>
+                    <p>The memory address of the <strong>next instruction</strong> to execute. Without this, the CPU wouldn't know where it left off.</p>
+                </div>
+                <div class="register-card">
+                    <div class="reg-header">SP (Stack Pointer)</div>
+                    <p>Points to the current <strong>top of the stack</strong> in RAM. Essential for nested function calls and local variables.</p>
+                </div>
+                <div class="register-card">
+                    <div class="reg-header">GPRs (General Purpose)</div>
+                    <p>Registers like EAX, EBX, R0-R15. They store <strong>intermediate calculations</strong> and data being currently processed.</p>
+                </div>
+                <div class="register-card">
+                    <div class="reg-header">Floating Point / SIMD</div>
+                    <p>Complex math state (SSE, AVX). These are large and often saved lazily by the kernel to save time.</p>
+                </div>
+            </div>
+            
+            <div class="info-box" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); margin-top: 2rem;">
+                ⚠️ <strong>The Cost of Context Switching:</strong> It's not just swapping registers! A context switch often causes <strong>Cache Misses</strong> and <strong>TLB (Translation Lookaside Buffer) Flushes</strong>, which significantly slow down the system for a few thousand cycles.
+            </div>
         </div>
     </div>
 
@@ -131,20 +157,77 @@
         </div>
     </div>
 
-    <!-- Section 5: Interactive Gantt Chart -->
+    <!-- Section 5: Interactive Scheduling Simulator -->
     <div class="glass-card section-card">
-        <h2 style="color: var(--primary); margin-bottom: 2rem;">5. Interactive Timeline (Round Robin)</h2>
-        <p style="margin-bottom: 2rem;">Simulating a Time Quantum of 2 units for 3 competing processes.</p>
-        <div class="gantt-container">
-            <div class="gantt-chart" id="gantt">
-                <!-- Timeline blocks will go here -->
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">5. Interactive Scheduling Simulator</h2>
+        <p style="margin-bottom: 2rem;">Add processes with their <strong>Burst Time</strong> (Execution time) and <strong>Priority</strong> (Lower number = Higher priority) to see how different algorithms handle them.</p>
+        
+        <!-- Process Input Table -->
+        <div class="simulator-controls" style="margin-bottom: 3rem;">
+            <div class="input-table-wrapper">
+                <table class="complexity-table" id="process-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>Burst Time</th>
+                            <th>Priority</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="process-list">
+                        <tr>
+                            <td><input type="text" value="P1" class="sim-input pid"></td>
+                            <td><input type="number" value="5" class="sim-input burst"></td>
+                            <td><input type="number" value="2" class="sim-input priority"></td>
+                            <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="P2" class="sim-input pid"></td>
+                            <td><input type="number" value="3" class="sim-input burst"></td>
+                            <td><input type="number" value="1" class="sim-input priority"></td>
+                            <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="P3" class="sim-input pid"></td>
+                            <td><input type="number" value="8" class="sim-input burst"></td>
+                            <td><input type="number" value="3" class="sim-input priority"></td>
+                            <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn-add" onclick="addRow()" style="margin-top: 1rem;">+ Add Process</button>
             </div>
-            <div class="time-axis" style="display: flex; justify-content: space-between; margin-top: 0.5rem; opacity: 0.5; font-size: 0.8rem;">
-                <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span>
+
+            <div class="algo-selection" style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="nav-btn algo-btn" onclick="runSimulation('FCFS')">First Come First Serve (FCFS)</button>
+                <button class="nav-btn algo-btn" onclick="runSimulation('SJF')">Shortest Job First (SJF)</button>
+                <button class="nav-btn algo-btn" onclick="runSimulation('Priority')">Priority Scheduling</button>
+                <button class="nav-btn algo-btn" onclick="runSimulation('RR')">Round Robin (Q=2)</button>
             </div>
         </div>
-        <div style="text-align: center; margin-top: 2rem;">
-            <button class="nav-btn" onclick="startScheduling()" style="background: var(--primary); cursor: pointer; padding: 0.8rem 2rem; border-radius: 30px; color: black; font-weight: bold; border: none;">Simulate Scheduling</button>
+
+        <!-- Simulation Output -->
+        <div id="simulation-output" style="display: none;">
+            <h4 id="algo-title" style="color: var(--accent); margin-bottom: 1rem;"></h4>
+            <div class="gantt-container" style="margin-bottom: 2rem;">
+                <div class="gantt-chart" id="gantt-simulator">
+                    <!-- Dynamic blocks -->
+                </div>
+                <div id="gantt-timeline" style="display: flex; margin-top: 0.5rem; opacity: 0.5; font-size: 0.8rem; position: relative; height: 20px;">
+                    <!-- Timeline numbers -->
+                </div>
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="stat-box" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Avg. Waiting Time</div>
+                    <div id="avg-wait" style="font-size: 2rem; font-weight: bold; color: var(--primary);">0.0ms</div>
+                </div>
+                <div class="stat-box" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Avg. Turnaround Time</div>
+                    <div id="avg-tat" style="font-size: 2rem; font-weight: bold; color: var(--accent);">0.0ms</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -324,6 +407,105 @@
     filter: brightness(1.2);
     transform: translateY(-2px) scale(1.02);
 }
+
+/* Context Deep Dive Styles */
+.register-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.register-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-top: 3px solid var(--accent);
+}
+
+.reg-header {
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-family: monospace;
+}
+
+.register-card p {
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+/* Simulator Styles */
+.sim-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    width: 80px;
+}
+.sim-input.pid { width: 120px; }
+
+.btn-remove {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-add {
+    background: var(--primary);
+    color: black;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.algo-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.algo-btn:hover {
+    background: var(--primary);
+    color: black;
+    border-color: var(--primary);
+}
+
+.gantt-block {
+    position: relative;
+    overflow: hidden;
+}
+
+.gantt-block::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: sweep 2s infinite;
+}
+
+@keyframes sweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
 </style>
 
 <script>
@@ -362,33 +544,121 @@ function runContextSwitch() {
     }, 800);
 }
 
-function startScheduling() {
-    const gantt = document.getElementById('gantt');
-    gantt.innerHTML = '';
-    const procs = [
-        {name: 'P1', class: 'p1'},
-        {name: 'P2', class: 'p2'},
-        {name: 'P3', class: 'p3'}
-    ];
+function addRow() {
+    const list = document.getElementById('process-list');
+    const row = document.createElement('tr');
+    const pid = 'P' + (list.children.length + 1);
+    row.innerHTML = `
+        <td><input type="text" value="${pid}" class="sim-input pid"></td>
+        <td><input type="number" value="5" class="sim-input burst"></td>
+        <td><input type="number" value="1" class="sim-input priority"></td>
+        <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+    `;
+    list.appendChild(row);
+}
+
+function removeRow(btn) {
+    btn.closest('tr').remove();
+}
+
+async function runSimulation(algo) {
+    const output = document.getElementById('simulation-output');
+    const gantt = document.getElementById('gantt-simulator');
+    const timeline = document.getElementById('gantt-timeline');
+    const title = document.getElementById('algo-title');
     
-    let i = 0;
-    const interval = setInterval(() => {
-        if (i >= 12) {
-            clearInterval(interval);
-            return;
+    output.style.display = 'block';
+    gantt.innerHTML = '';
+    timeline.innerHTML = '';
+    title.innerText = `Executing: ${algo}`;
+
+    // Get Data
+    let processes = [];
+    document.querySelectorAll('#process-list tr').forEach(row => {
+        processes.push({
+            pid: row.querySelector('.pid').value,
+            burst: parseInt(row.querySelector('.burst').value),
+            priority: parseInt(row.querySelector('.priority').value),
+            originalBurst: parseInt(row.querySelector('.burst').value)
+        });
+    });
+
+    let schedule = [];
+    if (algo === 'FCFS') {
+        schedule = processes;
+    } else if (algo === 'SJF') {
+        schedule = [...processes].sort((a, b) => a.burst - b.burst);
+    } else if (algo === 'Priority') {
+        schedule = [...processes].sort((a, b) => a.priority - b.priority);
+    } else if (algo === 'RR') {
+        let q = 2;
+        let queue = [...processes];
+        while (queue.length > 0) {
+            let p = queue.shift();
+            let runTime = Math.min(p.burst, q);
+            schedule.push({...p, burst: runTime});
+            p.burst -= runTime;
+            if (p.burst > 0) queue.push(p);
         }
-        const p = procs[i % 3];
+    }
+
+    // Visualization
+    const totalTime = schedule.reduce((acc, p) => acc + p.burst, 0);
+    let currentTime = 0;
+    let totalWait = 0;
+    let totalTat = 0;
+    
+    // For calculating stats (only for non-RR or consolidated RR)
+    let processStats = {};
+    processes.forEach(p => processStats[p.pid] = { finish: 0, arrival: 0, burst: p.burst });
+
+    for (let p of schedule) {
         const block = document.createElement('div');
-        block.className = `gantt-block ${p.class}`;
+        const colors = ['p1', 'p2', 'p3'];
+        const colorClass = colors[processes.findIndex(orig => orig.pid === p.pid) % 3];
+        block.className = `gantt-block ${colorClass}`;
         block.style.width = '0%';
-        block.innerText = p.name;
+        block.style.transition = `width ${p.burst * 0.1}s linear`;
+        block.innerText = p.pid;
         gantt.appendChild(block);
+
+        // Timeline marker
+        const marker = document.createElement('span');
+        marker.innerText = currentTime;
+        marker.style.position = 'absolute';
+        marker.style.left = `${(currentTime / totalTime) * 100}%`;
+        timeline.appendChild(marker);
+
+        await new Promise(r => setTimeout(r, 50));
+        block.style.width = `${(p.burst / totalTime) * 100}%`;
         
-        setTimeout(() => {
-            block.style.width = '8.33%';
-        }, 50);
-        i++;
-    }, 800);
+        currentTime += p.burst;
+        processStats[p.pid].finish = currentTime;
+        
+        await new Promise(r => setTimeout(r, p.burst * 100));
+    }
+
+    // Final marker
+    const finalMarker = document.createElement('span');
+    finalMarker.innerText = currentTime;
+    finalMarker.style.position = 'absolute';
+    finalMarker.style.left = '100%';
+    finalMarker.style.transform = 'translateX(-100%)';
+    timeline.appendChild(finalMarker);
+
+    // Calculate Averages
+    let count = 0;
+    for (let pid in processStats) {
+        let s = processStats[pid];
+        let tat = s.finish - s.arrival;
+        let wait = tat - s.burst;
+        totalWait += wait;
+        totalTat += tat;
+        count++;
+    }
+
+    document.getElementById('avg-wait').innerText = (totalWait / count).toFixed(2) + ' units';
+    document.getElementById('avg-tat').innerText = (totalTat / count).toFixed(2) + ' units';
 }
 </script>
 {% endblock %}

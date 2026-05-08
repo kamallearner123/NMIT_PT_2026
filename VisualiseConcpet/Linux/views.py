@@ -1,16 +1,23 @@
+import json
+import subprocess
+import os
+import tempfile
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 def get_chapters():
     return [
         {"id": "history", "title": "1. Linux History", "description": "From Unix to the modern world."},
-        {"id": "architecture", "title": "2. Architecture & File System", "description": "Kernel, Shell, and the Directory Tree."},
+        {"id": "architecture", "title": "2. Architecture & File System", "description": "Kernel, Shell, Inodes, and the FHS."},
         {"id": "system_calls", "title": "3. System Calls", "description": "The interface between applications and the kernel."},
         {"id": "permissions", "title": "4. Permissions & Security", "description": "Mastering chmod, chown, and octal values."},
-        {"id": "processes", "title": "5. Process Management", "description": "PIDs, Jobs, and the System Monitor."},
-        {"id": "scripting", "title": "6. Shell & Scripting", "description": "Pipes, Redirection, and Automation."},
-        {"id": "memory", "title": "7. Memory Management", "description": "Virtual memory, Paging, and Malloc internals."},
-        {"id": "scheduling", "title": "8. CPU Scheduling & Context Switching", "description": "How the OS decides who runs next."},
-        {"id": "ipc", "title": "9. Inter-Process Communication (IPC)", "description": "Pipes, Shared Memory, and Message Queues."},
+        {"id": "processes", "title": "5. Process Management", "description": "PIDs, Lifecycles, and State Machines."},
+        {"id": "threads", "title": "6. Threads & Concurrency", "description": "Multi-threading, Shared Memory, and Deadlocks."},
+        {"id": "scripting", "title": "7. Shell & Scripting", "description": "Pipes, Redirection, and Automation."},
+        {"id": "memory", "title": "8. Memory Management", "description": "Virtual memory, Paging, and Malloc internals."},
+        {"id": "scheduling", "title": "9. CPU Scheduling & Context Switching", "description": "How the OS decides who runs next."},
+        {"id": "ipc", "title": "10. Inter-Process Communication (IPC)", "description": "Pipes, Shared Memory, and Message Queues."},
         {"id": "resources", "title": "📚 Standard Resources", "description": "Recommended books and documentation."},
     ]
 
@@ -216,6 +223,113 @@ def linux_permissions(request):
 def linux_processes(request):
     return render(request, 'linux_processes.html', {'chapters': get_chapters()})
 
+def linux_threads(request):
+    thread_examples = {
+        "creation": {
+            "title": "Thread Creation (Pthreads)",
+            "description": "How to spawn a new thread and pass arguments.",
+            "code": """#include <pthread.h>
+#include <stdio.h>
+
+void* print_hello(void* arg) {
+    int id = *(int*)arg;
+    printf("Hello from Thread %d!\\n", id);
+    return NULL;
+}
+
+int main() {
+    pthread_t thread;
+    int id = 1;
+    
+    // 1. Create thread
+    pthread_create(&thread, NULL, print_hello, &id);
+    
+    // 2. Wait for thread to finish
+    pthread_join(thread, NULL);
+    
+    printf("Thread execution finished.\\n");
+    return 0;
+}"""
+        },
+        "mutex": {
+            "title": "Mutual Exclusion (Mutex)",
+            "description": "Protecting a shared counter from race conditions.",
+            "code": """#include <pthread.h>
+#include <stdio.h>
+
+int counter = 0;
+pthread_mutex_t lock;
+
+void* increment(void* arg) {
+    pthread_mutex_lock(&lock);
+    for(int i=0; i<100000; i++) counter++;
+    pthread_mutex_unlock(&lock);
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+    pthread_mutex_init(&lock, NULL);
+
+    pthread_create(&t1, NULL, increment, NULL);
+    pthread_create(&t2, NULL, increment, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    printf("Final Counter: %d\\n", counter);
+    pthread_mutex_destroy(&lock);
+    return 0;
+}"""
+        },
+        "deadlock": {
+            "title": "The Deadlock Pattern",
+            "description": "Code that triggers a circular wait between two mutexes.",
+            "code": """#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t L1, L2;
+
+void* threadA(void* arg) {
+    pthread_mutex_lock(&L1);
+    sleep(1); // Wait for threadB to lock L2
+    pthread_mutex_lock(&L2); // WAITING FOREVER
+    
+    pthread_mutex_unlock(&L2);
+    pthread_mutex_unlock(&L1);
+    return NULL;
+}
+
+void* threadB(void* arg) {
+    pthread_mutex_lock(&L2);
+    sleep(1); // Wait for threadA to lock L1
+    pthread_mutex_lock(&L1); // WAITING FOREVER
+    
+    pthread_mutex_unlock(&L1);
+    pthread_mutex_unlock(&L2);
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+    pthread_mutex_init(&L1, NULL);
+    pthread_mutex_init(&L2, NULL);
+
+    pthread_create(&t1, NULL, threadA, NULL);
+    pthread_create(&t2, NULL, threadB, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    return 0;
+}"""
+        }
+    }
+    return render(request, 'linux_threads.html', {
+        'chapters': get_chapters(),
+        'thread_examples': thread_examples
+    })
+
 def linux_scripting(request):
     return render(request, 'linux_scripting.html', {'chapters': get_chapters()})
 
@@ -357,6 +471,59 @@ int main() {
         'code_examples': code_examples,
         'chapters': get_chapters()
     })
+
+@csrf_exempt
+def run_c_code(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            code = data.get('code', '')
+            
+            # Create a temporary directory for compilation
+            with tempfile.TemporaryDirectory() as tmpdir:
+                c_file = os.path.join(tmpdir, 'temp.c')
+                exec_file = os.path.join(tmpdir, 'temp.out')
+                
+                with open(c_file, 'w') as f:
+                    f.write(code)
+                
+                # Compile with pthreads support
+                compile_res = subprocess.run(
+                    ['gcc', c_file, '-o', exec_file, '-pthread'],
+                    capture_output=True, text=True
+                )
+                
+                if compile_res.returncode != 0:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f"Compilation Error:\n{compile_res.stderr}"
+                    })
+                
+                # Run the binary
+                try:
+                    run_res = subprocess.run(
+                        [exec_file],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    return JsonResponse({
+                        'success': True,
+                        'output': run_res.stdout + run_res.stderr
+                    })
+                except subprocess.TimeoutExpired:
+                    return JsonResponse({
+                        'success': False,
+                        'error': "Execution Timeout: The program took too long to run (Infinite loop?)"
+                    })
+                except Exception as e:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f"Runtime Error: {str(e)}"
+                    })
+                    
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+            
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def linux_history(request):
     milestones = [

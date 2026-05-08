@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Network Layer: IP & Routing{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">The <span style="color: var(--accent)">Network</span> Layer</h1>
+        <p style="color: var(--text-muted);">IP Addressing, Subnetting, and Global Packet Delivery.</p>
+    </div>
+
+    <!-- Section 1: IP Addressing -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">1. IPv4 Addressing & Structure</h2>
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem;">
+            <div>
+                <p style="margin-bottom: 2rem;">An IP address is a 32-bit identifier for a host. It is divided into a <strong>Network ID</strong> and a <strong>Host ID</strong> using a Subnet Mask.</p>
+                <div class="ip-visual-box">
+                    <div class="ip-part net">192.168.1</div>
+                    <div class="ip-part host">10</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 10px; color: var(--text-muted);">
+                    <span>Network Portion</span>
+                    <span>Host Portion</span>
+                </div>
+            </div>
+            <div class="info-box" style="border-left-color: var(--accent);">
+                <h4>The Mask</h4>
+                <p>A mask like <code>255.255.255.0</code> (or <code>/24</code>) tells the computer which bits belong to the network.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Interactive Subnet Lab -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem; border-color: var(--accent);">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">2. Interactive Subnet Lab</h2>
+        <div class="lab-container">
+            <div class="glass-card" style="padding: 2rem; background: rgba(0,0,0,0.2);">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Base IP Address</label>
+                    <input type="text" id="subnet-ip" value="192.168.1.0" class="glass-input">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem;">Subnet Mask (CIDR)</label>
+                    <select id="subnet-mask" class="glass-input" onchange="calculateSubnet()">
+                        <option value="24">/24 (255.255.255.0)</option>
+                        <option value="25">/25 (255.255.255.128)</option>
+                        <option value="26">/26 (255.255.255.192)</option>
+                        <option value="30">/30 (255.255.255.252)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="subnet-results glass-card" id="subnet-results">
+                <div class="res-item"><span>Network ID:</span> <strong id="res-netid">192.168.1.0</strong></div>
+                <div class="res-item"><span>Usable IPs:</span> <strong id="res-range">192.168.1.1 - 192.168.1.254</strong></div>
+                <div class="res-item"><span>Broadcast:</span> <strong id="res-bcast">192.168.1.255</strong></div>
+                <div class="res-item"><span>Total Hosts:</span> <strong id="res-total">254</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Linux Routing Table -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">3. How Linux Routes Packets</h2>
+        <p style="margin-bottom: 2rem;">The <strong>Routing Table</strong> is the kernel's roadmap. It tells the OS which interface (eth0, wlan0) to use for a destination.</p>
+        
+        <div class="terminal-box">
+            <div class="term-header">kamal@linux:~$ route -n</div>
+            <div class="term-body">
+                <table class="route-table">
+                    <thead>
+                        <tr>
+                            <th>Destination</th>
+                            <th>Gateway</th>
+                            <th>Genmask</th>
+                            <th>Iface</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="route-highlight">
+                            <td>0.0.0.0</td>
+                            <td>192.168.1.1</td>
+                            <td>0.0.0.0</td>
+                            <td>eth0</td>
+                        </tr>
+                        <tr>
+                            <td>192.168.1.0</td>
+                            <td>0.0.0.0</td>
+                            <td>255.255.255.0</td>
+                            <td>eth0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">The destination <code>0.0.0.0</code> is the <strong>Default Gateway</strong>—where all internet-bound traffic goes.</p>
+    </div>
+
+    <!-- Section 4: Socket Programming (C) -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">4. Socket Programming: Fetching Host Info</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+            <p style="margin:0; opacity: 0.8;">C code to resolve a hostname to an IP address (DNS resolution in C).</p>
+            <button class="nav-btn" style="background: #10b981; color: #000;" onclick="runCCode()">Run Code ▶</button>
+        </div>
+
+        <div class="code-display glass-card" style="background: #0d1117 !important;">
+            <pre class="line-numbers"><code id="code-content" class="language-c" contenteditable="true">#include &lt;stdio.h&gt;       // Standard I/O library for printing
+#include &lt;string.h&gt;      // Library for string operations like strcpy
+#include &lt;sys/socket.h&gt;  // Core socket library for network constants
+#include &lt;netdb.h&gt;       // Library for network database operations (DNS)
+#include &lt;arpa/inet.h&gt;   // Library for IP address conversion functions
+
+int main() {
+    // 1. Declare variables to hold host info
+    struct hostent *he;      // Structure to store host database entry
+    struct in_addr **addr_list; // List of IP addresses returned by DNS
+    char *hostname = "google.com"; // Hostname we want to resolve
+
+    // 2. Use gethostbyname() syscall to query DNS
+    // This is the core function that communicates with the resolver
+    if ((he = gethostbyname(hostname)) == NULL) {
+        herror("gethostbyname"); // Print error if DNS lookup fails
+        return 1;
+    }
+
+    // 3. Extract the list of IP addresses from the host entity
+    addr_list = (struct in_addr **)he->h_addr_list;
+
+    // 4. Loop through the address list and print the first one
+    for(int i = 0; addr_list[i] != NULL; i++) {
+        // inet_ntoa converts binary IP to readable "dotted" string
+        printf("%s resolved to: %s\n", hostname, inet_ntoa(*addr_list[i]));
+        break; // Just show the first IP for simplicity
+    }
+
+    return 0; // Return success to the OS
+}</code></pre>
+        </div>
+
+        <div id="console-container" style="display: none; margin-top: 1rem;">
+            <div id="console-output" style="background: #000; color: #10b981; padding: 1.5rem; border-radius: 8px; font-family: 'Fira Code', monospace; border: 1px solid rgba(16, 185, 129, 0.3);">
+                Running...
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.ip-visual-box {
+    display: flex;
+    background: #000;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.ip-part { padding: 5px 15px; border-radius: 4px; }
+.net { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #818cf8; }
+.host { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #34d399; margin-left: 10px; }
+
+.lab-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+}
+
+.glass-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+}
+
+.subnet-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.res-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 10px;
+}
+
+.res-item span { opacity: 0.7; font-size: 0.9rem; }
+
+.terminal-box {
+    background: #1e1e1e;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.term-header { background: #333; padding: 10px 20px; font-family: monospace; font-size: 0.8rem; border-bottom: 1px solid #444; }
+.term-body { padding: 1.5rem; }
+
+.route-table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9rem; }
+.route-table th { text-align: left; opacity: 0.5; padding-bottom: 10px; }
+.route-table td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.route-highlight { color: var(--accent); font-weight: bold; }
+
+.code-display { padding: 2rem; border-radius: 12px; }
+pre[class*="language-"] { background: transparent !important; margin: 0 !important; }
+code[class*="language-"] { font-family: 'Fira Code', monospace !important; font-size: 0.9rem !important; outline: none; }
+</style>
+
+<script>
+function calculateSubnet() {
+    const mask = document.getElementById('subnet-mask').value;
+    const ip = document.getElementById('subnet-ip').value;
+    
+    // Simplified logic for UI demonstration
+    const totalHosts = Math.pow(2, 32 - mask) - 2;
+    document.getElementById('res-total').innerText = totalHosts.toLocaleString();
+    
+    if (mask == 24) {
+        document.getElementById('res-range').innerText = "192.168.1.1 - 192.168.1.254";
+        document.getElementById('res-bcast').innerText = "192.168.1.255";
+    } else if (mask == 26) {
+        document.getElementById('res-range').innerText = "192.168.1.1 - 192.168.1.62";
+        document.getElementById('res-bcast').innerText = "192.168.1.63";
+    }
+}
+
+async function runCCode() {
+    const code = document.getElementById('code-content').innerText;
+    const output = document.getElementById('console-output');
+    const container = document.getElementById('console-container');
+    
+    container.style.display = 'block';
+    output.innerText = 'Resolving DNS...';
+    
+    try {
+        const response = await fetch('/linux/run-c-code/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        });
+        const result = await response.json();
+        output.innerText = result.success ? result.output : result.error;
+    } catch (e) {
+        output.innerText = "Error connecting to backend.";
+    }
+}
+</script>
+{% endblock %}

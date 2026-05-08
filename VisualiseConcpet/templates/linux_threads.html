@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux Threads & Concurrency{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Threads & <span style="color: var(--primary)">Concurrency</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Mastering Multi-threading, Synchronization, and Deadlock avoidance.</p>
+    </div>
+
+    <!-- Section 1: Processes vs Threads (Multi-threading) -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: var(--primary); margin-bottom: 2rem;">1. Processes vs Threads: Shared vs Separate</h2>
+        <p style="color: var(--text-muted); margin-bottom: 3rem;">A <strong>Process</strong> is an independent program execution. A <strong>Thread</strong> (LWP - Light Weight Process) is a unit of execution <em>within</em> a process.</p>
+
+        <div class="threads-comparison-container">
+            <!-- Process Memory View -->
+            <div class="memory-comparison-box">
+                <h4 style="text-align: center; color: var(--accent);">Process View</h4>
+                <div class="process-mem-visual">
+                    <div class="shared-area">
+                        <div class="mem-seg-small code">Code (Text) - Shared</div>
+                        <div class="mem-seg-small data">Data (Globals) - Shared</div>
+                        <div class="mem-seg-small heap">Heap (Dynamic) - Shared</div>
+                    </div>
+                    <div class="thread-stacks">
+                        <div class="t-stack" id="t1-stack">
+                            <span class="stack-label">Thread 1 Stack</span>
+                            <div class="context-pill">PC / SP / Regs</div>
+                        </div>
+                        <div class="t-stack" id="t2-stack">
+                            <span class="stack-label">Thread 2 Stack</span>
+                            <div class="context-pill">PC / SP / Regs</div>
+                        </div>
+                        <div class="t-stack" id="t3-stack">
+                            <span class="stack-label">Thread 3 Stack</span>
+                            <div class="context-pill">PC / SP / Regs</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box" style="border-left-color: var(--primary); margin-top: 2rem;">
+                    <strong>Key Insight:</strong> Threads share the same address space. This makes communication fast (no IPC needed) but dangerous (race conditions!).
+                </div>
+            </div>
+
+            <!-- Thread Properties Table -->
+            <div class="table-container">
+                <table class="complexity-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Shared?</th>
+                            <th>Reasoning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Code (Text)</strong></td>
+                            <td style="color: #10b981;">✅ Yes</td>
+                            <td>All threads execute from the same binary.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data (Global)</strong></td>
+                            <td style="color: #10b981;">✅ Yes</td>
+                            <td>Allows global variable sharing across threads.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Heap</strong></td>
+                            <td style="color: #10b981;">✅ Yes</td>
+                            <td>Memory allocated via <code>malloc()</code> is shared.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stack</strong></td>
+                            <td style="color: #ef4444;">❌ No</td>
+                            <td>Each thread needs its own function call history.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PC (Prog Counter)</strong></td>
+                            <td style="color: #ef4444;">❌ No</td>
+                            <td>Each thread is at a different line of code.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Registers</strong></td>
+                            <td style="color: #ef4444;">❌ No</td>
+                            <td>Each thread has its own temporary calculations.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Thread Synchronization & Deadlocks -->
+    <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+        <h2 style="color: #ef4444; margin-bottom: 2rem;">2. The Deadlock Scenario (Two-Lock Cycle)</h2>
+        <p style="color: var(--text-muted); margin-bottom: 3rem;">A <strong>Deadlock</strong> occurs when two or more threads are blocked forever, each waiting for a resource held by the other.</p>
+
+        <div class="deadlock-viz-container">
+            <div class="deadlock-stage">
+                <!-- Threads -->
+                <div class="thread-entity" id="th-1">
+                    <div class="entity-label">Thread A</div>
+                    <div class="entity-status" id="status-t1">Idle</div>
+                </div>
+                <div class="thread-entity" id="th-2">
+                    <div class="entity-label">Thread B</div>
+                    <div class="entity-status" id="status-t2">Idle</div>
+                </div>
+
+                <!-- Locks (Resources) -->
+                <div class="resource-entity" id="lock-1">
+                    <div class="lock-icon">🔒</div>
+                    <div class="entity-label">Lock 1</div>
+                    <div class="owner-tag" id="owner-l1">Free</div>
+                </div>
+                <div class="resource-entity" id="lock-2">
+                    <div class="lock-icon">🔒</div>
+                    <div class="entity-label">Lock 2</div>
+                    <div class="owner-tag" id="owner-l2">Free</div>
+                </div>
+
+                <!-- SVG for Arrows -->
+                <svg class="deadlock-arrows">
+                    <defs>
+                        <marker id="deadlock-head" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                        </marker>
+                    </defs>
+                    <!-- T1 -> L1 (Hold) -->
+                    <line x1="150" y1="100" x2="250" y2="100" class="d-line" id="line-t1-l1" />
+                    <!-- T2 -> L2 (Hold) -->
+                    <line x1="650" y1="100" x2="550" y2="100" class="d-line" id="line-t2-l2" />
+                    <!-- T1 -> L2 (Wait) -->
+                    <line x1="150" y1="120" x2="450" y2="280" class="d-line wait-line" id="line-t1-l2" style="opacity: 0;" />
+                    <!-- T2 -> L1 (Wait) -->
+                    <line x1="650" y1="120" x2="350" y2="280" class="d-line wait-line" id="line-t2-l1" style="opacity: 0;" />
+                </svg>
+            </div>
+
+            <div class="deadlock-controls glass-card">
+                <h4 style="color: var(--accent); margin-bottom: 1rem;">Simulation Control</h4>
+                <div id="deadlock-msg" style="margin-bottom: 1.5rem; min-height: 3rem;">Click "Start Sequence" to observe the circular wait.</div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-sm" id="btn-deadlock-start" onclick="runDeadlock()">Start Sequence</button>
+                    <button class="btn btn-sm btn-secondary" onclick="resetDeadlock()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deadlock Conditions -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 3rem;">
+            <div class="condition-card">
+                <h5>1. Mutual Exclusion</h5>
+                <p>Only one thread can hold a lock at a time.</p>
+            </div>
+            <div class="condition-card">
+                <h5>2. Hold and Wait</h5>
+                <p>Thread holds one lock while waiting for another.</p>
+            </div>
+            <div class="condition-card">
+                <h5>3. No Preemption</h5>
+                <p>Locks cannot be forcibly taken from a thread.</p>
+            </div>
+            <div class="condition-card">
+                <h5>4. Circular Wait</h5>
+                <p>A cycle exists in the resource allocation graph.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Section 3: C Programming Paradigms -->
+    <div class="glass-card" style="margin-top: 5rem; padding: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div>
+                <h2 style="color: var(--accent); margin: 0;">3. Threading in C (Pthreads)</h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.7;">Select a pattern to view, edit, and run the code live.</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button id="run-btn" class="nav-btn" style="background: #10b981; padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;" onclick="runCCode()">Run Code ▶</button>
+                <button id="copy-btn" class="nav-btn" style="background: var(--primary); padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;">Copy Code</button>
+            </div>
+        </div>
+        
+        <div class="code-tabs">
+            <button class="tab-btn active" onclick="showThreadCode('creation', this)">01. Creation</button>
+            <button class="tab-btn" onclick="showThreadCode('mutex', this)">02. Mutex Sync</button>
+            <button class="tab-btn" onclick="showThreadCode('deadlock', this)">03. Deadlock Code</button>
+        </div>
+
+        <div class="code-display glass-card" style="position: relative; background: #0d1117 !important; display: flex; flex-direction: column; gap: 1rem;">
+            <div id="code-header" style="color: var(--primary); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                Thread Creation Implementation
+            </div>
+            <!-- Editable Code Block -->
+            <pre class="line-numbers" style="background: transparent !important; flex-grow: 1; min-height: 300px;"><code id="code-content" class="language-c" contenteditable="true" style="outline: none; display: block; min-height: 300px;">{{ thread_examples.creation.code }}</code></pre>
+            
+            <!-- Output Console -->
+            <div id="console-container" style="display: none;">
+                <h4 style="color: var(--accent); font-size: 0.8rem; margin-bottom: 0.5rem; text-transform: uppercase;">Terminal Output</h4>
+                <div id="console-output" style="background: #000; color: #10b981; padding: 1rem; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    Compiling...
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box glass-card" style="margin-top: 2rem; padding: 2rem;">
+            <h3 style="color: var(--primary); margin-bottom: 1.5rem;">The Threading Toolbelt</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div class="syscall-item" style="border-left-color: var(--primary);">
+                    <code>pthread_create()</code>
+                    <p>Spawns a new execution flow. Requires a pointer to the thread function.</p>
+                </div>
+                <div class="syscall-item" style="border-left-color: var(--accent);">
+                    <code>pthread_mutex_lock()</code>
+                    <p>Acquires a lock. If held by another thread, the caller blocks (sleeps).</p>
+                </div>
+                <div class="syscall-item" style="border-left-color: #ef4444;">
+                    <code>pthread_join()</code>
+                    <p>A synchronization point where the parent waits for the child to finish.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Code Tabs & Display */
+.code-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    padding: 1.2rem 2.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    cursor: pointer;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s;
+    font-weight: 700;
+}
+
+.tab-btn.active {
+    background: #1e293b;
+    border-color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.code-display {
+    padding: 2rem;
+    border-radius: 12px;
+    background: #0d1117 !important;
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+pre[class*="language-"] {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+code[class*="language-"] {
+    font-family: 'Fira Code', monospace !important;
+    text-shadow: none !important;
+}
+
+.syscall-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.2rem;
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+
+.syscall-item code { color: var(--accent); display: block; margin-bottom: 0.5rem; }
+/* Threads Comparison Styles */
+.threads-comparison-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.process-mem-visual {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.shared-area {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 8px;
+}
+
+.mem-seg-small {
+    padding: 8px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.code { background: rgba(107, 114, 128, 0.3); color: #e5e7eb; }
+.data { background: rgba(99, 102, 241, 0.3); color: #c7d2fe; }
+.heap { background: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+.thread-stacks {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.t-stack {
+    flex: 1;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.stack-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #fca5a5;
+}
+
+.context-pill {
+    font-size: 0.6rem;
+    background: #ef4444;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Deadlock Styles */
+.deadlock-viz-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+}
+
+.deadlock-stage {
+    position: relative;
+    width: 800px;
+    height: 400px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.thread-entity {
+    position: absolute;
+    width: 120px;
+    padding: 1rem;
+    background: var(--bg-soft);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    text-align: center;
+    z-index: 10;
+}
+
+#th-1 { left: 50px; top: 50px; }
+#th-2 { right: 50px; top: 50px; }
+
+.resource-entity {
+    position: absolute;
+    width: 100px;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 10;
+}
+
+#lock-1 { left: 300px; top: 250px; }
+#lock-2 { right: 300px; top: 250px; }
+
+.entity-status { font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; }
+.owner-tag { font-size: 0.7rem; font-weight: bold; color: var(--accent); }
+
+.deadlock-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.d-line {
+    stroke: var(--glass-border);
+    stroke-width: 3;
+    marker-end: url(#deadlock-head);
+    transition: all 0.5s;
+    opacity: 0.1;
+}
+
+.line-hold { stroke: #10b981; opacity: 1; stroke-width: 4; }
+.line-wait { stroke: #ef4444; opacity: 1; stroke-width: 4; stroke-dasharray: 5; animation: dash 1s linear infinite; }
+
+@keyframes dash {
+    to { stroke-dashoffset: -10; }
+}
+
+.condition-card {
+    background: rgba(255,255,255,0.03);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-top: 3px solid #ef4444;
+}
+
+.condition-card h5 { color: #ef4444; margin-bottom: 0.5rem; }
+.condition-card p { font-size: 0.8rem; margin: 0; opacity: 0.8; }
+
+.deadlock-frozen {
+    box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+    border-color: #ef4444 !important;
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+</style>
+
+<script>
+// Deadlock Simulation Logic
+async function runDeadlock() {
+    const msg = document.getElementById('deadlock-msg');
+    const btn = document.getElementById('btn-deadlock-start');
+    btn.disabled = true;
+
+    // Step 1: Thread A takes Lock 1
+    msg.innerHTML = "Step 1: <strong>Thread A</strong> acquires <strong>Lock 1</strong>.";
+    document.getElementById('status-t1').innerText = "Holding Lock 1";
+    document.getElementById('owner-l1').innerText = "Owner: T-A";
+    document.getElementById('line-t1-l1').classList.add('line-hold');
+    document.getElementById('th-1').style.borderColor = "#10b981";
+    
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Step 2: Thread B takes Lock 2
+    msg.innerHTML = "Step 2: <strong>Thread B</strong> acquires <strong>Lock 2</strong>.";
+    document.getElementById('status-t2').innerText = "Holding Lock 2";
+    document.getElementById('owner-l2').innerText = "Owner: T-B";
+    document.getElementById('line-t2-l2').classList.add('line-hold');
+    document.getElementById('th-2').style.borderColor = "#10b981";
+
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Step 3: Thread A waits for Lock 2
+    msg.innerHTML = "Step 3: <strong>Thread A</strong> requests <strong>Lock 2</strong> (held by B). Waiting...";
+    document.getElementById('line-t1-l2').style.opacity = "1";
+    document.getElementById('line-t1-l2').classList.add('line-wait');
+    document.getElementById('status-t1').innerText = "WAITING for L2";
+    
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Step 4: Thread B waits for Lock 1
+    msg.innerHTML = "Step 4: <strong>Thread B</strong> requests <strong>Lock 1</strong> (held by A). <span style='color: #ef4444;'>DEADLOCK!</span>";
+    document.getElementById('line-t2-l1').style.opacity = "1";
+    document.getElementById('line-t2-l1').classList.add('line-wait');
+    document.getElementById('status-t2').innerText = "WAITING for L1";
+
+    // Visual freeze
+    document.getElementById('th-1').classList.add('deadlock-frozen');
+    document.getElementById('th-2').classList.add('deadlock-frozen');
+    document.querySelector('.deadlock-stage').style.borderColor = "#ef4444";
+}
+
+function resetDeadlock() {
+    location.reload();
+}
+
+// Code Logic
+const threadCodeData = {
+    'creation': {
+        'title': 'Thread Creation Implementation (Pthreads)',
+        'code': `{{ thread_examples.creation.code|escapejs }}`
+    },
+    'mutex': {
+        'title': 'Mutual Exclusion (Mutex) Implementation',
+        'code': `{{ thread_examples.mutex.code|escapejs }}`
+    },
+    'deadlock': {
+        'title': 'Thread Deadlock Pattern Implementation',
+        'code': `{{ thread_examples.deadlock.code|escapejs }}`
+    }
+};
+
+function showThreadCode(type, btn) {
+    const header = document.getElementById('code-header');
+    const content = document.getElementById('code-content');
+    header.innerText = threadCodeData[type].title;
+    content.textContent = threadCodeData[type].code;
+    content.className = 'language-c';
+    if (window.Prism) Prism.highlightElement(content);
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+const copyBtn = document.getElementById('copy-btn');
+copyBtn.addEventListener('click', () => {
+    const content = document.getElementById('code-content').textContent;
+    navigator.clipboard.writeText(content).then(() => {
+        const originalText = copyBtn.innerText;
+        copyBtn.innerText = 'Copied!';
+        copyBtn.style.background = 'var(--accent)';
+        setTimeout(() => {
+            copyBtn.innerText = originalText;
+            copyBtn.style.background = 'var(--primary)';
+        }, 2000);
+    });
+});
+
+async function runCCode() {
+    const code = document.getElementById('code-content').innerText;
+    const output = document.getElementById('console-output');
+    const container = document.getElementById('console-container');
+    const btn = document.getElementById('run-btn');
+
+    container.style.display = 'block';
+    output.innerText = 'Compiling and Running...';
+    output.style.color = '#10b981';
+    btn.disabled = true;
+    btn.innerText = 'Running...';
+
+    try {
+        const response = await fetch('/linux/run-c-code/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            output.innerText = result.output || "[Program finished with no output]";
+        } else {
+            output.innerText = result.error;
+            output.style.color = '#ef4444';
+        }
+    } catch (e) {
+        output.innerText = "Connection Error: Could not reach backend server.";
+        output.style.color = '#ef4444';
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Run Code ▶';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+</script>
+{% endblock %}

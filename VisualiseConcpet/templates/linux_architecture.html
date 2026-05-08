@@ -137,6 +137,141 @@
     background: var(--primary);
     color: white;
 }
+
+/* Inode Visuals */
+.inode-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+}
+
+.inode-box {
+    background: var(--bg-soft);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    width: 250px;
+    overflow: hidden;
+}
+
+.inode-header {
+    background: var(--primary);
+    padding: 10px;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+
+.inode-metadata {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.meta-item {
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.meta-item span { opacity: 0.7; }
+
+.inode-connection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--accent);
+}
+
+.conn-arrow { font-size: 2rem; }
+.conn-text { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+
+.data-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.data-block {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--accent);
+}
+
+/* FD Visuals */
+.fd-visual {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+}
+
+.fd-table-box, .system-file-table, .vfs-inode {
+    background: var(--bg-soft);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    min-width: 180px;
+}
+
+.fd-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    margin: 5px 0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+.active-fd {
+    border: 1px solid var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.sys-entry {
+    font-size: 0.8rem;
+    padding: 10px;
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.fd-bridge {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.bridge-line {
+    height: 2px;
+    background: var(--glass-border);
+    width: 100%;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.03);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    border-bottom: 3px solid var(--primary);
+}
+
+.stat-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; margin-bottom: 5px; }
+.stat-card p { font-size: 0.8rem; opacity: 0.7; margin: 0; }
 </style>
 
 <script>

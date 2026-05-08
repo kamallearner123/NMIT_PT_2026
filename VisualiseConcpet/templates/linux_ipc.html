@@ -106,32 +106,93 @@
         </div>
 
         <div class="lab-selector" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem;">
-            <button class="lab-btn active" onclick="switchLab('pipes', this)">Pipes</button>
+            <button class="lab-btn active" onclick="switchLab('pipes', this)">Interactive Pipes</button>
             <button class="lab-btn" onclick="switchLab('msg_queue', this)">Msg Queues</button>
             <button class="lab-btn" onclick="switchLab('shm', this)">Shared Memory</button>
             <button class="lab-btn" onclick="switchLab('signals', this)">Signals</button>
         </div>
 
         <div class="visualization-container glass-card" style="min-height: 400px; padding: 3rem; background: rgba(0,0,0,0.3);">
-            <div id="pipes-lab" class="lab-scene">
-                <div class="process-node p-a">Process A</div>
-                <div class="pipe-track">
-                    <div class="data-packet" id="pipe-data">DATA</div>
-                </div>
-                <div class="process-node p-b">Process B</div>
-                <div class="lab-caption">Pipes: A unidirectional stream managed by the kernel.</div>
-            </div>
+            <div id="pipes-lab" class="lab-scene" style="flex-direction: column; gap: 2rem;">
+                <div style="display: flex; width: 100%; justify-content: space-around; align-items: center;">
+                    <!-- Process A -->
+                    <div class="process-node p-a" style="flex-direction: column; height: 180px; border-radius: 20px;">
+                        <div style="margin-bottom: 10px;">Process A</div>
+                        <input type="text" id="p-a-input" placeholder="Type data..." class="glass-input">
+                        <button class="btn btn-sm" onclick="sendPipeData('a-to-b')">Send ➔</button>
+                    </div>
 
-            <div id="msg_queue-lab" class="lab-scene" style="display: none;">
-                <div class="process-node p-a">Sender</div>
-                <div class="queue-container">
-                    <div class="queue-label">Kernel Message Queue</div>
-                    <div id="queue-slots" class="queue-slots">
-                        <!-- Messages will appear here -->
+                    <!-- The Pipes -->
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 40px; padding: 0 40px;">
+                        <div class="pipe-track" style="margin: 0; width: 100%; height: 50px;">
+                            <div class="pipe-label">Pipe 1 (A ➔ B)</div>
+                            <div class="data-packet" id="packet-a-b" style="left: -100px;">DATA</div>
+                        </div>
+                        <div class="pipe-track" style="margin: 0; width: 100%; height: 50px;">
+                            <div class="pipe-label" style="top: auto; bottom: -20px;">Pipe 2 (B ➔ A)</div>
+                            <div class="data-packet" id="packet-b-a" style="right: -100px; left: auto;">DATA</div>
+                        </div>
+                    </div>
+
+                    <!-- Process B -->
+                    <div class="process-node p-b" style="flex-direction: column; height: 180px; border-radius: 20px;">
+                        <div style="margin-bottom: 10px;">Process B</div>
+                        <input type="text" id="p-b-input" placeholder="Reply..." class="glass-input">
+                        <button class="btn btn-sm" onclick="sendPipeData('b-to-a')">Send ➔</button>
                     </div>
                 </div>
-                <div class="process-node p-b">Receiver</div>
-                <div class="lab-caption">Message Queues: Asynchronous linked list of structured data.</div>
+                
+                <div id="pipe-terminal" class="glass-card" style="width: 100%; height: 100px; background: #000; font-family: monospace; padding: 1rem; color: #10b981; overflow-y: auto;">
+                    <div>[PIPE LAB] Waiting for data transfer...</div>
+                </div>
+
+                <div class="lab-caption">Bidirectional communication requires <strong>two pipes</strong> because a single pipe is unidirectional.</div>
+            </div>
+
+            <div id="msg_queue-lab" class="lab-scene" style="flex-direction: column; gap: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 2rem; width: 100%; align-items: start;">
+                    <!-- Column 1: Producers -->
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        <div class="process-node p-a" style="flex-direction: column; height: 160px; border-radius: 16px;">
+                            <div>Process A</div>
+                            <button class="btn btn-sm" onclick="msgQueueOp('a-write-q1')">Write to Q1</button>
+                        </div>
+                        <div class="process-node p-b" style="flex-direction: column; height: 160px; border-radius: 16px; border-color: var(--accent);">
+                            <div>Process B</div>
+                            <button class="btn btn-sm" onclick="msgQueueOp('b-write-q2')">Write to Q2</button>
+                            <button class="btn btn-sm btn-secondary" style="margin-top:5px" onclick="msgQueueOp('b-read-q2')">Read from Q2</button>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Queues -->
+                    <div style="display: flex; flex-direction: column; gap: 3rem;">
+                        <div class="queue-container" id="q1-container" style="margin: 0; width: 100%;">
+                            <div class="queue-label">Kernel Queue 1 (Q1)</div>
+                            <div id="q1-slots" class="queue-slots"></div>
+                        </div>
+                        <div class="queue-container" id="q2-container" style="margin: 0; width: 100%; border-color: var(--accent);">
+                            <div class="queue-label" style="color: var(--accent);">Kernel Queue 2 (Q2)</div>
+                            <div id="q2-slots" class="queue-slots"></div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Consumers -->
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        <div class="process-node p-c" style="flex-direction: column; height: 160px; border-radius: 16px; border-color: #f43f5e;">
+                            <div>Process C</div>
+                            <button class="btn btn-sm" style="background:#f43f5e" onclick="msgQueueOp('c-read-q1')">Read from Q1</button>
+                        </div>
+                        <div style="height: 160px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem; text-align: center;">
+                            (Process B acts as its own Producer & Consumer for Q2)
+                        </div>
+                    </div>
+                </div>
+
+                <div id="msg-terminal" class="glass-card" style="width: 100%; height: 100px; background: #000; font-family: monospace; padding: 1rem; color: var(--primary); overflow-y: auto;">
+                    <div>[MSG QUEUE LAB] System ready. Interact with processes to send messages.</div>
+                </div>
+
+                <div class="lab-caption">Message Queues allow multiple processes to communicate through specific <strong>Queue IDs</strong> (Q1, Q2) stored in the kernel.</div>
             </div>
 
             <div id="shm-lab" class="lab-scene" style="display: none;">
@@ -164,9 +225,12 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
             <div>
                 <h2 style="color: var(--accent); margin: 0;">C Implementation Paradigms</h2>
-                <p style="margin: 0.5rem 0 0 0; opacity: 0.7;">Select a tab to view the source code for each IPC method.</p>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.7;">View, edit, and execute IPC logic directly in the browser.</p>
             </div>
-            <button id="copy-btn" class="nav-btn" style="background: var(--primary); padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;">Copy Code</button>
+            <div style="display: flex; gap: 1rem;">
+                <button id="run-btn" class="nav-btn" style="background: #10b981; padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;" onclick="runCCode()">Run Code ▶</button>
+                <button id="copy-btn" class="nav-btn" style="background: var(--primary); padding: 0.5rem 1.2rem; font-size: 0.8rem; color: #000;">Copy Code</button>
+            </div>
         </div>
         
         <div class="code-tabs">
@@ -176,11 +240,20 @@
             <button class="tab-btn" onclick="showCode('signals', this)">04. Signals</button>
         </div>
 
-        <div class="code-display glass-card" style="position: relative;">
-            <div id="code-header" style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+        <div class="code-display glass-card" style="position: relative; display: flex; flex-direction: column; gap: 1.5rem; background: #0d1117 !important;">
+            <div id="code-header" style="color: var(--primary); font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
                 Unidirectional Pipes Implementation
             </div>
-            <pre class="line-numbers" style="background: transparent !important;"><code id="code-content" class="language-c">{{ code_examples.pipes.code }}</code></pre>
+            <!-- Editable Code Block -->
+            <pre class="line-numbers" style="background: transparent !important; flex-grow: 1; min-height: 400px;"><code id="code-content" class="language-c" contenteditable="true" style="outline: none; display: block; min-height: 400px;">{{ code_examples.pipes.code }}</code></pre>
+            
+            <!-- Output Console -->
+            <div id="console-container" style="display: none;">
+                <h4 style="color: var(--accent); font-size: 0.8rem; margin-bottom: 0.5rem; text-transform: uppercase;">Terminal Output</h4>
+                <div id="console-output" style="background: #000; color: #10b981; padding: 1rem; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    Compiling...
+                </div>
+            </div>
         </div>
 
         <div class="explanation-box glass-card" style="margin-top: 2rem; padding: 2rem;">
@@ -339,7 +412,6 @@
 .data-packet {
     position: absolute;
     top: 50%;
-    left: -60px;
     transform: translateY(-50%);
     background: var(--accent);
     color: black;
@@ -348,6 +420,29 @@
     font-weight: 900;
     font-size: 0.8rem;
     box-shadow: 0 0 15px var(--accent);
+    transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), right 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+}
+
+.pipe-label {
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    font-size: 0.6rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.glass-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: white;
+    padding: 5px 10px;
+    width: 100%;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
 }
 
 .queue-container {
@@ -536,29 +631,81 @@ code[class*="language-"] { font-family: 'Fira Code', monospace !important; font-
     }
 
     function animatePipes() {
-        const packet = document.getElementById('pipe-data');
-        let pos = -60;
-        const interval = setInterval(() => {
-            pos += 4;
-            if (pos > 500) pos = -60;
-            packet.style.left = pos + 'px';
-        }, 20);
-        labIntervals.push(interval);
+        // Pipes animation is now manual/triggered by sendPipeData
+    }
+
+    function sendPipeData(direction) {
+        const term = document.getElementById('pipe-terminal');
+        if (direction === 'a-to-b') {
+            const input = document.getElementById('p-a-input');
+            const data = input.value || "Default A-B Data";
+            const packet = document.getElementById('packet-a-b');
+            
+            packet.innerText = data;
+            packet.style.left = '100%';
+            term.innerHTML += `<div>[Proc A] ➔ Writing to Pipe 1: "${data}"</div>`;
+            
+            setTimeout(() => {
+                packet.style.left = '-100px';
+                term.innerHTML += `<div>[Proc B] 📥 Reading from Pipe 1: "${data}"</div>`;
+                term.scrollTop = term.scrollHeight;
+            }, 1000);
+        } else {
+            const input = document.getElementById('p-b-input');
+            const data = input.value || "Default B-A Data";
+            const packet = document.getElementById('packet-b-a');
+            
+            packet.innerText = data;
+            packet.style.right = '100%';
+            term.innerHTML += `<div>[Proc B] ➔ Writing to Pipe 2: "${data}"</div>`;
+            
+            setTimeout(() => {
+                packet.style.right = '-100px';
+                term.innerHTML += `<div>[Proc A] 📥 Reading from Pipe 2: "${data}"</div>`;
+                term.scrollTop = term.scrollHeight;
+            }, 1000);
+        }
     }
 
     function animateQueue() {
-        const slots = document.getElementById('queue-slots');
-        const interval = setInterval(() => {
-            if (slots.children.length < 4) {
-                const msg = document.createElement('div');
-                msg.className = 'msg-box';
-                msg.innerText = 'MSG_' + (slots.children.length + 1);
-                slots.appendChild(msg);
-            } else {
-                setTimeout(() => { slots.innerHTML = ''; }, 1000);
-            }
-        }, 1200);
-        labIntervals.push(interval);
+        // Queue animation is now manual
+    }
+
+    function msgQueueOp(op) {
+        const term = document.getElementById('msg-terminal');
+        const q1 = document.getElementById('q1-slots');
+        const q2 = document.getElementById('q2-slots');
+
+        const createMsg = (type, text) => {
+            const m = document.createElement('div');
+            m.className = 'msg-box';
+            m.style.background = type === 1 ? 'var(--primary)' : 'var(--accent)';
+            m.innerHTML = `<span style="font-size:0.6rem; opacity:0.8">T:${type}</span><br>${text}`;
+            return m;
+        };
+
+        if (op === 'a-write-q1') {
+            if (q1.children.length >= 4) { term.innerHTML += `<div style="color:#ef4444">[ERR] Q1 Full!</div>`; return; }
+            q1.appendChild(createMsg(1, "DATA_A"));
+            term.innerHTML += `<div>[Proc A] ➔ msgsnd() to Q1: Type 1, "DATA_A"</div>`;
+        } 
+        else if (op === 'c-read-q1') {
+            if (q1.children.length === 0) { term.innerHTML += `<div style="color:#ef4444">[ERR] Q1 Empty!</div>`; return; }
+            q1.removeChild(q1.firstChild);
+            term.innerHTML += `<div style="color:#f43f5e">[Proc C] 📥 msgrcv() from Q1: Processed message</div>`;
+        }
+        else if (op === 'b-write-q2') {
+            if (q2.children.length >= 4) { term.innerHTML += `<div style="color:#ef4444">[ERR] Q2 Full!</div>`; return; }
+            q2.appendChild(createMsg(2, "DATA_B"));
+            term.innerHTML += `<div>[Proc B] ➔ msgsnd() to Q2: Type 2, "DATA_B"</div>`;
+        }
+        else if (op === 'b-read-q2') {
+            if (q2.children.length === 0) { term.innerHTML += `<div style="color:#ef4444">[ERR] Q2 Empty!</div>`; return; }
+            q2.removeChild(q2.firstChild);
+            term.innerHTML += `<div style="color:var(--accent)">[Proc B] 📥 msgrcv() from Q2: Self-processed data</div>`;
+        }
+        
+        term.scrollTop = term.scrollHeight;
     }
 
     function animateSHM() {
@@ -658,5 +805,42 @@ code[class*="language-"] { font-family: 'Fira Code', monospace !important; font-
             }, 2000);
         });
     });
+
+    async function runCCode() {
+        const code = document.getElementById('code-content').innerText;
+        const output = document.getElementById('console-output');
+        const container = document.getElementById('console-container');
+        const btn = document.getElementById('run-btn');
+
+        container.style.display = 'block';
+        output.innerText = 'Compiling and Running...';
+        output.style.color = '#10b981';
+        btn.disabled = true;
+        btn.innerText = 'Running...';
+
+        try {
+            const response = await fetch('/linux/run-c-code/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                output.innerText = result.output || "[Program finished with no output]";
+            } else {
+                output.innerText = result.error;
+                output.style.color = '#ef4444';
+            }
+        } catch (e) {
+            output.innerText = "Connection Error: Could not reach backend server.";
+            output.style.color = '#ef4444';
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Run Code ▶';
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
 </script>
 {% endblock %}

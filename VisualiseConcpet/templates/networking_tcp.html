@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Transport Layer: TCP & UDP{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">The <span style="color: var(--primary)">Transport</span> Layer</h1>
+        <p style="color: var(--text-muted);">Process-to-Process communication using TCP (Reliability) and UDP (Speed).</p>
+    </div>
+
+    <!-- Section 1: The 3-Way Handshake -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--accent); margin-bottom: 3rem; text-align: center;">TCP 3-Way Handshake</h2>
+        <p style="margin-bottom: 4rem; text-align: center;">How a client and server establish a reliable connection before sending data.</p>
+        
+        <div class="handshake-viz">
+            <div class="host-machine">
+                <div class="host-icon">💻</div>
+                <strong>Client</strong>
+            </div>
+
+            <div class="sequence-path">
+                <!-- Step 1: SYN -->
+                <div class="seq-step" id="seq-1">
+                    <div class="seq-label">1. SYN</div>
+                    <div class="seq-arrow forward">➔</div>
+                    <div class="seq-desc">"Hey, I want to connect. My Sequence # is 100."</div>
+                </div>
+                <!-- Step 2: SYN-ACK -->
+                <div class="seq-step" id="seq-2">
+                    <div class="seq-label">2. SYN + ACK</div>
+                    <div class="seq-arrow backward">⬅</div>
+                    <div class="seq-desc">"Got it! I'm ready too. Here's my Seq #5000, and I ACK your #100."</div>
+                </div>
+                <!-- Step 3: ACK -->
+                <div class="seq-step" id="seq-3">
+                    <div class="seq-label">3. ACK</div>
+                    <div class="seq-arrow forward">➔</div>
+                    <div class="seq-desc">"Great! Connection established. Let's send data!"</div>
+                </div>
+            </div>
+
+            <div class="host-machine">
+                <div class="host-icon">🖥️</div>
+                <strong>Server</strong>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn" onclick="animateHandshake()">Simulate Handshake</button>
+        </div>
+    </div>
+
+    <!-- Section 2: TCP Flags & Packet Header -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--primary); margin-bottom: 3rem;">Understanding TCP Flags</h2>
+        <div class="flags-grid">
+            <div class="flag-card" title="Synchronize: Used to initiate connection"><strong>SYN</strong></div>
+            <div class="flag-card" title="Acknowledgment: Confirms receipt of data"><strong>ACK</strong></div>
+            <div class="flag-card" title="Finish: Gracefully close connection"><strong>FIN</strong></div>
+            <div class="flag-card" title="Reset: Abruptly terminate connection"><strong>RST</strong></div>
+            <div class="flag-card" title="Push: Send data to application immediately"><strong>PSH</strong></div>
+            <div class="flag-card" title="Urgent: Process high priority data"><strong>URG</strong></div>
+        </div>
+    </div>
+
+    <!-- Section 3: TCP Client in C -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="color: var(--accent); margin-bottom: 2rem;">4. A Simple TCP Echo Client (C)</h2>
+        <p style="margin-bottom: 2rem;">This code establishes a TCP connection to a server and sends a simple "Hello" message.</p>
+
+        <div class="code-display glass-card" style="background: #0d1117 !important;">
+            <pre class="line-numbers"><code id="code-content" class="language-c" contenteditable="true">#include &lt;stdio.h&gt;       // Input/Output functions
+#include &lt;sys/socket.h&gt;  // Main socket definitions
+#include &lt;arpa/inet.h&gt;   // Functions for internet operations (IP conversion)
+#include &lt;unistd.h&gt;      // Standard symbolic constants and types
+#include &lt;string.h&gt;      // String handling functions
+
+int main() {
+    int sock = 0;                        // File descriptor for our socket
+    struct sockaddr_in serv_addr;         // Structure for server address info
+    char *hello = "Hello from Client";   // Message to send
+    char buffer[1024] = {0};             // Buffer to store server response
+
+    // 1. Create the socket (AF_INET = IPv4, SOCK_STREAM = TCP)
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+
+    // 2. Configure server address
+    serv_addr.sin_family = AF_INET;      // Set address family to IPv4
+    serv_addr.sin_port = htons(80);      // Set port to 80 (HTTP)
+
+    // 3. Convert IP address from text to binary form
+    // We use a dummy IP for local demonstration
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+
+    // 4. Connect to the server (This triggers the 3-Way Handshake)
+    // Note: This will fail in this lab since no server is listening on port 80
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\nConnection Failed (Expected as no server is listening) \n");
+        return -1;
+    }
+
+    // 5. Send data to the server
+    send(sock, hello, strlen(hello), 0);
+    printf("Hello message sent\n");
+
+    return 0;
+}</code></pre>
+        </div>
+        <div style="text-align: right; margin-top: 1rem;">
+            <button class="btn btn-sm" style="background: #10b981; color: #000;" onclick="runCCode()">Run Code ▶</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.handshake-viz {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 24px;
+}
+
+.host-machine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.host-icon { font-size: 3.5rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+
+.sequence-path {
+    flex-grow: 1;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.seq-step {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid transparent;
+    transition: all 0.5s;
+    opacity: 0.3;
+}
+
+.seq-label { font-weight: bold; color: var(--accent); min-width: 100px; }
+.seq-arrow { font-size: 1.5rem; color: var(--primary); }
+.seq-desc { font-size: 0.8rem; opacity: 0.8; font-style: italic; }
+
+.active-seq {
+    opacity: 1;
+    border-color: var(--accent);
+    transform: scale(1.05);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.flags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.flag-card {
+    background: var(--bg-soft);
+    padding: 1.5rem;
+    text-align: center;
+    border-radius: 12px;
+    border-bottom: 3px solid var(--primary);
+    cursor: help;
+}
+
+.flag-card:hover { background: var(--primary); color: #000; }
+</style>
+
+<script>
+async function animateHandshake() {
+    const steps = ['seq-1', 'seq-2', 'seq-3'];
+    for (let id of steps) {
+        document.getElementById(id).classList.remove('active-seq');
+    }
+    
+    for (let id of steps) {
+        await new Promise(r => setTimeout(r, 1000));
+        document.getElementById(id).classList.add('active-seq');
+    }
+}
+
+async function runCCode() {
+    const code = document.getElementById('code-content').innerText;
+    alert("Running network code may fail in restricted environments, but let's try!");
+    const response = await fetch('/linux/run-c-code/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+    });
+    const result = await response.json();
+    console.log(result);
+}
+</script>
+{% endblock %}

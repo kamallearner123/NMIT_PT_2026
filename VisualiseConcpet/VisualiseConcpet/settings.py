@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "Linux",
     "RustProgramming",
     "Cpp",
+    "Networking",
 ]
 
 MIDDLEWARE = [

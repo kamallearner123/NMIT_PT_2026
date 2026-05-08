@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TCP/IP & OSI Layers{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem;">Network <span style="color: var(--primary)">Architectures</span></h1>
+        <p style="color: var(--text-muted);">Comparing the theoretical OSI model with the practical TCP/IP stack.</p>
+    </div>
+
+    <!-- OSI vs TCP/IP Comparison -->
+    <div class="glass-card" style="padding: 3rem; margin-bottom: 4rem;">
+        <h2 style="color: var(--accent); margin-bottom: 3rem; text-align: center;">OSI vs. TCP/IP Stack</h2>
+        
+        <div class="layers-comparison">
+            <div class="model-column">
+                <h4 class="model-header">OSI Model (7 Layers)</h4>
+                <div class="layer-box l7" title="User interface, DNS, HTTP, FTP">7. Application</div>
+                <div class="layer-box l6" title="Encryption, Compression, Formatting">6. Presentation</div>
+                <div class="layer-box l5" title="Session management, Auth">5. Session</div>
+                <div class="layer-box l4" title="TCP, UDP, Error correction">4. Transport</div>
+                <div class="layer-box l3" title="IP, Routing, ICMP">3. Network</div>
+                <div class="layer-box l2" title="MAC Addresses, Ethernet, Switches">2. Data Link</div>
+                <div class="layer-box l1" title="Cables, Bits, Physical signals">1. Physical</div>
+            </div>
+
+            <div class="connection-arrows">
+                <div class="arrow-group">
+                    <div class="arrow-line"></div>
+                    <span>Maps to</span>
+                </div>
+            </div>
+
+            <div class="model-column">
+                <h4 class="model-header">TCP/IP Model (4 Layers)</h4>
+                <div class="layer-box tcp-app" style="height: calc(3 * 50px + 20px);">Application Layer</div>
+                <div class="layer-box tcp-trans">Transport Layer</div>
+                <div class="layer-box tcp-net">Internet Layer</div>
+                <div class="layer-box tcp-link" style="height: calc(2 * 50px + 10px);">Network Access</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Encapsulation Section -->
+    <div class="glass-card" style="padding: 3rem;">
+        <h2 style="color: var(--primary); margin-bottom: 3rem;">Data Encapsulation (Packet Wrapping)</h2>
+        <p style="margin-bottom: 3rem;">As data moves down the stack, each layer adds its own <strong>Header</strong>. This is like putting a letter inside multiple envelopes.</p>
+        
+        <div class="encapsulation-visual">
+            <div class="packet-layer app-data">
+                <span class="p-header">HTTP Header</span>
+                <span class="p-data">User Data (Payload)</span>
+            </div>
+            <div class="packet-layer transport-data">
+                <span class="p-header" style="background: var(--primary); color: #000;">TCP Header</span>
+                <div class="inner-packet">...Application Data...</div>
+            </div>
+            <div class="packet-layer network-data">
+                <span class="p-header" style="background: var(--accent); color: #000;">IP Header</span>
+                <div class="inner-packet">...TCP Packet...</div>
+            </div>
+            <div class="packet-layer link-data">
+                <span class="p-header" style="background: #f43f5e; color: #fff;">Ethernet Header</span>
+                <div class="inner-packet">...IP Packet...</div>
+                <span class="p-trailer">CRC Trailer</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.layers-comparison {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    align-items: flex-start;
+    padding: 2rem;
+}
+
+.model-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 250px;
+}
+
+.model-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.layer-box {
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+    cursor: help;
+}
+
+.layer-box:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+
+/* OSI Colors */
+.l7, .l6, .l5 { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+.l4 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.l3 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.l2, .l1 { background: rgba(244, 63, 94, 0.2); color: #fb7185; }
+
+/* TCP/IP Colors */
+.tcp-app { background: rgba(99, 102, 241, 0.3); color: #818cf8; display: flex; align-items: center; justify-content: center; }
+.tcp-trans { background: rgba(16, 185, 129, 0.3); color: #34d399; }
+.tcp-net { background: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.tcp-link { background: rgba(244, 63, 94, 0.3); color: #fb7185; display: flex; align-items: center; justify-content: center; }
+
+.connection-arrows {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+.arrow-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+.arrow-line {
+    width: 60px;
+    height: 2px;
+    background: var(--glass-border);
+    margin-bottom: 5px;
+}
+
+/* Encapsulation Visuals */
+.encapsulation-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.packet-layer {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    width: 100%;
+    max-width: 600px;
+}
+
+.p-header { padding: 10px 15px; font-weight: bold; font-size: 0.8rem; min-width: 120px; text-align: center; background: rgba(255,255,255,0.1); }
+.p-data { padding: 10px 20px; flex-grow: 1; background: rgba(255,255,255,0.05); font-family: monospace; }
+.p-trailer { padding: 10px 15px; background: #991b1b; color: white; font-size: 0.8rem; font-weight: bold; }
+.inner-packet { flex-grow: 1; padding: 10px; text-align: center; opacity: 0.5; font-style: italic; font-size: 0.8rem; background: rgba(0,0,0,0.2); }
+</style>
+{% endblock %}

@@ -11,8 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
     <!-- MathJax for mathematical notation -->
     <style>
         .sidebar-header {
@@ -50,6 +52,7 @@
             <div class="sidebar-label">Modules</div>
             <a href="{% url 'DSA:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'DSA' %}active{% endif %}">DSA</a>
             <a href="{% url 'Linux:linux_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Linux' %}active{% endif %}">Linux</a>
+            <a href="{% url 'Networking:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Networking' %}active{% endif %}">Computer Networks</a>
             <a href="{% url 'RustProgramming:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'RustProgramming' %}active{% endif %}">Rust</a>
             <a href="{% url 'Cpp:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Cpp' %}active{% endif %}">C & C++</a>
 
@@ -66,7 +69,13 @@
                     {% endfor %}
                 {% elif request.resolver_match.app_name == 'Linux' %}
                     {% for chap in chapters %}
-                        <a href="{% if chap.id == 'history' %}{% url 'Linux:linux_history' %}{% elif chap.id == 'architecture' %}{% url 'Linux:linux_architecture' %}{% elif chap.id == 'system_calls' %}{% url 'Linux:linux_system_calls' %}{% elif chap.id == 'permissions' %}{% url 'Linux:linux_permissions' %}{% elif chap.id == 'processes' %}{% url 'Linux:linux_processes' %}{% elif chap.id == 'scripting' %}{% url 'Linux:linux_scripting' %}{% elif chap.id == 'memory' %}{% url 'Linux:linux_memory' %}{% elif chap.id == 'scheduling' %}{% url 'Linux:linux_scheduling' %}{% elif chap.id == 'ipc' %}{% url 'Linux:linux_ipc' %}{% elif chap.id == 'resources' %}{% url 'Linux:linux_resources' %}{% else %}#{% endif %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'linux_'|add:chap.id %}active{% endif %}">
+                        <a href="{% if chap.id == 'history' %}{% url 'Linux:linux_history' %}{% elif chap.id == 'architecture' %}{% url 'Linux:linux_architecture' %}{% elif chap.id == 'system_calls' %}{% url 'Linux:linux_system_calls' %}{% elif chap.id == 'permissions' %}{% url 'Linux:linux_permissions' %}{% elif chap.id == 'processes' %}{% url 'Linux:linux_processes' %}{% elif chap.id == 'threads' %}{% url 'Linux:linux_threads' %}{% elif chap.id == 'scripting' %}{% url 'Linux:linux_scripting' %}{% elif chap.id == 'memory' %}{% url 'Linux:linux_memory' %}{% elif chap.id == 'scheduling' %}{% url 'Linux:linux_scheduling' %}{% elif chap.id == 'ipc' %}{% url 'Linux:linux_ipc' %}{% elif chap.id == 'resources' %}{% url 'Linux:linux_resources' %}{% else %}#{% endif %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'linux_'|add:chap.id %}active{% endif %}">
+                            {{ chap.title }}
+                        </a>
+                    {% endfor %}
+                {% elif request.resolver_match.app_name == 'Networking' %}
+                    {% for chap in chapters %}
+                        <a href="{% if chap.id == 'layers' %}{% url 'Networking:networking_layers' %}{% elif chap.id == 'datalink' %}{% url 'Networking:networking_datalink' %}{% elif chap.id == 'ip' %}{% url 'Networking:networking_ip' %}{% elif chap.id == 'tcp' %}{% url 'Networking:networking_tcp' %}{% elif chap.id == 'application' %}{% url 'Networking:networking_application' %}{% else %}#{% endif %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'networking_'|add:chap.id %}active{% endif %}">
                             {{ chap.title }}
                         </a>
                     {% endfor %}
@@ -122,6 +131,13 @@
             // Update UI
             themeIcon.innerText = isDark ? '🌙' : '☀️';
             themeText.innerText = isDark ? 'Dark Mode' : 'Light Mode';
+        });
+
+        // Initialize syntax highlighting
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (window.Prism) {
+                Prism.highlightAll();
+            }
         });
     </script>
 </body>
