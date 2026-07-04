@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linear Regression{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Linear Regression</h1>
+    <p>Linear Regression is a supervised learning algorithm used to predict a continuous numerical value. It tries to find the "Line of Best Fit" that minimizes the distance between the line and the data points.</p>
+
+    <div class="visualizer-container" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        
+        <div style="flex: 2; min-width: 300px;">
+            <div id="plot-area" style="width: 100%; height: 400px; background: rgba(0,0,0,0.05); border: 2px solid var(--glass-border); border-radius: 12px; position: relative; overflow: hidden; cursor: crosshair;" onclick="addPoint(event)">
+                <svg id="regression-svg" width="100%" height="100%" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+                    <!-- Line will be drawn here -->
+                </svg>
+                <!-- Dots will be added here -->
+            </div>
+            <p style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Click anywhere inside the box to add data points.</p>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 1rem;">
+            <div class="glass-card" style="padding: 1.5rem;">
+                <h3 style="color: #8b5cf6; margin-bottom: 1rem;">Equation</h3>
+                <div style="font-family: math; font-size: 1.5rem; text-align: center;">y = mx + b</div>
+                <div id="eq-result" style="text-align: center; margin-top: 10px; font-family: monospace; color: var(--accent);"></div>
+            </div>
+
+            <button class="btn" onclick="fitLine()" style="background: #8b5cf6;">Fit Line (Gradient Descent)</button>
+            <button class="btn btn-secondary" onclick="clearArea()">Clear Plot</button>
+            
+            <div class="code-block" style="font-size: 0.8rem;">
+                <span class="code-line" style="color: #8b5cf6;">from</span> sklearn.linear_model <span style="color: #8b5cf6;">import</span> LinearRegression</span>
+                <span class="code-line">model = LinearRegression()</span>
+                <span class="code-line">model.fit(X, y)</span>
+                <span class="code-line">m = model.coef_[0]</span>
+                <span class="code-line">b = model.intercept_</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.data-point {
+    width: 10px;
+    height: 10px;
+    background: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+}
+
+.best-fit-line {
+    stroke: #ef4444;
+    stroke-width: 3;
+    transition: all 0.5s ease-out;
+}
+</style>
+
+<script>
+    let points = [];
+    const plotArea = document.getElementById('plot-area');
+    const svg = document.getElementById('regression-svg');
+
+    function addPoint(e) {
+        const rect = plotArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        points.push({x, y});
+        
+        const dot = document.createElement('div');
+        dot.className = 'data-point';
+        dot.style.left = x + 'px';
+        dot.style.top = y + 'px';
+        plotArea.appendChild(dot);
+        
+        // Remove existing line if new point added
+        svg.innerHTML = '';
+        document.getElementById('eq-result').innerText = '';
+    }
+
+    function fitLine() {
+        if(points.length < 2) {
+            alert('Add at least 2 points!');
+            return;
+        }
+
+        // Ordinary Least Squares
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        const n = points.length;
+
+        for(let i=0; i<n; i++) {
+            sumX += points[i].x;
+            sumY += points[i].y;
+            sumXY += points[i].x * points[i].y;
+            sumX2 += points[i].x * points[i].x;
+        }
+
+        // Calculate slope (m) and intercept (b)
+        const denominator = (n * sumX2 - sumX * sumX);
+        if(denominator === 0) return; // vertical line
+
+        const m = (n * sumXY - sumX * sumY) / denominator;
+        const b = (sumY - m * sumX) / n;
+
+        // Draw line
+        const width = plotArea.clientWidth;
+        const height = plotArea.clientHeight;
+
+        const y1 = m * 0 + b;
+        const y2 = m * width + b;
+
+        svg.innerHTML = `<line class="best-fit-line" x1="0" y1="${y1}" x2="${width}" y2="${y2}"></line>`;
+        
+        // Display equation (invert y because screen y goes down)
+        const displayM = -m; // screen coordinates: positive m means down. Cartesian: up.
+        document.getElementById('eq-result').innerText = `y = ${displayM.toFixed(2)}x + ${(height - b).toFixed(2)}`;
+    }
+
+    function clearArea() {
+        points = [];
+        svg.innerHTML = '';
+        document.getElementById('eq-result').innerText = '';
+        const dots = document.querySelectorAll('.data-point');
+        dots.forEach(d => d.remove());
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Encoder-Decoder Architecture{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Encoder-Decoder Architecture</h1>
+    <p>While models like BERT use only Encoders (for understanding) and GPT uses only Decoders (for generating), the original Transformer used both (e.g., for translation). Let's visualize how they interact!</p>
+
+    <div class="visualizer-container" style="display: flex; gap: 2rem; align-items: stretch;">
+        
+        <!-- ENCODER -->
+        <div class="arch-box" id="encoder-box" style="border-color: #3b82f6;">
+            <h3 style="color: #3b82f6;">ENCODER</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Processes full input simultaneously.</p>
+            
+            <div class="input-seq" style="margin-top: 1rem; text-align: center;">
+                <span class="token" style="background: rgba(59,130,246,0.2);">Je</span>
+                <span class="token" style="background: rgba(59,130,246,0.2);">suis</span>
+                <span class="token" style="background: rgba(59,130,246,0.2);">étudiant</span>
+            </div>
+
+            <div class="processing-layer" id="enc-layers">
+                Self-Attention Layers
+            </div>
+
+            <div class="context-vector" id="context-v">
+                Context Vector Matrix<br>(K, V to Decoder)
+            </div>
+        </div>
+
+        <!-- ARROW -->
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 40px;">
+            <svg width="40" height="100">
+                <path d="M0,50 L30,50" stroke="var(--text-muted)" stroke-width="3" stroke-dasharray="5,5" id="cross-attention-arrow"/>
+                <polygon points="30,45 40,50 30,55" fill="var(--text-muted)"/>
+            </svg>
+        </div>
+
+        <!-- DECODER -->
+        <div class="arch-box" id="decoder-box" style="border-color: #10b981;">
+            <h3 style="color: #10b981;">DECODER</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Generates output token-by-token (Autoregressive).</p>
+            
+            <div class="processing-layer" id="dec-layers" style="background: rgba(16,185,129,0.1);">
+                Masked Self-Attention +<br>Cross-Attention
+            </div>
+
+            <div class="output-seq" id="output-seq" style="margin-top: 1rem; min-height: 40px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                <!-- Tokens generated here -->
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 2rem;">
+        <button class="btn" id="generate-btn" onclick="startGeneration()" style="background: var(--primary);">Start Generation</button>
+        <button class="btn btn-secondary" onclick="resetSim()">Reset</button>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.02);">
+        <h3 style="color: var(--accent); margin-bottom: 0.5rem;">Cross-Attention</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+            In the Decoder, the <strong>Queries (Q)</strong> come from the previous decoder layer (the words generated so far), but the <strong>Keys (K)</strong> and <strong>Values (V)</strong> come from the Encoder's output! This allows the Decoder to "look back" at the original French sentence while generating the English translation.
+        </p>
+    </div>
+
+    <div class="code-block" style="margin-top: 2rem; font-size: 0.85rem;">
+        <span class="code-line" style="color: #8b5cf6;">import</span> torch.nn <span style="color: #8b5cf6;">as</span> nn
+        <span class="code-line"></span>
+        <span class="code-line" style="color: #8b5cf6;">class</span> <span style="color: #3b82f6;">TransformerBlock</span>(nn.Module):</span>
+        <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">__init__</span>(self, embed_size, heads, dropout, forward_expansion):</span>
+        <span class="code-line">        <span style="color: #3b82f6;">super</span>().__init__()</span>
+        <span class="code-line">        self.attention = SelfAttention(embed_size, heads)</span>
+        <span class="code-line">        self.norm1 = nn.LayerNorm(embed_size)</span>
+        <span class="code-line">        self.norm2 = nn.LayerNorm(embed_size)</span>
+        <span class="code-line"></span>
+        <span class="code-line">        self.feed_forward = nn.Sequential(</span>
+        <span class="code-line">            nn.Linear(embed_size, forward_expansion * embed_size),</span>
+        <span class="code-line">            nn.ReLU(),</span>
+        <span class="code-line">            nn.Linear(forward_expansion * embed_size, embed_size)</span>
+        <span class="code-line">        )</span>
+        <span class="code-line">        self.dropout = nn.Dropout(dropout)</span>
+        <span class="code-line"></span>
+        <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">forward</span>(self, value, key, query, mask):</span>
+        <span class="code-line">        <span style="color: var(--text-muted);"># Multi-head attention</span></span>
+        <span class="code-line">        attention = self.attention(value, key, query, mask)</span>
+        <span class="code-line"></span>
+        <span class="code-line">        <span style="color: var(--text-muted);"># Add & Norm (Skip connection)</span></span>
+        <span class="code-line">        x = self.dropout(self.norm1(attention + query))</span>
+        <span class="code-line"></span>
+        <span class="code-line">        <span style="color: var(--text-muted);"># Feed Forward</span></span>
+        <span class="code-line">        forward = self.feed_forward(x)</span>
+        <span class="code-line"></span>
+        <span class="code-line">        <span style="color: var(--text-muted);"># Add & Norm (Skip connection)</span></span>
+        <span class="code-line">        out = self.dropout(self.norm2(forward + x))</span>
+        <span class="code-line">        <span style="color: #8b5cf6;">return</span> out</span>
+    </div>
+</div>
+
+<style>
+.arch-box {
+    flex: 1;
+    background: var(--card-bg);
+    border: 2px solid;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.arch-box h3 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.token {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    font-family: monospace;
+    font-size: 0.9rem;
+    margin: 2px;
+    animation: popIn 0.3s ease;
+}
+
+.processing-layer {
+    margin-top: auto;
+    margin-bottom: auto;
+    background: rgba(59,130,246,0.1);
+    border: 1px dashed var(--text-muted);
+    padding: 2rem 1rem;
+    text-align: center;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.context-vector {
+    margin-top: 1rem;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #f59e0b;
+}
+
+.active-pulse {
+    animation: pulse 1s infinite alternate;
+    box-shadow: 0 0 15px currentColor;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.02); }
+}
+
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<script>
+    const tokens = ["<START>", "I", "am", "a", "student", "<END>"];
+    let currentIndex = 0;
+    let timer;
+
+    function startGeneration() {
+        document.getElementById('generate-btn').disabled = true;
+        document.getElementById('enc-layers').classList.add('active-pulse');
+        
+        setTimeout(() => {
+            document.getElementById('enc-layers').classList.remove('active-pulse');
+            document.getElementById('context-v').classList.add('active-pulse');
+            document.getElementById('cross-attention-arrow').setAttribute('stroke', '#f59e0b');
+            
+            timer = setInterval(generateToken, 1000);
+        }, 1000);
+    }
+
+    function generateToken() {
+        if(currentIndex >= tokens.length) {
+            clearInterval(timer);
+            document.getElementById('dec-layers').classList.remove('active-pulse');
+            document.getElementById('context-v').classList.remove('active-pulse');
+            document.getElementById('cross-attention-arrow').setAttribute('stroke', 'var(--text-muted)');
+            return;
+        }
+
+        document.getElementById('dec-layers').classList.add('active-pulse');
+
+        const outBox = document.getElementById('output-seq');
+        const span = document.createElement('span');
+        span.className = 'token';
+        span.style.background = 'rgba(16,185,129,0.2)';
+        span.innerText = tokens[currentIndex];
+        outBox.appendChild(span);
+
+        currentIndex++;
+    }
+
+    function resetSim() {
+        clearInterval(timer);
+        currentIndex = 0;
+        document.getElementById('output-seq').innerHTML = '';
+        document.getElementById('generate-btn').disabled = false;
+        
+        document.getElementById('enc-layers').classList.remove('active-pulse');
+        document.getElementById('dec-layers').classList.remove('active-pulse');
+        document.getElementById('context-v').classList.remove('active-pulse');
+        document.getElementById('cross-attention-arrow').setAttribute('stroke', 'var(--text-muted)');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LLM Generation{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Large Language Models (LLMs) & Text Generation</h1>
+    <p>Modern LLMs like GPT-4 or LLaMA are essentially massive <strong>Decoder-Only Transformers</strong>. They are trained on a simple objective: <em>Predict the next token.</em></p>
+
+    <div class="visualizer-container" style="display: flex; gap: 2rem; align-items: stretch; margin-bottom: 2rem;">
+        
+        <div class="glass-card" style="flex: 1; padding: 1.5rem; border-color: #ec4899;">
+            <h3 style="color: #ec4899; margin-bottom: 1rem;">Autoregressive Generation</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                The model takes an input prompt, processes it, and outputs a probability distribution over its entire vocabulary for the <strong>next</strong> word. It picks one, appends it to the input, and repeats.
+            </p>
+            
+            <div style="background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.9rem;">
+                <div style="margin-bottom: 5px;"><strong>Input:</strong> "The sky is"</div>
+                <div style="margin-bottom: 5px; color: #10b981;"><strong>Output Probs:</strong> "blue" (80%), "dark" (10%), "clear" (5%)</div>
+                <div style="margin-bottom: 5px;"><strong>Action:</strong> Select "blue"</div>
+                <hr style="border-color: var(--glass-border); margin: 10px 0;">
+                <div style="margin-bottom: 5px;"><strong>New Input:</strong> "The sky is blue"</div>
+                <div style="margin-bottom: 5px; color: #10b981;"><strong>Output Probs:</strong> "today" (60%), "and" (20%), "." (10%)</div>
+            </div>
+        </div>
+
+        <div class="glass-card" style="flex: 1; padding: 1.5rem; border-color: #8b5cf6;">
+            <h3 style="color: #8b5cf6; margin-bottom: 1rem;">Decoding Strategies</h3>
+            <ul style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; padding-left: 1rem;">
+                <li><strong>Greedy Decoding:</strong> Always pick the most probable word. Can lead to repetitive and boring text.</li>
+                <li><strong>Temperature Scaling:</strong> Adjusts the logits before softmax. High temperature = more random/creative. Low temperature = more deterministic.</li>
+                <li><strong>Top-K Sampling:</strong> Only sample from the top K most probable tokens.</li>
+                <li><strong>Top-P (Nucleus) Sampling:</strong> Sample from the smallest set of tokens whose cumulative probability exceeds P.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-block" style="font-size: 0.85rem;">
+        <div style="color: var(--text-muted); margin-bottom: 10px;"># Example using HuggingFace Transformers Library</div>
+        <span class="code-line" style="color: #8b5cf6;">from</span> transformers <span style="color: #8b5cf6;">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+        <span class="code-line"></span>
+        <span class="code-line">model_id = <span style="color: #fbbf24;">"gpt2"</span></span>
+        <span class="code-line">tokenizer = AutoTokenizer.from_pretrained(model_id)</span>
+        <span class="code-line">model = AutoModelForCausalLM.from_pretrained(model_id)</span>
+        <span class="code-line"></span>
+        <span class="code-line">prompt = <span style="color: #fbbf24;">"The future of Artificial Intelligence is"</span></span>
+        <span class="code-line">inputs = tokenizer(prompt, return_tensors=<span style="color: #fbbf24;">"pt"</span>)</span>
+        <span class="code-line"></span>
+        <span class="code-line"><span style="color: var(--text-muted);"># Generate text with advanced decoding strategies</span></span>
+        <span class="code-line">outputs = model.generate(</span>
+        <span class="code-line">    **inputs,</span>
+        <span class="code-line">    max_new_tokens=<span style="color: #f97316;">50</span>,</span>
+        <span class="code-line">    do_sample=<span style="color: #8b5cf6;">True</span>,</span>
+        <span class="code-line">    temperature=<span style="color: #f97316;">0.7</span>,       <span style="color: var(--text-muted);"># Creativity slider</span></span>
+        <span class="code-line">    top_k=<span style="color: #f97316;">50</span>,              <span style="color: var(--text-muted);"># Restrict to top 50 tokens</span></span>
+        <span class="code-line">    top_p=<span style="color: #f97316;">0.95</span>,            <span style="color: var(--text-muted);"># Nucleus sampling</span></span>
+        <span class="code-line">    pad_token_id=tokenizer.eos_token_id</span>
+        <span class="code-line">)</span>
+        <span class="code-line"></span>
+        <span class="code-line"><span style="color: #3b82f6;">print</span>(tokenizer.decode(outputs[<span style="color: #f97316;">0</span>], skip_special_tokens=<span style="color: #8b5cf6;">True</span>))</span>
+    </div>
+</div>
+{% endblock %}

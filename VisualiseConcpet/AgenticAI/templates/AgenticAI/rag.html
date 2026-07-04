@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}05 RAG (Retrieval Augmented Generation){% endblock %}
+
+{% block breadcrumb %}Agentic AI / 05 RAG{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">05. RAG (Retrieval Augmented Generation)</span></h1>
+        <p>Solving the "knowledge cutoff" problem by feeding external data (PDFs, databases) to the LLM dynamically.</p>
+    </div>
+
+    <!-- RAG Block Diagram -->
+    <h2 style="margin-top: 2rem; color: var(--primary);">How RAG Works (Block Diagram)</h2>
+    <div style="background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 12px; margin: 2rem 0;">
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- Ingestion Phase -->
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2rem;">
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">📄</div>
+                    <h4>Private Data</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">(PDFs, Confluence)</p>
+                </div>
+                <div style="font-size: 1.5rem; color: var(--accent);">➔</div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">✂️</div>
+                    <h4>Chunking</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Split text</p>
+                </div>
+                <div style="font-size: 1.5rem; color: var(--accent);">➔</div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">🔢</div>
+                    <h4>Embeddings</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Text to Vectors</p>
+                </div>
+                <div style="font-size: 1.5rem; color: var(--accent);">➔</div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">🗄️</div>
+                    <h4>Vector DB</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">(Chroma, Pinecone)</p>
+                </div>
+            </div>
+
+            <!-- Query Phase -->
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">👤</div>
+                    <h4>User Question</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">"What is company policy?"</p>
+                </div>
+                <div style="font-size: 1.5rem; color: #10b981;">➔</div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 2.5rem;">🔍</div>
+                    <h4>Similarity Search</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Query Vector DB</p>
+                </div>
+                <div style="font-size: 1.5rem; color: #10b981;">➔</div>
+                <div style="flex: 2; text-align: center; border: 2px dashed #6366f1; padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 2.5rem;">🧠</div>
+                    <h4>LLM Synthesis</h4>
+                    <p style="font-size: 0.8rem;">Combines User Question + Retrieved Context to formulate Answer.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Code Example: Basic LangChain RAG</h2>
+        <pre><code class="language-python line-numbers">
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.vectorstores import Chroma
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
+
+# 1. Load Data
+loader = PyPDFLoader("company_handbook.pdf")
+docs = loader.load_and_split()
+
+# 2. Embed and Store in Vector DB
+vectorstore = Chroma.from_documents(documents=docs, embedding=OpenAIEmbeddings())
+retriever = vectorstore.as_retriever()
+
+# 3. Create LLM and Prompt
+llm = ChatOpenAI(model="gpt-3.5-turbo")
+system_prompt = (
+    "Use the given context to answer the question. "
+    "If you don't know the answer, say you don't know.\n\n"
+    "Context: {context}"
+)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", system_prompt),
+    ("human", "{input}"),
+])
+
+# 4. Create RAG Chain
+question_answer_chain = create_stuff_documents_chain(llm, prompt)
+rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+
+# 5. Query
+response = rag_chain.invoke({"input": "What is the vacation policy?"})
+print(response["answer"])
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

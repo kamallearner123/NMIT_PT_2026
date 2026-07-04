@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}09 AI System Design{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 09 System Design{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">09. AI System Design</span></h1>
+        <p>Architecting production-grade, reliable, and scalable AI applications.</p>
+    </div>
+
+    <!-- Production Architecture -->
+    <div class="glass-card">
+        <h2>Production AI Architecture (Block Diagram)</h2>
+        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1rem; margin-top: 1.5rem; text-align: center;">
+            
+            <!-- Frontend -->
+            <div style="display: flex; flex-direction: column; gap: 1rem; justify-content: center;">
+                <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                    <h3>📱 Client</h3>
+                    <p style="font-size: 0.8rem;">React / Next.js UI</p>
+                </div>
+            </div>
+
+            <!-- Backend -->
+            <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--primary);">
+                <h3 style="margin-bottom: 1rem;">⚙️ Backend API (FastAPI / Django)</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">Auth & Rate Limiting</div>
+                    <div style="background: rgba(99, 102, 241, 0.2); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">Prompt Management</div>
+                    <div style="background: rgba(245, 158, 11, 0.2); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">Caching (Redis)</div>
+                    <div style="background: rgba(239, 68, 68, 0.2); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">Guardrails / Validation</div>
+                </div>
+                
+                <div style="margin-top: 1rem; background: rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px; font-weight: bold;">
+                    Agent Orchestrator (LangGraph)
+                </div>
+            </div>
+
+            <!-- External Services -->
+            <div style="display: flex; flex-direction: column; gap: 1rem; justify-content: center;">
+                <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 8px; border: 1px dashed var(--accent);">
+                    <h4>LLM APIs</h4>
+                    <p style="font-size: 0.7rem;">OpenAI / Anthropic</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 8px; border: 1px dashed #10b981;">
+                    <h4>Vector DB</h4>
+                    <p style="font-size: 0.7rem;">Pinecone / Qdrant</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Key Production Considerations</h2>
+        <ul>
+            <li><b style="color: var(--primary);">Latency:</b> Streaming responses (Server-Sent Events) to UI so users don't wait for the full generation.</li>
+            <li><b style="color: var(--primary);">Cost Control:</b> Caching common questions (Semantic Cache) to avoid hitting the LLM API.</li>
+            <li><b style="color: var(--primary);">Guardrails:</b> Using a smaller, fast model to check inputs/outputs for toxicity or hallucinations before returning to the user.</li>
+            <li><b style="color: var(--primary);">Observability:</b> Logging prompts, responses, token usage, and latency using tools like LangSmith or DataDog.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

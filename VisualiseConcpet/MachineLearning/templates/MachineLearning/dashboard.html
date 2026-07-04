@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Machine Learning Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Machine Learning Hub</h1>
+    <p>Dive into the world of predictive modeling, pattern recognition, and artificial intelligence.</p>
+    
+    <div style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+        
+        <a href="{% url 'MachineLearning:ml_basics' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #ec4899;">
+                <h3 style="color: #ec4899; margin-bottom: 1rem; font-size: 1.3rem;">ML Basics</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Understand the difference between Supervised, Unsupervised, and Reinforcement Learning.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'MachineLearning:linear_regression' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #8b5cf6;">
+                <h3 style="color: #8b5cf6; margin-bottom: 1rem; font-size: 1.3rem;">Linear Regression</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Visualize the line of best fit and understand cost functions and gradient descent.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'MachineLearning:classification' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #3b82f6;">
+                <h3 style="color: #3b82f6; margin-bottom: 1rem; font-size: 1.3rem;">Classification</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Learn how algorithms draw decision boundaries to separate data into categories.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'MachineLearning:neural_networks' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #10b981;">
+                <h3 style="color: #10b981; margin-bottom: 1rem; font-size: 1.3rem;">Neural Networks</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Visualize neurons, weights, biases, and forward propagation through layers.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<style>
+.nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(236, 72, 153, 0.1);
+}
+</style>
+{% endblock %}

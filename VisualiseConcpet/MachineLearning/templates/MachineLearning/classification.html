@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Classification{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Classification & Decision Boundaries</h1>
+    <p>Classification algorithms (like Logistic Regression or SVM) learn how to separate data into distinct classes by drawing a decision boundary.</p>
+
+    <div class="visualizer-container" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        
+        <div style="flex: 2; min-width: 300px;">
+            <div id="plot-area" style="width: 100%; height: 400px; background: rgba(0,0,0,0.05); border: 2px solid var(--glass-border); border-radius: 12px; position: relative; overflow: hidden; cursor: crosshair;" onclick="addPoint(event)">
+                <svg id="classification-svg" width="100%" height="100%" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+                    <!-- Boundary will be drawn here -->
+                </svg>
+            </div>
+            <p style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Select a class below and click inside the box to add data points.</p>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 1rem;">
+            
+            <div class="glass-card" style="padding: 1.5rem; display: flex; justify-content: center; gap: 1rem;">
+                <button class="btn active-class" id="btn-classA" onclick="setClass('A')" style="background: #3b82f6; width: 100%;">Class A (Blue)</button>
+                <button class="btn btn-secondary" id="btn-classB" onclick="setClass('B')" style="color: #ef4444; border: 1px solid #ef4444; width: 100%;">Class B (Red)</button>
+            </div>
+
+            <button class="btn" onclick="drawBoundary()" style="background: #10b981;">Draw Decision Boundary</button>
+            <button class="btn btn-secondary" onclick="clearArea()">Clear Plot</button>
+            
+            <div class="code-block" style="font-size: 0.8rem;">
+                <span class="code-line" style="color: #8b5cf6;">from</span> sklearn.linear_model <span style="color: #8b5cf6;">import</span> LogisticRegression</span>
+                <span class="code-line">model = LogisticRegression()</span>
+                <span class="code-line">model.fit(X, y) <span style="color: var(--text-muted);"># y is 0 (Blue) or 1 (Red)</span></span>
+                <span class="code-line">prediction = model.predict(new_X)</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.point-A {
+    width: 12px;
+    height: 12px;
+    background: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+}
+
+.point-B {
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 0; /* Square for B */
+    position: absolute;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+}
+
+.decision-boundary {
+    stroke: #10b981;
+    stroke-width: 4;
+    stroke-dasharray: 10,5;
+    transition: all 0.5s ease-out;
+}
+
+.active-class {
+    color: white !important;
+    border: none !important;
+}
+
+#btn-classA.active-class { background: #3b82f6 !important; }
+#btn-classB.active-class { background: #ef4444 !important; }
+</style>
+
+<script>
+    let points = [];
+    let currentClass = 'A';
+    const plotArea = document.getElementById('plot-area');
+    const svg = document.getElementById('classification-svg');
+
+    function setClass(c) {
+        currentClass = c;
+        if(c === 'A') {
+            document.getElementById('btn-classA').classList.add('active-class');
+            document.getElementById('btn-classA').classList.remove('btn-secondary');
+            document.getElementById('btn-classB').classList.remove('active-class');
+            document.getElementById('btn-classB').classList.add('btn-secondary');
+            document.getElementById('btn-classB').style.background = 'transparent';
+        } else {
+            document.getElementById('btn-classB').classList.add('active-class');
+            document.getElementById('btn-classB').classList.remove('btn-secondary');
+            document.getElementById('btn-classA').classList.remove('active-class');
+            document.getElementById('btn-classA').classList.add('btn-secondary');
+            document.getElementById('btn-classA').style.background = 'transparent';
+        }
+    }
+
+    function addPoint(e) {
+        const rect = plotArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        points.push({x, y, cls: currentClass});
+        
+        const dot = document.createElement('div');
+        dot.className = currentClass === 'A' ? 'point-A' : 'point-B';
+        dot.style.left = x + 'px';
+        dot.style.top = y + 'px';
+        plotArea.appendChild(dot);
+        
+        svg.innerHTML = '';
+    }
+
+    function drawBoundary() {
+        const classA = points.filter(p => p.cls === 'A');
+        const classB = points.filter(p => p.cls === 'B');
+        
+        if(classA.length === 0 || classB.length === 0) {
+            alert('Need points from both classes!');
+            return;
+        }
+
+        // Calculate centroids
+        let ax=0, ay=0, bx=0, by=0;
+        classA.forEach(p => { ax+=p.x; ay+=p.y; });
+        classB.forEach(p => { bx+=p.x; by+=p.y; });
+        ax /= classA.length; ay /= classA.length;
+        bx /= classB.length; by /= classB.length;
+
+        // Midpoint
+        const mx = (ax + bx) / 2;
+        const my = (ay + by) / 2;
+
+        // Vector B->A
+        const dx = ax - bx;
+        const dy = ay - by;
+
+        // Normal vector (perpendicular) for the decision line
+        const nx = -dy;
+        const ny = dx;
+
+        // Draw line through midpoint extending along normal vector
+        const width = plotArea.clientWidth;
+        const height = plotArea.clientHeight;
+
+        // Scale normal vector out to edges
+        const scale = 2000;
+        const x1 = mx + nx * scale;
+        const y1 = my + ny * scale;
+        const x2 = mx - nx * scale;
+        const y2 = my - ny * scale;
+
+        svg.innerHTML = `<line class="decision-boundary" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
+    }
+
+    function clearArea() {
+        points = [];
+        svg.innerHTML = '';
+        const dots = document.querySelectorAll('.point-A, .point-B');
+        dots.forEach(d => d.remove());
+    }
+</script>
+{% endblock %}

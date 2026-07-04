@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Git & GitHub Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Git & GitHub Mastery</h1>
+    <p>Master version control, repository management, branching strategies, and collaboration workflows.</p>
+    
+    <div style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+        
+        <a href="{% url 'Git:git_basics' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid var(--accent);">
+                <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.3rem;">Git Basics</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Understand repositories, commits, and the staging area with clear visualizations.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'Git:git_branching' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid var(--accent);">
+                <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.3rem;">Branching & Merging</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Visualize branches, merges, and resolving conflicts gracefully.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'Git:github_collaboration' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid var(--accent);">
+                <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.3rem;">GitHub Collaboration</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Master pull requests, forks, issues, and remote repositories.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<style>
+.nav-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
+}
+</style>
+{% endblock %}

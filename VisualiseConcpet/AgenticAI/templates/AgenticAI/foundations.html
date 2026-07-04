@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}01 AI Foundations for Developers{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 01 AI Foundations{% endblock %}
+
+{% block content %}
+<style>
+    .concept-diagram {
+        background: rgba(0,0,0,0.2);
+        padding: 2rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .diagram-step {
+        background: rgba(255,255,255,0.05);
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        flex: 1;
+        border: 1px solid var(--glass-border);
+    }
+    .diagram-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary);
+        font-weight: bold;
+    }
+    .theory-text {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+    }
+    .theory-text p {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">01. AI Foundations for Developers</span></h1>
+        <p style="font-size: 1.1rem; color: var(--text-muted);">A comprehensive theoretical dive into the evolution, architecture, and mechanics of Large Language Models. No calculus required, just core computer science intuition.</p>
+    </div>
+
+    <!-- 1. What is AI, ML, DL, GenAI? -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">1. The AI Hierarchy: What is AI, ML, DL, GenAI?</h2>
+        
+        <div class="theory-text">
+            <p>To truly understand modern Agentic AI, we must first dispel the marketing buzzwords and understand the precise taxonomy of the field. The terms AI, ML, DL, and GenAI are not interchangeable; they represent nested subsets of technology, each representing a paradigm shift in how we instruct computers to solve problems.</p>
+            <p>The history of this field is characterized by the "AI Effect"—a phenomenon where as soon as a machine successfully performs a task previously thought to require intelligence (like playing chess or reading text), we stop calling it "AI" and start calling it "just software." Let's break down the actual scientific hierarchy.</p>
+        </div>
+
+        <div style="display: flex; justify-content: center; margin: 2rem 0;">
+            <img src="{% static 'images/ai_hierarchy.png' %}" alt="AI Hierarchy Infographic" style="max-width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--glass-border);">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2rem;">
+            <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; padding: 1.5rem; border-radius: 8px;">
+                <h3 style="color: #6366f1; margin-bottom: 0.5rem;">Artificial Intelligence (AI)</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 0;"><b>The Goal:</b> Coined in 1956 at the Dartmouth conference, AI is the broadest concept. It refers to the overarching goal of creating any computer system capable of performing tasks that typically require human intelligence. For decades, the dominant approach was "Symbolic AI"—where programmers explicitly wrote out every logical rule a machine needed to follow. A 1990s chess bot executing a minimax search algorithm is AI. A pathfinding algorithm in a video game is AI. If a machine appears to act intelligently to achieve a goal, it falls under this massive umbrella.</p>
+            </div>
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px; margin-left: 1.5rem;">
+                <h3 style="color: #10b981; margin-bottom: 0.5rem;">Machine Learning (ML)</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 0;"><b>The Statistical Shift:</b> In the 1980s and 90s, the field realized that human language and real-world vision were too complex to hardcode with `if/else` rules. Machine Learning is a subset of AI where we stop explicitly programming the rules. Instead, we use statistical algorithms (like Support Vector Machines, Random Forests, or Linear Regression). We feed the computer vast amounts of data, and the algorithm infers the statistical patterns on its own. It is the shift from <i>deductive</i> reasoning (rules to answers) to <i>inductive</i> reasoning (data to rules). ML systems actually improve their performance as they are exposed to more data.</p>
+            </div>
+            
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-left: 3rem;">
+                <h3 style="color: #f59e0b; margin-bottom: 0.5rem;">Deep Learning (DL)</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 0;"><b>The Biological Inspiration:</b> In traditional ML, humans still had to manually perform "feature engineering" (e.g., telling the algorithm to look for edges or colors to identify a cat). Deep Learning is a highly specific subset of ML that uses Artificial Neural Networks inspired by the human brain. The word "Deep" simply refers to the presence of many hidden layers of interconnected nodes between the input and output. Deep Learning networks automatically discover the features themselves. They thrive on massive, unstructured datasets and require raw computational power (GPUs). DL became dominant around 2012 when the AlexNet architecture shattered records in image recognition, eventually leading to breakthroughs in natural language processing.</p>
+            </div>
+            
+            <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin-left: 4.5rem;">
+                <h3 style="color: #ef4444; margin-bottom: 0.5rem;">Generative AI (GenAI)</h3>
+                <p style="font-size: 0.95rem; margin-bottom: 0;"><b>The Synthesis Paradigm:</b> For decades, ML and DL were almost exclusively <i>discriminative</i>—they were designed to map inputs to labels (e.g., "Is this image a cat or a dog?" or "Is this email spam?"). GenAI is a subset of Deep Learning focused on <i>generative</i> models. Instead of drawing boundaries between classes of data, these models learn the joint probability distribution of the data itself. They don't just classify; they understand the mathematical structure well enough to synthesize net-new text, images, code, or audio that has never existed before. This includes models like Generative Adversarial Networks (GANs), Diffusion models, and Large Language Models (LLMs).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. The Evolution -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">2. How Programming Evolved</h2>
+        
+        <div class="theory-text">
+            <p>The history of computing is essentially the history of abstraction. In traditional programming, humans are the bottleneck. We must understand a problem intimately enough to break it down into deterministic, sequential rules. This is known as "Symbolic AI" or "Expert Systems." If we want a program to detect spam, a human engineer must manually write rules: <code>if email contains "free money" -> mark as spam</code>. However, language is too complex, nuanced, and dynamic for hardcoded rules. The system becomes brittle.</p>
+            <p>The Machine Learning paradigm inverted this relationship. We realized that humans are bad at writing exhaustive rules, but great at providing examples. By providing a system with 10,000 emails labeled as "Spam" and 10,000 labeled as "Not Spam", the algorithm calculates the statistical correlation between certain word frequencies and the label. The output of this process is a "Model"—a mathematical representation of those rules. The machine wrote the logic for us.</p>
+        </div>
+
+        <div class="concept-diagram">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Traditional Programming (Rule-Based)</h3>
+            <div style="display: flex; gap: 1rem; align-items: stretch; margin-bottom: 3rem;">
+                <div class="diagram-step">
+                    <div style="font-size: 2rem;">📝</div>
+                    <h4>Rules (Code)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">if spam_word in email:</p>
+                </div>
+                <div class="diagram-step">
+                    <div style="font-size: 2rem;">📊</div>
+                    <h4>Data</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Incoming Emails</p>
+                </div>
+                <div class="diagram-arrow">➔</div>
+                <div class="diagram-step" style="border-color: var(--primary);">
+                    <div style="font-size: 2rem;">⚙️</div>
+                    <h4>Computer</h4>
+                </div>
+                <div class="diagram-arrow">➔</div>
+                <div class="diagram-step" style="background: rgba(99,102,241,0.1); border-color: #6366f1;">
+                    <div style="font-size: 2rem;">✅</div>
+                    <h4>Answers</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">"Spam" or "Not Spam"</p>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Machine Learning Paradigm</h3>
+            <div style="display: flex; gap: 1rem; align-items: stretch;">
+                <div class="diagram-step">
+                    <div style="font-size: 2rem;">✅</div>
+                    <h4>Answers (Labels)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">This is Spam. This is Not.</p>
+                </div>
+                <div class="diagram-step">
+                    <div style="font-size: 2rem;">📊</div>
+                    <h4>Data</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">10,000 Emails</p>
+                </div>
+                <div class="diagram-arrow">➔</div>
+                <div class="diagram-step" style="border-color: #10b981;">
+                    <div style="font-size: 2rem;">🧠</div>
+                    <h4>Computer</h4>
+                </div>
+                <div class="diagram-arrow">➔</div>
+                <div class="diagram-step" style="background: rgba(16,185,129,0.1); border-color: #10b981;">
+                    <div style="font-size: 2rem;">📝</div>
+                    <h4>Rules (Model)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">A generated algorithm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. What is an LLM? -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">3. What is a Large Language Model (LLM)?</h2>
+        
+        <div class="theory-text">
+            <p>At its absolute core, an LLM (like GPT-4, Claude, or Llama) is an autoregressive statistical engine. Its sole mathematical objective is to calculate a probability distribution over its entire vocabulary and predict the single most likely <b>next token</b>, given the sequence of all previous tokens.</p>
+            <p>It sounds reductive to call it a "fancy autocomplete," but mathematically, that is exactly what it is. It generates text one single token at a time. Once it generates a token, it appends that token to the input, and runs the entire calculation again to predict the next one. This loop continues until it predicts a special hidden token called <code>&lt;|endoftext|&gt;</code>, telling it to stop.</p>
+            <p>The "magic" arises from the scale. When you train a sufficiently deep neural network (hundreds of billions of parameters) on a sufficiently massive dataset (trillions of words representing a large fraction of the public internet), predicting the next word requires more than just memorizing grammar. To accurately predict the next word in a physics paper, a Python script, or a logical puzzle, the model is forced to develop an internal representation of physics, programming, and logic. This phenomenon is known as <i>emergent behavior</i>.</p>
+        </div>
+        
+        <div class="concept-diagram" style="text-align: center;">
+            <h3>The Autoregressive Prediction Engine</h3>
+            <div style="background: var(--bg-dark); padding: 1.5rem; border-radius: 8px; font-family: monospace; font-size: 1.2rem; display: inline-block; margin-top: 1rem;">
+                "The cat sat on the <span style="border-bottom: 2px solid var(--accent);">________</span>"
+            </div>
+            
+            <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; padding: 1rem; border-radius: 8px; width: 150px;">
+                    <b style="font-size: 1.2rem;">mat</b><br>
+                    <span style="color: #10b981;">85% probability</span>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px; width: 150px;">
+                    <b style="font-size: 1.2rem;">floor</b><br>
+                    <span style="color: #f59e0b;">10% probability</span>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; padding: 1rem; border-radius: 8px; width: 150px;">
+                    <b style="font-size: 1.2rem;">moon</b><br>
+                    <span style="color: #ef4444;">0.01% probability</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Tokens, Embeddings, Context Window -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">4. Core Infrastructure: Tokens, Embeddings & Context</h2>
+        
+        <div class="theory-text">
+            <p>Neural networks cannot read English. They can only perform matrix multiplication on floating-point numbers. To bridge the gap between human language and machine mathematics, we rely on three foundational pillars: Tokenization, Embeddings, and the Context Window.</p>
+        </div>
+
+        <!-- Tokens -->
+        <h3 style="margin-top: 1.5rem; color: var(--accent);">A. Tokenization (Byte-Pair Encoding)</h3>
+        <div class="theory-text">
+            <p>We do not feed raw characters (a, b, c) into an LLM because characters hold no semantic meaning on their own, and the sequence would be too long, making computation brutally slow. We also don't use whole words, because the English language has millions of words, many with prefixes, suffixes, and conjugations (run, running, ran). A vocabulary of millions of words requires too much memory.</p>
+            <p>The solution is sub-word tokenization, most commonly <b>Byte-Pair Encoding (BPE)</b>. The text is chopped into common chunks of characters. Common words like "Apple" might be a single token. Uncommon words like "Unbelievable" might be split into three tokens: "Un", "believ", "able". On average, 1 token is roughly ¾ of a word. A model like GPT-4 has a fixed vocabulary of about 100,000 unique tokens.</p>
+        </div>
+        <div class="concept-diagram" style="padding: 1.5rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 5px; font-family: monospace; font-size: 1.1rem; justify-content: center;">
+                <span style="background: #ef4444; color: white; padding: 5px 10px; border-radius: 4px;">Un</span>
+                <span style="background: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px;">belie</span>
+                <span style="background: #10b981; color: white; padding: 5px 10px; border-radius: 4px;">v</span>
+                <span style="background: #f59e0b; color: white; padding: 5px 10px; border-radius: 4px;">able!</span>
+                <span style="background: #8b5cf6; color: white; padding: 5px 10px; border-radius: 4px;"> </span>
+                <span style="background: #ec4899; color: white; padding: 5px 10px; border-radius: 4px;">ChatGPT</span>
+                <span style="background: #14b8a6; color: white; padding: 5px 10px; border-radius: 4px;"> is</span>
+                <span style="background: #f97316; color: white; padding: 5px 10px; border-radius: 4px;"> fast</span>
+                <span style="background: #6366f1; color: white; padding: 5px 10px; border-radius: 4px;">.</span>
+            </div>
+        </div>
+
+        <!-- Embeddings -->
+        <h3 style="margin-top: 2rem; color: var(--accent);">B. Embeddings (Vector Space)</h3>
+        <div class="theory-text">
+            <p>Once we have tokens, we must turn them into numbers. An embedding is a high-dimensional vector (an array of floating-point numbers, often thousands of dimensions long) that represents the semantic meaning of that token. During training, the model learns these embeddings by observing which words frequently appear near each other.</p>
+            <p>Because these are mathematical vectors in space, concepts with similar meanings cluster together. "Dog" and "Puppy" will have vectors that are very close to each other. Furthermore, because it's a vector space, mathematical operations actually carry semantic logic. The famous example is that if you take the vector for "King", subtract the vector for "Man", and add the vector for "Woman", the resulting coordinates in space will land almost exactly on the vector for "Queen".</p>
+        </div>
+        <div class="concept-diagram" style="position: relative; height: 250px;">
+            <!-- Pseudo 2D Space Plot -->
+            <div style="position: absolute; left: 50%; top: 10%; transform: translateX(-50%); font-weight: bold;">+ Royalty</div>
+            <div style="position: absolute; left: 50%; bottom: 10%; transform: translateX(-50%); font-weight: bold;">- Royalty</div>
+            <div style="position: absolute; left: 10%; top: 50%; transform: translateY(-50%); font-weight: bold;">+ Masculine</div>
+            <div style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); font-weight: bold;">+ Feminine</div>
+            
+            <div style="position: absolute; left: 30%; top: 30%; font-size: 1.2rem; background: rgba(99, 102, 241, 0.3); padding: 5px 10px; border-radius: 20px;">🤴 King</div>
+            <div style="position: absolute; right: 30%; top: 30%; font-size: 1.2rem; background: rgba(236, 72, 153, 0.3); padding: 5px 10px; border-radius: 20px;">👸 Queen</div>
+            
+            <div style="position: absolute; left: 30%; bottom: 30%; font-size: 1.2rem; background: rgba(99, 102, 241, 0.3); padding: 5px 10px; border-radius: 20px;">👨 Man</div>
+            <div style="position: absolute; right: 30%; bottom: 30%; font-size: 1.2rem; background: rgba(236, 72, 153, 0.3); padding: 5px 10px; border-radius: 20px;">👩 Woman</div>
+
+            <svg style="position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: -1;">
+                <line x1="50%" y1="10%" x2="50%" y2="90%" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="10%" y1="50%" x2="90%" y2="50%" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="5,5"/>
+            </svg>
+        </div>
+
+        <!-- Context Window -->
+        <h3 style="margin-top: 2rem; color: var(--accent);">C. The Context Window</h3>
+        <div class="theory-text">
+            <p>LLMs are fundamentally stateless. When you chat with ChatGPT, the server does not "remember" your previous messages. Instead, every time you send a new message, the UI packages up your entire chat history and sends it all back to the model. The model reads the whole conversation from scratch, predicts the next token, and stops.</p>
+            <p>The <b>Context Window</b> is the hard limit on how many tokens the model can accept in a single request. This is restricted by the Attention mechanism, whose computational cost scales quadratically ($O(n^2)$) with the length of the input. If a model has a 128k context window, you can feed it roughly a 300-page book. If your conversation exceeds that limit, the oldest messages are simply truncated (deleted) from the prompt, which is why the model suddenly "forgets" what you told it at the beginning of a very long session.</p>
+        </div>
+    </div>
+
+    <!-- 5. Prompt vs Completion -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">5. API Structure: System Prompts & Completions</h2>
+        
+        <div class="theory-text">
+            <p>When developing AI applications, we interact with LLMs through specific message structures. Unlike standard UIs where you just type in a chat box, developers have granular control using a "Messages Array". The most critical concepts are the System Prompt and the User Prompt.</p>
+            <p>The <b>System Prompt</b> (sometimes called Developer Instructions) is a hidden set of rules that governs the persona, bounds, and behavior of the model. It sits at the very beginning of the context window and is heavily weighted by the model's attention mechanism. The <b>User Prompt</b> is the actual query or task provided by the human.</p>
+            <p>We also control the <b>Temperature</b>, a setting that flattens or sharpens the probability distribution. A temperature of 0.0 makes the model highly deterministic (always choosing the highest probability token, great for coding). A temperature of 0.8 makes it more randomized (great for creative writing).</p>
+        </div>
+
+        <div class="concept-diagram">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="border: 1px solid #3b82f6; border-left: 5px solid #3b82f6; padding: 1rem; border-radius: 4px; background: rgba(59, 130, 246, 0.1);">
+                        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">System Prompt</h4>
+                        <div style="font-family: monospace; font-size: 0.8rem;">"You are a sarcastic AI. Keep answers to 1 sentence."</div>
+                    </div>
+                    <div style="border: 1px solid #10b981; border-left: 5px solid #10b981; padding: 1rem; border-radius: 4px; background: rgba(16, 185, 129, 0.1);">
+                        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">User Prompt</h4>
+                        <div style="font-family: monospace; font-size: 0.8rem;">"What time is it?"</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <div style="font-size: 2rem; color: var(--accent); margin: 0 1rem;">➔</div>
+                    <div style="flex: 1; border: 1px solid #f59e0b; border-left: 5px solid #f59e0b; padding: 1.5rem; border-radius: 4px; background: rgba(245, 158, 11, 0.1);">
+                        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">Model Completion</h4>
+                        <div style="font-family: monospace; font-size: 0.9rem;">"Time for you to buy a watch."</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Transformers -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--primary);">6. The Transformer Architecture: Self-Attention</h2>
+        
+        <div class="theory-text">
+            <p>Prior to 2017, language processing was dominated by Recurrent Neural Networks (RNNs) and LSTMs. These older architectures read text sequentially, strictly left-to-right. This created a massive bottleneck: they were slow to train because they couldn't be parallelized, and they suffered from "vanishing memory." By the time an RNN reached the 100th word in a paragraph, the mathematical representation of the 1st word had been diluted to almost zero.</p>
+            <p>In 2017, researchers at Google published the seminal paper <i>"Attention Is All You Need"</i>, introducing the <b>Transformer</b> architecture. Transformers abandoned sequential reading entirely. Instead, they ingest the entire sequence of tokens all at once, allowing for massive parallelization on GPUs.</p>
+            <p>The core innovation is the <b>Self-Attention Mechanism</b>. For every single token in the sequence, the model calculates a mathematical "attention score" linking it to every other token in the sequence. It creates a massive matrix evaluating how relevant word A is to word B. This is how the model disambiguates context. If you write "I went to the bank to deposit cash," the attention mechanism strongly links the word "bank" to "deposit" and "cash", allowing the model to know you mean a financial institution, not a river bank.</p>
+        </div>
+        
+        <div class="concept-diagram">
+            <h3 style="text-align: center; margin-bottom: 1rem;">Self-Attention Example</h3>
+            <p style="text-align: center; font-style: italic; margin-bottom: 1.5rem;">"The animal didn't cross the street because <b>it</b> was too tired."</p>
+            
+            <div style="display: flex; justify-content: center; gap: 2rem;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="padding: 10px; border: 2px solid #ef4444; border-radius: 8px; font-weight: bold;">animal</div>
+                    <div style="height: 50px; width: 2px; background: #ef4444;"></div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; opacity: 0.3;">
+                    <div style="padding: 10px; border: 2px solid var(--text-muted); border-radius: 8px;">street</div>
+                    <div style="height: 50px; width: 2px; background: var(--text-muted);"></div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="height: 50px;"></div>
+                    <div style="padding: 15px; border: 2px solid #10b981; border-radius: 8px; font-weight: bold; background: rgba(16, 185, 129, 0.2); font-size: 1.2rem;">it</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.95rem;">Attention allows the model to calculate that the pronoun <b>"it"</b> has a highly weighted connection to <b>"animal"</b> and almost zero connection to <b>"street"</b>.</p>
+        </div>
+    </div>
+
+    <!-- 7. Why ChatGPT Works (and Fails) -->
+    <div class="glass-card">
+        <h2 style="color: var(--primary);">7. Why Modern LLMs Work (and Fail)</h2>
+        
+        <div class="theory-text">
+            <p>Training an LLM happens in two primary phases. The first is <b>Pre-training</b>, an unsupervised phase where the model reads the internet and learns to predict the next word. A raw pre-trained model is actually terrible at conversation. If you prompt it with "What is the capital of France?", it might just output "What is the capital of Germany?" because it has seen lists of quiz questions on the internet.</p>
+            <p>The second phase is what makes chatbots useful: <b>RLHF (Reinforcement Learning from Human Feedback)</b>. Human testers evaluate thousands of model outputs, giving a "thumbs up" to helpful, safe, and structured answers, and a "thumbs down" to toxic or useless answers. A secondary reward model trains the LLM to align its probability distributions with human preferences.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+            <!-- Why it Works -->
+            <div style="border-top: 4px solid #10b981; padding-top: 1rem;">
+                <h3 style="color: #10b981; display: flex; align-items: center; gap: 0.5rem;">✅ RLHF & Alignment</h3>
+                <p style="font-size: 0.95rem; margin-top: 1rem;">RLHF fundamentally shifts the model from a "document completer" to a "helpful assistant". It learns the structure of conversation, the tone of helpfulness, and the boundaries of safety (e.g., refusing to generate malicious code).</p>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; text-align: center;">
+                    <div style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-muted);">RLHF Training Loop</div>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1; border: 1px solid #ef4444; padding: 5px; border-radius: 4px; font-size: 0.8rem;">Raw Output: "Google it yourself." (Penalized)</div>
+                        <div style="flex: 1; border: 1px solid #10b981; padding: 5px; border-radius: 4px; font-size: 0.8rem; background: rgba(16, 185, 129, 0.2);">Aligned Output: "The capital of France is Paris." (Rewarded)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Why it Fails -->
+            <div style="border-top: 4px solid #ef4444; padding-top: 1rem;">
+                <h3 style="color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">❌ The Hallucination Problem</h3>
+                <p style="font-size: 0.95rem; margin-top: 1rem;">LLMs suffer from a critical flaw: they lack <b>epistemic certainty</b>. They do not have a database of truth; they only have statistical weights. When confronted with a question they don't know the answer to, they don't look up a database, they just generate the most plausible-sounding sequence of words. This results in confident lies, known as Hallucinations.</p>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; text-align: center;">
+                    <div style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-muted);">Hallucination Example</div>
+                    <div style="border: 1px solid #ef4444; padding: 10px; border-radius: 4px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1);">
+                        "The 1812 Battle of Mars was a pivotal conflict..." 
+                        <br><br><span style="color: #ef4444; font-weight: bold;">(High linguistic probability, zero factual truth)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="theory-text" style="margin-top: 2rem;">
+            <p>Furthermore, because they are language models, they are notoriously bad at pure logic and arithmetic. A calculator computes <code>1452 * 83</code>. An LLM attempts to guess what the characters following <code>1452 * 83 =</code> most likely look like. This is exactly why <b>Agentic AI</b> is required: we must give the "brain" (the LLM) access to "tools" (calculators, web search) so it can verify facts and execute logic rather than just guessing text.</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

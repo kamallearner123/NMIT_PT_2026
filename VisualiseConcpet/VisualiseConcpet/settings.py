@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     "RustProgramming",
     "Cpp",
     "Networking",
+    "Git",
+    "MachineLearning",
+    "GenAI",
+    "AgenticAI",
 ]
 
 MIDDLEWARE = [

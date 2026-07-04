@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}08 MCP & AI Tool Integration{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 08 MCP & Tools{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">08. MCP & AI Tool Integration</span></h1>
+        <p>Model Context Protocol (MCP) and integrating AI deeply into systems, browsers, APIs, and databases.</p>
+    </div>
+
+    <div class="glass-card">
+        <h2>What is MCP (Model Context Protocol)?</h2>
+        <p>An open standard that enables models to securely access local files, databases, and APIs. It standardizes how AI connects to data sources.</p>
+        
+        <!-- MCP Architecture Diagram -->
+        <div style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+            <div style="background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 12px; display: inline-flex; flex-direction: column; align-items: center; gap: 1.5rem;">
+                
+                <!-- Client -->
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="border: 2px solid var(--primary); padding: 1rem; border-radius: 8px; width: 150px; text-align: center;">
+                        <div style="font-size: 2rem;">💻</div>
+                        <b>MCP Client</b><br>
+                        <small>(e.g. Claude Desktop, IDE)</small>
+                    </div>
+                </div>
+
+                <div style="color: var(--accent); font-weight: bold;">↕️ JSON-RPC over stdio / HTTP</div>
+
+                <!-- Servers -->
+                <div style="display: flex; gap: 1rem;">
+                    <div style="border: 2px dashed #10b981; padding: 1rem; border-radius: 8px; width: 120px; text-align: center;">
+                        <div style="font-size: 2rem;">📁</div>
+                        <b>File MCP</b>
+                    </div>
+                    <div style="border: 2px dashed #f59e0b; padding: 1rem; border-radius: 8px; width: 120px; text-align: center;">
+                        <div style="font-size: 2rem;">🗄️</div>
+                        <b>Postgres MCP</b>
+                    </div>
+                    <div style="border: 2px dashed #ef4444; padding: 1rem; border-radius: 8px; width: 120px; text-align: center;">
+                        <div style="font-size: 2rem;">🌐</div>
+                        <b>GitHub MCP</b>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <p><b>Why it matters:</b> Before MCP, every tool needed custom integration code. With MCP, you write a standard server once, and any compatible LLM client can use it.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Self-Attention{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Self-Attention Mechanism</h1>
+    <p>Self-attention allows the model to look at other words in the input sequence for clues that can help lead to a better encoding for the current word.</p>
+
+    <div class="visualizer-container">
+        
+        <div class="sentence-container" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem;">
+            <div class="word-node" id="w1" onclick="focusWord('w1')">The</div>
+            <div class="word-node" id="w2" onclick="focusWord('w2')">animal</div>
+            <div class="word-node" id="w3" onclick="focusWord('w3')">didn't</div>
+            <div class="word-node" id="w4" onclick="focusWord('w4')">cross</div>
+            <div class="word-node" id="w5" onclick="focusWord('w5')">the</div>
+            <div class="word-node" id="w6" onclick="focusWord('w6')">street</div>
+            <div class="word-node" id="w7" onclick="focusWord('w7')">because</div>
+            <div class="word-node active" id="w8" onclick="focusWord('w8')">it</div>
+            <div class="word-node" id="w9" onclick="focusWord('w9')">was</div>
+            <div class="word-node" id="w10" onclick="focusWord('w10')">too</div>
+            <div class="word-node" id="w11" onclick="focusWord('w11')">tired.</div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; justify-content: space-between; align-items: stretch;">
+            
+            <div class="glass-card" style="flex: 1; padding: 1.5rem;">
+                <h3 style="color: #ef4444; margin-bottom: 1rem;">Attention Scores (for "it")</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Calculated via <code>Softmax(Q * K^T)</code></p>
+                
+                <div class="attention-bar-container">
+                    <div style="width: 50px; font-family: monospace;">animal</div>
+                    <div class="att-track"><div class="att-fill" id="fill-animal" style="width: 80%; background: #ef4444;"></div></div>
+                    <div style="width: 30px; font-size: 0.8rem; text-align: right;">0.80</div>
+                </div>
+                
+                <div class="attention-bar-container">
+                    <div style="width: 50px; font-family: monospace;">street</div>
+                    <div class="att-track"><div class="att-fill" id="fill-street" style="width: 15%; background: #f59e0b;"></div></div>
+                    <div style="width: 30px; font-size: 0.8rem; text-align: right;">0.15</div>
+                </div>
+                
+                <div class="attention-bar-container">
+                    <div style="width: 50px; font-family: monospace;">tired</div>
+                    <div class="att-track"><div class="att-fill" id="fill-tired" style="width: 5%; background: #3b82f6;"></div></div>
+                    <div style="width: 30px; font-size: 0.8rem; text-align: right;">0.05</div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="flex: 1; padding: 1.5rem; background: rgba(0,0,0,0.02);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Q, K, V Matrices</h3>
+                <ul style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.8;">
+                    <li><strong>Query (Q):</strong> What am I looking for? <i>(e.g., "it" is looking for a noun)</i></li>
+                    <li><strong>Key (K):</strong> What do I have? <i>(e.g., "animal" says "I am a noun")</i></li>
+                    <li><strong>Value (V):</strong> What is my actual meaning?</li>
+                </ul>
+                <div style="margin-top: 1rem; font-family: math; text-align: center; font-size: 1.2rem; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    Attention(Q, K, V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>)V
+                </div>
+            </div>
+
+        </div>
+
+        <div class="code-block" style="margin-top: 2rem; font-size: 0.85rem;">
+            <span class="code-line" style="color: #8b5cf6;">import</span> torch
+            <span class="code-line" style="color: #8b5cf6;">import</span> torch.nn <span style="color: #8b5cf6;">as</span> nn
+            <span class="code-line" style="color: #8b5cf6;">import</span> torch.nn.functional <span style="color: #8b5cf6;">as</span> F
+            <span class="code-line"></span>
+            <span class="code-line" style="color: #8b5cf6;">class</span> <span style="color: #3b82f6;">SelfAttention</span>(nn.Module):</span>
+            <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">__init__</span>(self, embed_size, heads):</span>
+            <span class="code-line">        <span style="color: #3b82f6;">super</span>().__init__()</span>
+            <span class="code-line">        self.embed_size = embed_size</span>
+            <span class="code-line">        self.heads = heads</span>
+            <span class="code-line">        self.head_dim = embed_size // heads</span>
+            <span class="code-line"></span>
+            <span class="code-line">        self.values = nn.Linear(self.head_dim, self.head_dim, bias=<span style="color: #8b5cf6;">False</span>)</span>
+            <span class="code-line">        self.keys = nn.Linear(self.head_dim, self.head_dim, bias=<span style="color: #8b5cf6;">False</span>)</span>
+            <span class="code-line">        self.queries = nn.Linear(self.head_dim, self.head_dim, bias=<span style="color: #8b5cf6;">False</span>)</span>
+            <span class="code-line">        self.fc_out = nn.Linear(heads * self.head_dim, embed_size)</span>
+            <span class="code-line"></span>
+            <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">forward</span>(self, values, keys, query, mask):</span>
+            <span class="code-line">        N = query.shape[<span style="color: #f97316;">0</span>]</span>
+            <span class="code-line">        value_len, key_len, query_len = values.shape[<span style="color: #f97316;">1</span>], keys.shape[<span style="color: #f97316;">1</span>], query.shape[<span style="color: #f97316;">1</span>]</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Split embedding into self.heads pieces</span></span>
+            <span class="code-line">        values = values.reshape(N, value_len, self.heads, self.head_dim)</span>
+            <span class="code-line">        keys = keys.reshape(N, key_len, self.heads, self.head_dim)</span>
+            <span class="code-line">        queries = query.reshape(N, query_len, self.heads, self.head_dim)</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Matmul: Q x K^T</span></span>
+            <span class="code-line">        energy = torch.einsum(<span style="color: #fbbf24;">"nqhd,nkhd->nhqk"</span>, [queries, keys])</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: #8b5cf6;">if</span> mask <span style="color: #8b5cf6;">is not None</span>:</span>
+            <span class="code-line">            energy = energy.masked_fill(mask == <span style="color: #f97316;">0</span>, <span style="color: #3b82f6;">float</span>(<span style="color: #fbbf24;">"-1e20"</span>))</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Softmax(QK^T / sqrt(d_k))</span></span>
+            <span class="code-line">        attention = torch.softmax(energy / (self.embed_size ** (<span style="color: #f97316;">1</span> / <span style="color: #f97316;">2</span>)), dim=<span style="color: #f97316;">3</span>)</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Matmul with V</span></span>
+            <span class="code-line">        out = torch.einsum(<span style="color: #fbbf24;">"nhql,nlhd->nqhd"</span>, [attention, values]).reshape(</span>
+            <span class="code-line">            N, query_len, self.heads * self.head_dim</span>
+            <span class="code-line">        )</span>
+            <span class="code-line"></span>
+            <span class="code-line">        <span style="color: #8b5cf6;">return</span> self.fc_out(out)</span>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.word-node {
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+}
+
+.word-node:hover {
+    background: rgba(99, 102, 241, 0.1);
+    transform: translateY(-2px);
+}
+
+.word-node.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    transform: scale(1.1);
+}
+
+.word-node.high-attention {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.word-node.med-attention {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+}
+
+.attention-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.att-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.att-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+
+<script>
+    function focusWord(id) {
+        document.querySelectorAll('.word-node').forEach(el => {
+            el.className = 'word-node'; // reset
+        });
+        
+        const activeNode = document.getElementById(id);
+        activeNode.classList.add('active');
+
+        // Hardcoded simulation for demonstration
+        if (id === 'w8') { // 'it'
+            document.getElementById('w2').classList.add('high-attention'); // animal
+            document.getElementById('w6').classList.add('med-attention'); // street
+            
+            updateBars(80, 15, 5);
+        } else if (id === 'w4') { // 'cross'
+            document.getElementById('w2').classList.add('high-attention'); // animal
+            document.getElementById('w6').classList.add('high-attention'); // street
+            
+            updateBars(45, 45, 10);
+            document.querySelector('.attention-bar-container:nth-child(2) div:first-child').innerText = 'animal';
+            document.querySelector('.attention-bar-container:nth-child(3) div:first-child').innerText = 'street';
+        } else {
+            // Randomize for others just to show interaction
+            updateBars(Math.random()*40, Math.random()*30, Math.random()*20);
+        }
+    }
+
+    function updateBars(v1, v2, v3) {
+        document.getElementById('fill-animal').style.width = v1 + '%';
+        document.getElementById('fill-street').style.width = v2 + '%';
+        document.getElementById('fill-tired').style.width = v3 + '%';
+        
+        document.getElementById('fill-animal').parentElement.nextElementSibling.innerText = (v1/100).toFixed(2);
+        document.getElementById('fill-street').parentElement.nextElementSibling.innerText = (v2/100).toFixed(2);
+        document.getElementById('fill-tired').parentElement.nextElementSibling.innerText = (v3/100).toFixed(2);
+    }
+    
+    // Init state
+    window.onload = () => focusWord('w8');
+</script>
+{% endblock %}
