@@ -56,6 +56,7 @@
             <a href="{% url 'Networking:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Networking' %}active{% endif %}">Computer Networks</a>
             <a href="{% url 'RustProgramming:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'RustProgramming' %}active{% endif %}">Rust</a>
             <a href="{% url 'Cpp:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Cpp' %}active{% endif %}">C & C++</a>
+            <a href="{% url 'challenges' %}" class="nav-item {% if request.resolver_match.url_name == 'challenges' %}active{% endif %}">Challenges</a>
 
             <!-- DYNAMIC CHAPTERS (Only shows for active module) -->
             {% if chapters %}
@@ -88,6 +89,12 @@
     <div class="main-content">
         <div class="top-bar">
             <div class="breadcrumb">{% block breadcrumb %}{% endblock %}</div>
+            <a href="https://github.com/kamallearner123/software-engineering-placement-kit" target="_blank" class="github-link" style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.color='var(--text-main)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.color='var(--text-muted)';">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+                GitHub
+            </a>
         </div>
         {% block content %}
         {% endblock %}

@@ -18,11 +18,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import main_dashboard
+from .views import main_dashboard, challenges_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main_dashboard, name='main_dashboard'),
+    path('challenges/', challenges_view, name='challenges'),
     path('dsa/', include('DSA.urls')),
     path('linux/', include('Linux.urls')),
     path('rust/', include('RustProgramming.urls')),

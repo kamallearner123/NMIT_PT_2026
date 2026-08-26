@@ -26,3 +26,6 @@ def main_dashboard(request):
         'challenges': challenges,
     }
     return render(request, 'main_dashboard.html', context)
+
+def challenges_view(request):
+    return render(request, 'challenges.html')

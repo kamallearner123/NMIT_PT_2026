@@ -323,6 +323,80 @@
                 </div>
             </div>
         </div>
+    {% elif chapter.id == "07_Dynamic_Programming" %}
+        <div class="theory-section glass-card" style="margin-bottom: 2rem;">
+            <h3>Dynamic Programming Essentials</h3>
+            <p>Dynamic Programming (DP) is a method for solving complex problems by breaking them down into simpler subproblems. It is applicable when the subproblems overlap.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <h4 style="color: var(--primary);">Key Concepts</h4>
+                    <ul style="font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong>Overlapping Subproblems:</strong> The problem can be broken down into subproblems which are reused several times.</li>
+                        <li><strong>Optimal Substructure:</strong> An optimal solution to the problem contains optimal solutions to the subproblems.</li>
+                    </ul>
+                </div>
+                <div class="glass-card" style="background: rgba(255,255,255,0.03);">
+                    <h4 style="color: var(--primary);">Approaches</h4>
+                    <ul style="font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong>Top-Down (Memoization):</strong> Solve the problem recursively, caching answers to subproblems.</li>
+                        <li><strong>Bottom-Up (Tabulation):</strong> Solve all subproblems iteratively from smallest to largest.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualizer-container">
+            <div class="controls">
+                <select id="algorithm" class="btn btn-secondary">
+                    <optgroup label="1D Dynamic Programming">
+                        <option value="fibonacci">1. Fibonacci Sequence</option>
+                        <option value="climbingStairs">2. Climbing Stairs</option>
+                        <option value="houseRobber">3. House Robber</option>
+                        <option value="maxSubarray">4. Maximum Subarray (Kadane)</option>
+                        <option value="coinChange">5. Coin Change (Min Coins)</option>
+                        <option value="coinChange2">6. Coin Change 2 (Total Ways)</option>
+                        <option value="lis">7. Longest Increasing Subsequence</option>
+                        <option value="wordBreak">8. Word Break</option>
+                    </optgroup>
+                    <optgroup label="2D Dynamic Programming">
+                        <option value="lcs">9. Longest Common Subsequence</option>
+                        <option value="editDistance">10. Edit Distance</option>
+                        <option value="minPathSum">11. Minimum Path Sum</option>
+                        <option value="knapsack">12. 0/1 Knapsack Problem</option>
+                        <option value="unboundedKnapsack">13. Unbounded Knapsack</option>
+                        <option value="partitionEqual">14. Partition Equal Subset Sum</option>
+                        <option value="targetSum">15. Target Sum</option>
+                        <option value="distinctSubsequences">16. Distinct Subsequences</option>
+                        <option value="interleavingString">17. Interleaving String</option>
+                        <option value="longestPalindromicSubsequence">18. Longest Palindromic Subseq</option>
+                        <option value="palindromicSubstrings">19. Palindromic Substrings</option>
+                        <option value="matrixChain">20. Matrix Chain Multiplication</option>
+                    </optgroup>
+                </select>
+                <button class="btn" id="startBtn" onclick="startVisualization()">Initialize</button>
+                <button class="btn btn-secondary" id="playBtn" onclick="toggleAutoPlay()" disabled>Play</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextStep()" disabled>Next Step</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+            </div>
+
+            <!-- Custom grids/canvases based on algorithm -->
+            <div id="dpContainer" class="list-container" style="justify-content: center; align-items: center; min-height: 300px; padding: 2rem; position: relative; overflow: visible; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.02); flex-direction: column;">
+                <!-- Dynamic DP Table or Grid will be generated here -->
+            </div>
+
+            <div id="algoInfoPanel" class="glass-card" style="margin-top: 1rem; border-left: 4px solid var(--primary);">
+                <h3 id="algoTitle">Algorithm</h3>
+                <p id="algoDesc" style="margin-top: 0.5rem;"></p>
+            </div>
+
+            <div class="glass-card" style="margin-top: 2rem;">
+                <h3>Implementation (Python)</h3>
+                <div class="code-block" id="codeBlock">
+                    <!-- Code lines will be injected here -->
+                </div>
+            </div>
+        </div>
     {% else %}
         <p>Content for {{ chapter.title }} is coming soon!</p>
     {% endif %}
@@ -342,5 +416,7 @@
 <script src="{% static 'js/tree_heap_visualizer.js' %}?v=4"></script>
 {% elif chapter.id == "06_Graphs" %}
 <script src="{% static 'js/graph_visualizer.js' %}?v=2"></script>
+{% elif chapter.id == "07_Dynamic_Programming" %}
+<script src="{% static 'js/dp_visualizer.js' %}?v=1"></script>
 {% endif %}
 {% endblock %}

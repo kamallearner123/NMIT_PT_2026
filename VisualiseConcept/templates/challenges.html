@@ -1,0 +1,581 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DSA Challenges{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{% url 'main_dashboard' %}" style="color: var(--text-muted); text-decoration: none;">Home</a> 
+    <span style="color: var(--text-muted);">/</span> 
+    <span style="color: var(--accent); font-weight: 600;">Interactive Challenges</span>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-banner" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+    <div>
+        <h1 style="background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">50 Real-World DSA Challenges</h1>
+        <p>Explore algorithmic patterns applied to real-world scenarios.</p>
+    </div>
+</div>
+
+<!-- FEATURED SIMULATIONS TABS -->
+<div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <button class="sim-tab active" onclick="switchTab(1)">#1 Sliding Window</button>
+    <button class="sim-tab" onclick="switchTab(2)">#2 Two Pointers</button>
+    <button class="sim-tab" onclick="switchTab(3)">#3 Fast & Slow Pointers</button>
+    <button class="sim-tab" onclick="switchTab(4)">#4 Priority Queue (Heap)</button>
+    <button class="sim-tab" onclick="switchTab(5)">#5 Monotonic Stack</button>
+</div>
+
+<!-- SIM 1: Sliding Window -->
+<div id="sim1" class="glass-card sim-content" style="margin-bottom: 3rem; padding: 2rem; position: relative;">
+    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Traffic Congestion Analyzer</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Pattern: Sliding Window</span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Domain: Smart City</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;"><strong>Scenario:</strong> A traffic control system identifies the most congested 5-minute window to redirect vehicles.</p>
+            <pre><code class="language-python">def max_traffic_window(data, k):
+    max_sum = curr_sum = sum(data[:k])
+    for i in range(k, len(data)):
+        curr_sum += data[i] - data[i - k]
+        max_sum = max(max_sum, curr_sum)
+    return max_sum</code></pre>
+            <button class="btn btn-primary" id="btn-sim1" style="margin-top: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;">Auto Play Simulation</button>
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+                <div><div style="font-size: 0.8rem; color: var(--text-muted);">Current Sum</div><div id="sim1-curr" style="font-size: 1.5rem; font-weight: bold; color: var(--text-main);">0</div></div>
+                <div style="text-align: right;"><div style="font-size: 0.8rem; color: var(--text-muted);">Max Sum</div><div id="sim1-max" style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">0</div></div>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="canvas1" width="500" height="200" style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; width: 100%; max-width: 500px;"></canvas>
+            <div style="margin-top: 1rem; width: 100%; max-width: 500px; height: 40px; background: #334155; border-radius: 20px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 50%; width: 100%; height: 2px; background: dashed 2px #94a3b8; transform: translateY(-50%);"></div>
+                <div id="road1" style="position: absolute; top: 0; left: 0; width: 100px; height: 100%; background: rgba(239, 68, 68, 0.4); transition: left 0.3s ease;"></div>
+                <div id="car1" style="position: absolute; top: 10px; left: 0; transition: left 0.3s ease;">🚗</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIM 2: Two Pointers -->
+<div id="sim2" class="glass-card sim-content" style="margin-bottom: 3rem; padding: 2rem; position: relative; display: none;">
+    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Autonomous Convoy Synchronizer</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Pattern: Two Pointers</span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Domain: Automotive</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;"><strong>Scenario:</strong> Self-driving trucks pair up if their speeds match a strict differential delta (diff = 5).</p>
+            <pre><code class="language-python">def find_convoy_pairs(speeds, target_diff):
+    left, right = 0, 1
+    pairs = []
+    while left < len(speeds) and right < len(speeds):
+        diff = speeds[right] - speeds[left]
+        if left != right and diff == target_diff:
+            pairs.append((speeds[left], speeds[right]))
+            left += 1; right += 1
+        elif diff < target_diff: right += 1
+        else: left += 1
+    return pairs</code></pre>
+            <button class="btn btn-primary" id="btn-sim2" style="margin-top: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;">Auto Play Simulation</button>
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; color: var(--text-muted);">
+                Target Difference: <strong style="color: white;">5</strong><br>
+                Found Pairs: <strong id="sim2-pairs" style="color: var(--accent);">0</strong>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="canvas2" width="500" height="150" style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; width: 100%; max-width: 500px; margin-bottom: 1rem; border: 1px solid var(--glass-border);"></canvas>
+            <div style="width: 100%; max-width: 500px; height: 80px; background: #334155; border-radius: 8px; position: relative; padding: 10px;">
+                <div style="position: absolute; top: 40px; width: 100%; height: 2px; background: dashed 2px #94a3b8;"></div>
+                <div id="truck-left" style="position: absolute; top: 10px; left: 10px; font-size: 24px; transition: left 0.3s; z-index: 2;">🚛</div>
+                <div id="truck-right" style="position: absolute; top: 45px; left: 10px; font-size: 24px; transition: left 0.3s; filter: hue-rotate(180deg);">🚚</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIM 3: Fast & Slow Pointers -->
+<div id="sim3" class="glass-card sim-content" style="margin-bottom: 3rem; padding: 2rem; position: relative; display: none;">
+    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Real-Time Packet Dropper</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Pattern: Fast & Slow Pointers</span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Domain: Networking</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;"><strong>Scenario:</strong> A router detects a routing loop where packets are infinitely forwarded between the same nodes.</p>
+            <pre><code class="language-python">def has_routing_loop(head):
+    slow, fast = head, head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True # Loop Detected
+    return False</code></pre>
+            <button class="btn btn-primary" id="btn-sim3" style="margin-top: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;">Auto Play Simulation</button>
+            <div id="sim3-status" style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; color: var(--text-main); font-weight: bold; text-align: center; border: 1px solid var(--glass-border);">
+                Status: Waiting to scan...
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="canvas3" width="500" height="250" style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; width: 100%; max-width: 500px; border: 1px solid var(--glass-border);"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- SIM 4: Priority Queue -->
+<div id="sim4" class="glass-card sim-content" style="margin-bottom: 3rem; padding: 2rem; position: relative; display: none;">
+    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Hospital ER Triage</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Pattern: Priority Queue (Heap)</span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Domain: Healthcare</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;"><strong>Scenario:</strong> An Emergency Room receives patients with varying severity. Treat the most critical patient next.</p>
+            <pre><code class="language-python">import heapq
+def triage_patients(patients):
+    queue = []
+    # Max-Heap using negative severity
+    for name, sev in patients:
+        heapq.heappush(queue, (-sev, name))
+        
+    return [heapq.heappop(queue)[1] for _ in range(len(queue))]</code></pre>
+            <button class="btn btn-primary" id="btn-sim4" style="margin-top: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;">Auto Play Simulation</button>
+            <div id="sim4-status" style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; color: var(--text-muted); border: 1px solid var(--glass-border);">
+                Patients Treated: <strong id="sim4-treated" style="color: var(--accent);">0</strong>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="canvas4" width="500" height="250" style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; width: 100%; max-width: 500px; border: 1px solid var(--glass-border);"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- SIM 5: Monotonic Stack -->
+<div id="sim5" class="glass-card sim-content" style="margin-bottom: 3rem; padding: 2rem; position: relative; display: none;">
+    <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Stock Market Peak Finder</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Pattern: Monotonic Stack</span>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Domain: Finance</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;"><strong>Scenario:</strong> A trading bot needs to know the next profitable sell opportunity for every historical data point.</p>
+            <pre><code class="language-python">def next_greater_price(prices):
+    result = [-1] * len(prices)
+    stack = []
+    for i, p in enumerate(prices):
+        while stack and prices[stack[-1]] < p:
+            result[stack.pop()] = p
+        stack.append(i)
+    return result</code></pre>
+            <button class="btn btn-primary" id="btn-sim5" style="margin-top: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;">Auto Play Simulation</button>
+        </div>
+        <div style="flex: 1; min-width: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="canvas5" width="500" height="250" style="background: rgba(15, 23, 42, 0.5); border-radius: 12px; width: 100%; max-width: 500px; border: 1px solid var(--glass-border);"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- GRID OF CHALLENGES -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <h2 style="color: var(--text-main);">All Challenge Library</h2>
+    <div style="display: flex; gap: 1rem;">
+        <div style="position: relative;">
+            <select id="group-challenges" style="padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-main); font-weight: bold; cursor: pointer;">
+                <option value="none">Group By: None</option>
+                <option value="pattern">Group By: Pattern</option>
+                <option value="domain">Group By: Domain</option>
+            </select>
+        </div>
+        <div style="position: relative;">
+            <input type="text" id="search-challenges" placeholder="Search..." style="padding: 0.6rem 1rem 0.6rem 2.5rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); width: 200px;">
+            <svg style="position: absolute; left: 10px; top: 10px; color: var(--text-muted);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+    </div>
+</div>
+
+<div id="challenges-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <div class="loader" style="width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.3); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+        Rendering Graphics Library...
+    </div>
+</div>
+
+<!-- Modal for viewing a challenge details -->
+<div id="challenge-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div class="glass-card" style="width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative;">
+        <button onclick="closeModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem;">&times;</button>
+        <div id="modal-content"></div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sim-tab {
+        background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted);
+        padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600;
+    }
+    .sim-tab.active { background: rgba(99, 102, 241, 0.2); color: var(--text-main); border-color: var(--primary); }
+    .challenge-card {
+        background: rgba(30, 41, 59, 0.4); border: 1px solid var(--glass-border); border-radius: 12px;
+        padding: 1.5rem; transition: all 0.3s ease; display: flex; flex-direction: column; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .challenge-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-color: rgba(99, 102, 241, 0.5); }
+    .c-badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .c-badge-pattern { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+    .c-badge-domain { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .group-header { grid-column: 1 / -1; font-size: 1.5rem; color: var(--primary); padding-bottom: 0.5rem; border-bottom: 1px solid var(--glass-border); margin-top: 1rem; }
+    
+    #modal-content h3 { color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; }
+    #modal-content p { color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem; }
+    #modal-content strong { color: var(--text-main); }
+    #modal-content ul { padding-left: 1.5rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    #modal-content li { margin-bottom: 0.5rem; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    if (window.Prism) Prism.highlightAll();
+
+    function switchTab(id) {
+        document.querySelectorAll('.sim-tab').forEach((el, i) => { el.classList.toggle('active', i === id - 1); });
+        document.querySelectorAll('.sim-content').forEach((el, i) => { el.style.display = (i === id - 1) ? 'block' : 'none'; });
+    }
+
+    // --- SIM 1: SLIDING WINDOW ---
+    const ctx1 = document.getElementById('canvas1').getContext('2d');
+    const data1 = [12, 15, 30, 45, 60, 20, 10, 5, 8, 50, 70, 80, 25, 15, 10];
+    const K1 = 5;
+    let idx1 = -1, int1, isSim1 = false;
+    function drawSim1(activeIndex) {
+        const c = ctx1.canvas; ctx1.clearRect(0, 0, c.width, c.height);
+        const padding = 20, barW = (c.width - padding * 2) / data1.length, maxV = Math.max(...data1);
+        ctx1.strokeStyle = 'rgba(255, 255, 255, 0.05)'; ctx1.lineWidth = 1;
+        for(let i=0; i<4; i++) { let y = padding + i * ((c.height - padding*2)/3); ctx1.beginPath(); ctx1.moveTo(padding, y); ctx1.lineTo(c.width-padding, y); ctx1.stroke(); }
+        let sum = 0; if(activeIndex !== -1) for(let i=activeIndex; i<activeIndex+K1; i++) sum += data1[i];
+        
+        for(let i=0; i<data1.length; i++) {
+            const val = data1[i], h = (val / maxV) * (c.height - padding * 2), x = padding + i * barW, y = c.height - padding - h;
+            const inWin = activeIndex !== -1 && i >= activeIndex && i < activeIndex + K1;
+            ctx1.fillStyle = inWin ? 'rgba(99, 102, 241, 0.8)' : 'rgba(255, 255, 255, 0.1)';
+            ctx1.fillRect(x + 2, y, barW - 4, h);
+            ctx1.fillStyle = inWin ? '#fff' : 'rgba(255,255,255,0.4)'; ctx1.font = '10px monospace'; ctx1.textAlign = 'center'; ctx1.fillText(val, x + barW/2, y - 5);
+        }
+        
+        if (activeIndex !== -1) {
+            ctx1.strokeStyle = '#34d399'; ctx1.lineWidth = 2; ctx1.fillStyle = 'rgba(52, 211, 153, 0.1)';
+            const x = padding + activeIndex * barW, w = barW * K1;
+            ctx1.fillRect(x, padding, w, c.height - padding*2); ctx1.strokeRect(x, padding, w, c.height - padding*2);
+            document.getElementById('sim1-curr').innerText = sum;
+            if (sum > parseInt(document.getElementById('sim1-max').innerText)) document.getElementById('sim1-max').innerText = sum;
+            const pX = (activeIndex / (data1.length - K1)) * 100;
+            document.getElementById('road1').style.left = `calc(${pX}% - ${pX * 100 / 500}px)`;
+            document.getElementById('road1').style.width = `${(K1 / data1.length) * 100}%`;
+            document.getElementById('car1').style.left = `calc(${pX}% - ${pX * 20 / 500}px)`;
+            document.getElementById('road1').style.backgroundColor = (sum/(80*K1) > 0.5) ? 'rgba(239, 68, 68, 0.6)' : 'rgba(16, 185, 129, 0.6)';
+        }
+    }
+    drawSim1(-1);
+    document.getElementById('btn-sim1').onclick = function() {
+        if(isSim1) { clearInterval(int1); this.innerText = 'Auto Play'; isSim1 = false; }
+        else {
+            idx1 = 0; document.getElementById('sim1-max').innerText = '0'; this.innerText = 'Pause'; isSim1 = true;
+            int1 = setInterval(() => { drawSim1(idx1); idx1++; if(idx1 > data1.length - K1) { clearInterval(int1); this.innerText = 'Restart'; isSim1 = false; } }, 800);
+        }
+    };
+
+    // --- SIM 2: TWO POINTERS ---
+    const ctx2 = document.getElementById('canvas2').getContext('2d');
+    const data2 = [40, 42, 45, 50, 55, 60, 62, 65, 70];
+    let l2 = 0, r2 = 1, int2, isSim2 = false, pairs2 = 0;
+    function drawSim2() {
+        const c = ctx2.canvas; ctx2.clearRect(0, 0, c.width, c.height);
+        const padding = 20, boxW = (c.width - padding*2)/data2.length;
+        for(let i=0; i<data2.length; i++) {
+            const x = padding + i*boxW, y = c.height/2 - 20;
+            ctx2.fillStyle = 'rgba(255,255,255,0.1)';
+            if(i === l2) ctx2.fillStyle = 'rgba(239, 68, 68, 0.4)';
+            if(i === r2) ctx2.fillStyle = 'rgba(16, 185, 129, 0.4)';
+            if(l2 !== -1 && r2 !== -1 && i === l2 && data2[r2]-data2[l2] === 5) ctx2.fillStyle = 'rgba(245, 158, 11, 0.6)';
+            if(l2 !== -1 && r2 !== -1 && i === r2 && data2[r2]-data2[l2] === 5) ctx2.fillStyle = 'rgba(245, 158, 11, 0.6)';
+            ctx2.fillRect(x+2, y, boxW-4, 40);
+            ctx2.fillStyle = '#fff'; ctx2.font = '14px monospace'; ctx2.textAlign = 'center'; ctx2.fillText(data2[i], x+boxW/2, y+25);
+            if(i === l2) { ctx2.fillStyle = '#ef4444'; ctx2.fillText('L', x+boxW/2, y-10); }
+            if(i === r2) { ctx2.fillStyle = '#10b981'; ctx2.fillText('R', x+boxW/2, y+60); }
+        }
+        if (l2 < data2.length && r2 < data2.length) {
+            document.getElementById('truck-left').style.left = `calc(${(l2 / data2.length) * 100}% + 10px)`;
+            document.getElementById('truck-right').style.left = `calc(${(r2 / data2.length) * 100}% + 10px)`;
+        }
+    }
+    drawSim2();
+    document.getElementById('btn-sim2').onclick = function() {
+        if(isSim2) { clearInterval(int2); this.innerText = 'Auto Play'; isSim2 = false; }
+        else {
+            l2 = 0; r2 = 1; pairs2 = 0; document.getElementById('sim2-pairs').innerText = '0'; this.innerText = 'Pause'; isSim2 = true;
+            int2 = setInterval(() => {
+                if(l2 >= data2.length || r2 >= data2.length) { clearInterval(int2); this.innerText = 'Restart'; isSim2 = false; return; }
+                drawSim2();
+                if (l2 !== r2 && data2[r2] - data2[l2] === 5) { pairs2++; document.getElementById('sim2-pairs').innerText = pairs2; l2++; r2++; }
+                else if (data2[r2] - data2[l2] < 5) r2++; else l2++;
+            }, 1000);
+        }
+    };
+
+    // --- SIM 3: FAST & SLOW POINTERS ---
+    const ctx3 = document.getElementById('canvas3').getContext('2d');
+    const nodes3 = [{x: 50, y: 125}, {x: 120, y: 125}, {x: 190, y: 125}, {x: 260, y: 125}, {x: 330, y: 60}, {x: 400, y: 125}, {x: 330, y: 190}];
+    const next3 = [1, 2, 3, 4, 5, 6, 3];
+    let slow3 = 0, fast3 = 0, int3, isSim3 = false;
+    function drawSim3() {
+        const c = ctx3.canvas; ctx3.clearRect(0, 0, c.width, c.height);
+        ctx3.strokeStyle = 'rgba(255,255,255,0.2)'; ctx3.lineWidth = 2;
+        for(let i=0; i<nodes3.length; i++) {
+            const s = nodes3[i], e = nodes3[next3[i]];
+            ctx3.beginPath(); ctx3.moveTo(s.x, s.y); ctx3.lineTo(e.x, e.y); ctx3.stroke();
+        }
+        for(let i=0; i<nodes3.length; i++) {
+            ctx3.beginPath(); ctx3.arc(nodes3[i].x, nodes3[i].y, 15, 0, Math.PI*2);
+            ctx3.fillStyle = '#1e293b'; ctx3.fill(); ctx3.strokeStyle = '#475569'; ctx3.stroke();
+        }
+        ctx3.beginPath(); ctx3.arc(nodes3[slow3].x, nodes3[slow3].y - 20, 8, 0, Math.PI*2); ctx3.fillStyle = '#3b82f6'; ctx3.fill(); ctx3.fillText("S", nodes3[slow3].x-4, nodes3[slow3].y-35);
+        ctx3.beginPath(); ctx3.arc(nodes3[fast3].x, nodes3[fast3].y + 20, 8, 0, Math.PI*2); ctx3.fillStyle = '#f97316'; ctx3.fill(); ctx3.fillText("F", nodes3[fast3].x-4, nodes3[fast3].y+40);
+        
+        if(isSim3 && slow3 === fast3 && slow3 !== 0) {
+            document.getElementById('sim3-status').innerText = '🔥 ROUTING LOOP DETECTED 🔥'; document.getElementById('sim3-status').style.color = '#ef4444';
+            ctx3.beginPath(); ctx3.arc(nodes3[slow3].x, nodes3[slow3].y, 30, 0, Math.PI*2); ctx3.strokeStyle = '#ef4444'; ctx3.lineWidth = 3; ctx3.stroke();
+        }
+    }
+    drawSim3();
+    document.getElementById('btn-sim3').onclick = function() {
+        if(isSim3) { clearInterval(int3); this.innerText = 'Auto Play'; isSim3 = false; }
+        else {
+            slow3 = 0; fast3 = 0; this.innerText = 'Pause'; isSim3 = true; document.getElementById('sim3-status').innerText = 'Scanning...'; document.getElementById('sim3-status').style.color = 'var(--text-main)';
+            drawSim3();
+            int3 = setInterval(() => {
+                slow3 = next3[slow3]; fast3 = next3[next3[fast3]]; drawSim3();
+                if (slow3 === fast3) { clearInterval(int3); this.innerText = 'Restart'; isSim3 = false; }
+            }, 1000);
+        }
+    };
+
+    // --- SIM 4: PRIORITY QUEUE ---
+    const ctx4 = document.getElementById('canvas4').getContext('2d');
+    const pts4 = [{n:"Alice", s:80}, {n:"Bob", s:20}, {n:"Charlie", s:95}, {n:"David", s:50}, {n:"Eve", s:10}];
+    let q4 = [], treated4 = 0, int4, isSim4 = false, step4 = 0;
+    
+    function drawSim4() {
+        const c = ctx4.canvas; ctx4.clearRect(0, 0, c.width, c.height);
+        
+        // Draw waiting list
+        ctx4.fillStyle = 'rgba(255,255,255,0.4)'; ctx4.font = '12px sans-serif'; ctx4.fillText("Arriving Patients:", 20, 30);
+        for(let i=0; i<pts4.length; i++) {
+            if(i >= step4) {
+                const color = pts4[i].s > 70 ? '#ef4444' : (pts4[i].s > 40 ? '#f59e0b' : '#10b981');
+                ctx4.fillStyle = color; ctx4.beginPath(); ctx4.arc(30 + i*40, 60, 15, 0, Math.PI*2); ctx4.fill();
+                ctx4.fillStyle = '#fff'; ctx4.textAlign = 'center'; ctx4.fillText(pts4[i].s, 30 + i*40, 65);
+            }
+        }
+        
+        // Draw Heap representation
+        ctx4.fillStyle = 'rgba(255,255,255,0.4)'; ctx4.textAlign = 'left'; ctx4.fillText("Priority Queue (Max-Heap):", 20, 120);
+        const sortedQ = [...q4].sort((a,b) => b.s - a.s); // Visual cheat for max-heap logic
+        for(let i=0; i<sortedQ.length; i++) {
+            const color = sortedQ[i].s > 70 ? '#ef4444' : (sortedQ[i].s > 40 ? '#f59e0b' : '#10b981');
+            ctx4.fillStyle = color; ctx4.beginPath(); ctx4.arc(30 + i*40, 150, 15, 0, Math.PI*2); ctx4.fill();
+            ctx4.fillStyle = '#fff'; ctx4.textAlign = 'center'; ctx4.fillText(sortedQ[i].s, 30 + i*40, 155);
+        }
+        
+        // Treated
+        ctx4.fillStyle = 'rgba(255,255,255,0.4)'; ctx4.textAlign = 'left'; ctx4.fillText("Treated:", 300, 120);
+        for(let i=0; i<treated4; i++) {
+            ctx4.fillStyle = 'rgba(255,255,255,0.1)'; ctx4.beginPath(); ctx4.arc(320 + i*35, 150, 10, 0, Math.PI*2); ctx4.fill();
+            ctx4.fillStyle = '#10b981'; ctx4.textAlign = 'center'; ctx4.fillText("✓", 320 + i*35, 154);
+        }
+    }
+    drawSim4();
+    document.getElementById('btn-sim4').onclick = function() {
+        if(isSim4) { clearInterval(int4); this.innerText = 'Auto Play'; isSim4 = false; }
+        else {
+            q4 = []; treated4 = 0; step4 = 0; document.getElementById('sim4-treated').innerText = '0'; this.innerText = 'Pause'; isSim4 = true;
+            int4 = setInterval(() => {
+                if(step4 < pts4.length) {
+                    q4.push(pts4[step4]); step4++;
+                } else if(q4.length > 0) {
+                    q4.sort((a,b) => b.s - a.s); // Sort descending
+                    q4.shift(); // Pop max
+                    treated4++; document.getElementById('sim4-treated').innerText = treated4;
+                } else {
+                    clearInterval(int4); this.innerText = 'Restart'; isSim4 = false;
+                }
+                drawSim4();
+            }, 800);
+        }
+    };
+
+    // --- SIM 5: MONOTONIC STACK ---
+    const ctx5 = document.getElementById('canvas5').getContext('2d');
+    const data5 = [100, 90, 80, 85, 120, 110, 130];
+    let step5 = 0, stack5 = [], result5 = Array(data5.length).fill(-1), int5, isSim5 = false;
+    
+    function drawSim5() {
+        const c = ctx5.canvas; ctx5.clearRect(0, 0, c.width, c.height);
+        const padding = 20, barW = 30, maxV = 140;
+        
+        // Bars
+        for(let i=0; i<data5.length; i++) {
+            const h = (data5[i] / maxV) * 150, x = padding + i*45, y = c.height - 20 - h;
+            ctx5.fillStyle = (i === step5) ? '#f59e0b' : 'rgba(255,255,255,0.1)';
+            ctx5.fillRect(x, y, barW, h);
+            ctx5.fillStyle = '#fff'; ctx5.font = '10px monospace'; ctx5.textAlign = 'center'; ctx5.fillText(data5[i], x+barW/2, y-5);
+            
+            // Draw Next Greater Element links
+            if(result5[i] !== -1) {
+                const targetIdx = data5.indexOf(result5[i]);
+                if(targetIdx !== -1) {
+                    const tx = padding + targetIdx*45 + barW/2, ty = c.height - 20 - ((result5[i]/maxV)*150);
+                    ctx5.beginPath(); ctx5.moveTo(x+barW/2, y);
+                    ctx5.quadraticCurveTo(x+barW/2, ty-20, tx, ty);
+                    ctx5.strokeStyle = '#10b981'; ctx5.lineWidth = 1; ctx5.stroke();
+                }
+            }
+        }
+        
+        // Stack visual
+        ctx5.fillStyle = 'rgba(255,255,255,0.4)'; ctx5.textAlign = 'left'; ctx5.fillText("Stack (Indices):", 350, 30);
+        ctx5.strokeStyle = 'rgba(255,255,255,0.2)'; ctx5.strokeRect(350, 40, 100, 180);
+        for(let i=0; i<stack5.length; i++) {
+            const y = 220 - (i+1)*25;
+            ctx5.fillStyle = 'rgba(99, 102, 241, 0.4)'; ctx5.fillRect(352, y, 96, 23);
+            ctx5.fillStyle = '#fff'; ctx5.textAlign = 'center'; ctx5.fillText(`[${stack5[i]}] ${data5[stack5[i]]}`, 400, y+16);
+        }
+    }
+    drawSim5();
+    document.getElementById('btn-sim5').onclick = function() {
+        if(isSim5) { clearInterval(int5); this.innerText = 'Auto Play'; isSim5 = false; }
+        else {
+            step5 = 0; stack5 = []; result5 = Array(data5.length).fill(-1); this.innerText = 'Pause'; isSim5 = true;
+            let subStep = 0; // 0: eval while, 1: push
+            int5 = setInterval(() => {
+                if(step5 >= data5.length) { clearInterval(int5); this.innerText = 'Restart'; isSim5 = false; return; }
+                
+                if (stack5.length > 0 && data5[stack5[stack5.length-1]] < data5[step5]) {
+                    const idx = stack5.pop();
+                    result5[idx] = data5[step5];
+                } else {
+                    stack5.push(step5);
+                    step5++;
+                }
+                drawSim5();
+            }, 600);
+        }
+    };
+
+
+    // --- PARSE AND RENDER CARDS ---
+    let allChallenges = [];
+    function parseMarkdown(md) {
+        const challenges = [];
+        const chunks = md.split(/### #\d+\.\s*/).filter(c => c.trim().length > 0);
+        chunks.forEach(chunk => {
+            const lines = chunk.split('\n');
+            const title = lines[0].trim();
+            let pattern = "", problem = "", domain = "", scenario = "";
+            let htmlContent = "<h3>" + title + "</h3>";
+            let inList = false;
+            for(let i=1; i<lines.length; i++) {
+                const line = lines[i].trim();
+                if(line.startsWith('- **Pattern(s):**')) pattern = line.replace('- **Pattern(s):**', '').trim();
+                if(line.startsWith('- **Problem Statement:**')) problem = line.replace('- **Problem Statement:**', '').trim();
+                if(line.startsWith('- **Domain:**')) domain = line.replace('- **Domain:**', '').trim();
+                if(line.startsWith('- **Scenario:**')) scenario = line.replace('- **Scenario:**', '').trim();
+                if(line.startsWith('- **')) {
+                    if(inList) { htmlContent += "</ul>"; inList = false; }
+                    htmlContent += "<p>" + line.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + "</p>";
+                } else if (line.startsWith('- ')) {
+                    if(!inList) { htmlContent += "<ul>"; inList = true; }
+                    htmlContent += "<li>" + line.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + "</li>";
+                }
+            }
+            if(inList) htmlContent += "</ul>";
+            challenges.push({ title, pattern, problem, domain, scenario, htmlContent });
+        });
+        return challenges;
+    }
+    
+    function renderCards(challenges) {
+        const grid = document.getElementById('challenges-grid');
+        grid.innerHTML = '';
+        
+        const groupSelect = document.getElementById('group-challenges').value;
+        
+        let groups = {};
+        if (groupSelect === 'none') {
+            groups['All'] = challenges;
+        } else {
+            challenges.forEach(c => {
+                const key = groupSelect === 'pattern' ? (c.pattern || 'Other') : (c.domain || 'Other');
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(c);
+            });
+        }
+        
+        // Sort keys
+        const keys = Object.keys(groups).sort();
+        
+        keys.forEach(key => {
+            if (groupSelect !== 'none') {
+                const header = document.createElement('div');
+                header.className = 'group-header';
+                header.innerText = `${groupSelect === 'pattern' ? 'Pattern: ' : 'Domain: '} ${key}`;
+                grid.appendChild(header);
+            }
+            
+            groups[key].forEach((c, index) => {
+                let icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>';
+                if(c.pattern.toLowerCase().includes('tree') || c.pattern.toLowerCase().includes('heap')) icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
+                if(c.pattern.toLowerCase().includes('graph') || c.pattern.toLowerCase().includes('search')) icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
+                
+                const card = document.createElement('div');
+                card.className = 'challenge-card';
+                card.onclick = () => openModal(c.htmlContent);
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div style="color: var(--accent); background: rgba(99, 102, 241, 0.1); padding: 0.5rem; border-radius: 8px;">${icon}</div>
+                        <span class="c-badge c-badge-domain">${c.domain || 'Algorithm'}</span>
+                    </div>
+                    <h3 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${c.title}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1;">${c.problem}</p>
+                    <div style="margin-top: auto;">
+                        <span class="c-badge c-badge-pattern">${c.pattern || 'Pattern'}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    }
+
+    fetch("{% static 'challenges.md' %}").then(res => res.text()).then(text => { allChallenges = parseMarkdown(text); renderCards(allChallenges); });
+    
+    document.getElementById('search-challenges').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        renderCards(allChallenges.filter(c => c.title.toLowerCase().includes(term) || c.pattern.toLowerCase().includes(term) || c.domain.toLowerCase().includes(term)));
+    });
+    
+    document.getElementById('group-challenges').addEventListener('change', (e) => {
+        // Re-run search/filter with new grouping
+        const term = document.getElementById('search-challenges').value.toLowerCase();
+        renderCards(allChallenges.filter(c => c.title.toLowerCase().includes(term) || c.pattern.toLowerCase().includes(term) || c.domain.toLowerCase().includes(term)));
+    });
+        
+    function openModal(content) { document.getElementById('modal-content').innerHTML = content; document.getElementById('challenge-modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('challenge-modal').style.display = 'none'; }
+    window.onclick = function(event) { if (event.target == document.getElementById('challenge-modal')) closeModal(); }
+</script>
+{% endblock %}
