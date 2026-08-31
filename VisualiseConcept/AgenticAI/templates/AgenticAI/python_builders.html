@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}02 Python for AI Builders{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 02 Python for AI{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">02. Python for AI Builders</span></h1>
+        <p>Learn how to connect to LLMs programmatically using Python and REST APIs.</p>
+    </div>
+
+    <div class="glass-card">
+        <h2>API Communication Flow</h2>
+        <div style="background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 12px; margin-top: 1rem; display: flex; align-items: center; justify-content: space-around;">
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">💻</div>
+                <h4>Your Python Code</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">(JSON Payload + API Key)</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; color: var(--accent);">
+                <div style="font-size: 1.5rem; transform: translateY(10px);">⟷</div>
+                <div style="font-size: 0.8rem; margin-top: 5px;">HTTP POST / JSON</div>
+            </div>
+
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">☁️</div>
+                <h4>OpenAI / Anthropic API</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">(LLM processing)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Building a Simple Chatbot with OpenAI</h2>
+        <p>This code demonstrates how to send a prompt and receive a response.</p>
+        <pre><code class="language-python line-numbers">
+import os
+import requests
+import json
+
+# NEVER hardcode your API key! Always use environment variables.
+API_KEY = os.getenv("OPENAI_API_KEY")
+URL = "https://api.openai.com/v1/chat/completions"
+
+# 1. Define the Headers (Authentication)
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+# 2. Define the Payload (The Data)
+payload = {
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "Explain what a REST API is in one sentence."}
+    ],
+    "temperature": 0.7 # Creativity control (0.0 to 1.0)
+}
+
+# 3. Make the API Call
+response = requests.post(URL, headers=headers, json=payload)
+
+# 4. Handle the JSON Response
+if response.status_code == 200:
+    data = response.json()
+    # Extract the AI's reply from the JSON structure
+    ai_reply = data["choices"][0]["message"]["content"]
+    print(f"AI: {ai_reply}")
+else:
+    print(f"Error: {response.status_code} - {response.text}")
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}03 Prompt Engineering Deep Dive{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 03 Prompt Engineering{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">03. Prompt Engineering Deep Dive</span></h1>
+        <p>Mastering the art of communicating with LLMs to get precise, reliable, and high-quality outputs.</p>
+    </div>
+
+    <!-- Visualization of prompting techniques -->
+    <h2 style="margin-top: 2rem; color: var(--primary);">Prompting Strategies (Block Diagram)</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem;">
+        <!-- Zero Shot -->
+        <div class="glass-card" style="border-top: 4px solid #ef4444;">
+            <h3>1. Zero-Shot</h3>
+            <p style="font-size: 0.9rem;">Asking the AI a question without giving any examples.</p>
+            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <span style="color: #60a5fa;">User:</span> Classify this text as Positive or Negative: "I love this product!"<br><br>
+                <span style="color: #34d399;">AI:</span> Positive.
+            </div>
+        </div>
+
+        <!-- Few Shot -->
+        <div class="glass-card" style="border-top: 4px solid #f59e0b;">
+            <h3>2. Few-Shot</h3>
+            <p style="font-size: 0.9rem;">Providing a few examples before asking the actual question.</p>
+            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <span style="color: #60a5fa;">User:</span><br>
+                "Terrible service" -> Negative<br>
+                "Great food" -> Positive<br>
+                "Okay experience" -> Neutral<br>
+                "I enjoyed it" -><br><br>
+                <span style="color: #34d399;">AI:</span> Positive.
+            </div>
+        </div>
+
+        <!-- Chain of Thought -->
+        <div class="glass-card" style="border-top: 4px solid #10b981;">
+            <h3>3. Chain-of-Thought (CoT)</h3>
+            <p style="font-size: 0.9rem;">Forcing the AI to explain its reasoning step-by-step.</p>
+            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                <span style="color: #60a5fa;">User:</span> If I have 5 apples and eat 2, then buy 4 more, how many do I have? Think step-by-step.<br><br>
+                <span style="color: #34d399;">AI:</span> 1. Start with 5.<br>2. Eat 2, so 5-2=3.<br>3. Buy 4, so 3+4=7. <br>Answer is 7.
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Code Example: System Prompts vs User Prompts</h2>
+        <pre><code class="language-python line-numbers">
+# When using the Chat API, we separate instructions (System) from the task (User).
+
+messages = [
+    {
+        # The System prompt sets the behavior, rules, and persona.
+        "role": "system", 
+        "content": """You are an expert Python developer. 
+Always reply with valid, runnable code only. 
+Do not explain the code unless asked."""
+    },
+    {
+        # The User prompt is the specific task or question.
+        "role": "user", 
+        "content": "Write a function to calculate the Fibonacci sequence."
+    }
+]
+
+# Send to API...
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

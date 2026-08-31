@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Git Branching{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Git Branching & Merging</h1>
+    <p>Branches allow you to diverge from the main line of development and continue to do work without messing with that main line.</p>
+
+    <div class="visualizer-container">
+        
+        <div class="branch-graph" id="branch-graph">
+            <!-- SVG will be drawn here -->
+            <svg id="git-svg" width="100%" height="300px">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                    refX="0" refY="3.5" orient="auto">
+                      <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-muted)" />
+                    </marker>
+                  </defs>
+            </svg>
+            
+            <div id="nodes-container">
+                <div class="commit-dot main-branch" style="left: 50px; top: 150px;" data-id="c1" data-label="main">c1</div>
+                <div class="commit-dot main-branch" style="left: 150px; top: 150px;" data-id="c2">c2</div>
+                <div class="commit-dot main-branch active-head" style="left: 250px; top: 150px;" id="main-head" data-id="c3" data-label="main (HEAD)">c3</div>
+            </div>
+        </div>
+
+        <div class="controls" style="margin-top: 2rem;">
+            <button class="btn" onclick="createBranch()">git branch feature</button>
+            <button class="btn" onclick="checkoutBranch()">git checkout feature</button>
+            <button class="btn" onclick="commitBranch()">git commit</button>
+            <button class="btn" onclick="mergeBranch()">git merge feature</button>
+        </div>
+
+        <div class="code-block" id="git-log-output">
+            <span class="code-line">$ git log --oneline</span>
+            <span class="code-line">c3 (HEAD -> main) Update config</span>
+            <span class="code-line">c2 Add index.html</span>
+            <span class="code-line">c1 Initial commit</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.branch-graph {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+#nodes-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.commit-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-15px, -15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: all 0.3s;
+}
+
+.commit-dot::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -25px;
+    white-space: nowrap;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.main-branch {
+    background: var(--primary);
+    border: 2px solid white;
+}
+
+.feature-branch {
+    background: #10b981;
+    border: 2px solid white;
+}
+
+.active-head {
+    box-shadow: 0 0 15px #fbbf24, 0 0 5px #fbbf24;
+    border-color: #fbbf24;
+}
+
+svg line {
+    stroke: var(--text-muted);
+    stroke-width: 3;
+}
+</style>
+
+<script>
+    let state = 0; // 0: init, 1: branch created, 2: checked out, 3: committed, 4: merged
+    
+    function drawLine(id, x1, y1, x2, y2) {
+        const svg = document.getElementById('git-svg');
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('id', id);
+        svg.appendChild(line);
+    }
+    
+    // Draw initial lines
+    drawLine('l1', 50, 150, 150, 150);
+    drawLine('l2', 150, 150, 250, 150);
+
+    function createBranch() {
+        if(state !== 0) return;
+        state = 1;
+        const mainHead = document.getElementById('main-head');
+        mainHead.setAttribute('data-label', 'main (HEAD), feature');
+        logTerminal('$ git branch feature');
+    }
+
+    function checkoutBranch() {
+        if(state !== 1) {
+            if(state === 0) logTerminal('Error: branch feature not found.', '#ef4444');
+            return;
+        }
+        state = 2;
+        const mainHead = document.getElementById('main-head');
+        mainHead.setAttribute('data-label', 'main, feature (HEAD)');
+        mainHead.classList.remove('main-branch');
+        mainHead.classList.add('feature-branch'); // just color it to show we are on feature
+        
+        logTerminal('$ git checkout feature');
+        logTerminal('Switched to branch "feature"');
+    }
+
+    function commitBranch() {
+        if(state !== 2) return;
+        state = 3;
+        
+        const mainHead = document.getElementById('main-head');
+        mainHead.setAttribute('data-label', 'main');
+        mainHead.classList.remove('feature-branch', 'active-head');
+        mainHead.classList.add('main-branch');
+        
+        const nodes = document.getElementById('nodes-container');
+        
+        // Add feature commits
+        const c4 = document.createElement('div');
+        c4.className = 'commit-dot feature-branch';
+        c4.style.left = '350px';
+        c4.style.top = '70px';
+        c4.setAttribute('data-id', 'c4');
+        nodes.appendChild(c4);
+        c4.innerText = 'c4';
+        
+        const c5 = document.createElement('div');
+        c5.className = 'commit-dot feature-branch active-head';
+        c5.style.left = '450px';
+        c5.style.top = '70px';
+        c5.setAttribute('data-id', 'c5');
+        c5.setAttribute('data-label', 'feature (HEAD)');
+        nodes.appendChild(c5);
+        c5.innerText = 'c5';
+        
+        drawLine('l3', 250, 150, 350, 70);
+        drawLine('l4', 350, 70, 450, 70);
+        
+        // Meanwhile, someone commits to main
+        const c6 = document.createElement('div');
+        c6.className = 'commit-dot main-branch';
+        c6.style.left = '350px';
+        c6.style.top = '150px';
+        c6.setAttribute('data-id', 'c6');
+        c6.setAttribute('data-label', 'main');
+        nodes.appendChild(c6);
+        c6.innerText = 'c6';
+        drawLine('l5', 250, 150, 350, 150);
+        
+        logTerminal('$ git commit -m "Add feature X"');
+        logTerminal('[feature c4] Add feature X');
+        logTerminal('$ git commit -m "Fix feature X bugs"');
+        logTerminal('[feature c5] Fix feature X bugs');
+        logTerminal('(meanwhile commit c6 was added to main by a teammate)');
+    }
+
+    function mergeBranch() {
+        if(state !== 3) return;
+        state = 4;
+        
+        logTerminal('$ git checkout main');
+        logTerminal('Switched to branch "main"');
+        
+        const nodes = document.getElementById('nodes-container');
+        
+        // Checkout main
+        document.querySelector('[data-id="c5"]').classList.remove('active-head');
+        document.querySelector('[data-id="c5"]').setAttribute('data-label', 'feature');
+        
+        const mainNode = document.querySelector('[data-id="c6"]');
+        mainNode.classList.add('active-head');
+        mainNode.setAttribute('data-label', 'main (HEAD)');
+        
+        logTerminal('$ git merge feature');
+        logTerminal('Merge made by the "recursive" strategy.');
+        
+        // Merge commit
+        const c7 = document.createElement('div');
+        c7.className = 'commit-dot main-branch active-head';
+        c7.style.left = '550px';
+        c7.style.top = '150px';
+        c7.setAttribute('data-id', 'c7');
+        c7.setAttribute('data-label', 'main (HEAD)');
+        nodes.appendChild(c7);
+        c7.innerText = 'c7';
+        
+        mainNode.classList.remove('active-head');
+        mainNode.setAttribute('data-label', '');
+        
+        drawLine('l6', 350, 150, 550, 150);
+        drawLine('l7', 450, 70, 550, 150);
+    }
+
+    function logTerminal(text, color = 'var(--text-main)') {
+        const log = document.getElementById('git-log-output');
+        const span = document.createElement('span');
+        span.className = 'code-line';
+        span.style.color = color;
+        span.innerText = text;
+        log.appendChild(span);
+        log.scrollTop = log.scrollHeight;
+    }
+</script>
+{% endblock %}

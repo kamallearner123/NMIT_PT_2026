@@ -29,4 +29,8 @@ urlpatterns = [
     path('rust/', include('RustProgramming.urls')),
     path('cpp/', include('Cpp.urls')),
     path('networking/', include('Networking.urls')),
+    path('git/', include('Git.urls')),
+    path('ml/', include('MachineLearning.urls')),
+    path('genai/', include('GenAI.urls')),
+    path('agenticai/', include('AgenticAI.urls')),
 ]

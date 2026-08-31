@@ -605,6 +605,18 @@ line.active-edge {
     background: linear-gradient(135deg, #0ea5e9, #14b8a6);
 }
 
+.topic-git {
+    background: linear-gradient(135deg, #475569, #0f172a);
+}
+
+.topic-ml {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+}
+
+.topic-genai {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
 .quote-section {
     margin-top: 4rem;
     text-align: center;

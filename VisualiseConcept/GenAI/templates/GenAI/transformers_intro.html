@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Transformers Intro{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Introduction to Transformers</h1>
+    <p>Transformers revolutionized NLP by processing entire sequences in parallel instead of sequentially (like RNNs). The two foundational concepts before processing are <strong>Embeddings</strong> and <strong>Positional Encoding</strong>.</p>
+
+    <div class="visualizer-container">
+        
+        <div style="display: flex; gap: 2rem; align-items: stretch; margin-bottom: 2rem;">
+            
+            <!-- Input Text -->
+            <div class="step-box">
+                <h3>1. Input Text</h3>
+                <div class="word-pill">The</div>
+                <div class="word-pill">cat</div>
+                <div class="word-pill">sat</div>
+            </div>
+
+            <div class="arrow">➡</div>
+
+            <!-- Embeddings -->
+            <div class="step-box">
+                <h3>2. Embeddings</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Words mapped to dense vectors.</p>
+                <div class="vector-bar" style="background: linear-gradient(90deg, #3b82f6, #10b981);">[0.12, -0.5, 0.8...]</div>
+                <div class="vector-bar" style="background: linear-gradient(90deg, #ef4444, #f59e0b);">[0.99, 0.1, -0.2...]</div>
+                <div class="vector-bar" style="background: linear-gradient(90deg, #8b5cf6, #ec4899);">[-0.4, 0.8, 0.3...]</div>
+            </div>
+
+            <div class="arrow" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <span style="font-size: 1.5rem;">➕</span>
+            </div>
+
+            <!-- Positional Encoding -->
+            <div class="step-box" style="border-color: #f59e0b;">
+                <h3 style="color: #f59e0b;">3. Positional Encoding</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Injects order information using sine/cosine functions.</p>
+                
+                <div style="position: relative; height: 100px; width: 100%; border-bottom: 1px solid var(--text-muted);">
+                    <svg width="100%" height="100%">
+                        <!-- Sine wave 1 -->
+                        <path d="M0,50 Q25,0 50,50 T100,50 T150,50" fill="transparent" stroke="#f59e0b" stroke-width="2"/>
+                        <!-- Sine wave 2 (different frequency) -->
+                        <path d="M0,50 Q50,0 100,50 T200,50" fill="transparent" stroke="#3b82f6" stroke-width="2" opacity="0.6"/>
+                    </svg>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--primary); font-family: monospace; margin-top: 5px;">
+                    <span>pos=0</span>
+                    <span>pos=1</span>
+                    <span>pos=2</span>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="glass-card" style="background: rgba(255,255,255,0.02); padding: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; color: #10b981;">Mathematical Formulation</h3>
+            <p style="margin-bottom: 1rem; line-height: 1.6;">
+                The positional encodings have the same dimension $d_{model}$ as the embeddings, so that the two can be summed. We use sine and cosine functions of different frequencies:
+            </p>
+            <div style="background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 8px; font-family: math; font-size: 1.2rem; text-align: center; margin-bottom: 1rem;">
+                $PE_{(pos, 2i)} = \sin(pos / 10000^{2i/d_{model}})$<br><br>
+                $PE_{(pos, 2i+1)} = \cos(pos / 10000^{2i/d_{model}})$
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Where $pos$ is the position and $i$ is the dimension. This allows the model to easily learn to attend by relative positions, since for any fixed offset $k$, $PE_{pos+k}$ can be represented as a linear function of $PE_{pos}$.</p>
+        </div>
+
+        <div class="code-block" style="margin-top: 2rem; font-size: 0.85rem;">
+            <span class="code-line" style="color: #8b5cf6;">import</span> torch
+            <span class="code-line" style="color: #8b5cf6;">import</span> torch.nn <span style="color: #8b5cf6;">as</span> nn
+            <span class="code-line" style="color: #8b5cf6;">import</span> math
+            <span class="code-line"></span>
+            <span class="code-line" style="color: #8b5cf6;">class</span> <span style="color: #3b82f6;">PositionalEncoding</span>(nn.Module):</span>
+            <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">__init__</span>(self, d_model, max_len=<span style="color: #f97316;">5000</span>):</span>
+            <span class="code-line">        <span style="color: #3b82f6;">super</span>().__init__()</span>
+            <span class="code-line">        pe = torch.zeros(max_len, d_model)</span>
+            <span class="code-line">        position = torch.arange(<span style="color: #f97316;">0</span>, max_len, dtype=torch.<span style="color: #3b82f6;">float</span>).unsqueeze(<span style="color: #f97316;">1</span>)</span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Compute the division term: 10000^(2i/d_model)</span></span>
+            <span class="code-line">        div_term = torch.exp(torch.arange(<span style="color: #f97316;">0</span>, d_model, <span style="color: #f97316;">2</span>).<span style="color: #3b82f6;">float</span>() * (-math.log(<span style="color: #f97316;">10000.0</span>) / d_model))</span>
+            <span class="code-line">        </span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Apply sine to even indices</span></span>
+            <span class="code-line">        pe[:, <span style="color: #f97316;">0</span>::<span style="color: #f97316;">2</span>] = torch.sin(position * div_term)</span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Apply cosine to odd indices</span></span>
+            <span class="code-line">        pe[:, <span style="color: #f97316;">1</span>::<span style="color: #f97316;">2</span>] = torch.cos(position * div_term)</span>
+            <span class="code-line">        </span>
+            <span class="code-line">        pe = pe.unsqueeze(<span style="color: #f97316;">0</span>) <span style="color: var(--text-muted);"># Shape: (1, max_len, d_model)</span></span>
+            <span class="code-line">        self.register_buffer(<span style="color: #fbbf24;">'pe'</span>, pe)</span>
+            <span class="code-line"></span>
+            <span class="code-line">    <span style="color: #8b5cf6;">def</span> <span style="color: #3b82f6;">forward</span>(self, x):</span>
+            <span class="code-line">        <span style="color: var(--text-muted);"># Add positional encoding to input embeddings</span></span>
+            <span class="code-line">        x = x + self.pe[:, :x.size(<span style="color: #f97316;">1</span>)]</span>
+            <span class="code-line">        <span style="color: #8b5cf6;">return</span> x</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-box {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.step-box h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.word-pill {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 0.5rem;
+    font-family: monospace;
+    font-size: 1.1rem;
+    width: 80%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.vector-bar {
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    color: white;
+    font-family: monospace;
+    font-size: 0.7rem;
+    width: 100%;
+    text-align: center;
+}
+
+.arrow {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    color: var(--text-muted);
+}
+</style>
+{% endblock %}

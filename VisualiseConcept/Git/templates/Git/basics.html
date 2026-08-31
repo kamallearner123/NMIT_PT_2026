@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Git Basics{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Git Basics: Commits & The Working Tree</h1>
+    <p>Understand the fundamental states of Git: Working Directory, Staging Area, and the Repository.</p>
+
+    <div class="visualizer-container">
+        <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 2rem; gap: 1rem;">
+            <!-- Working Directory -->
+            <div class="git-zone" id="working-dir">
+                <h3>Working Directory</h3>
+                <div class="file-item untracked" id="file1">index.html (Modified)</div>
+                <div class="file-item untracked" id="file2">style.css (Untracked)</div>
+            </div>
+
+            <!-- Staging Area -->
+            <div class="git-zone" id="staging-area">
+                <h3>Staging Area (Index)</h3>
+            </div>
+
+            <!-- Repository -->
+            <div class="git-zone" id="repository">
+                <h3>Repository (HEAD)</h3>
+                <div class="commit-node">
+                    <div class="commit-hash">a1b2c3d</div>
+                    <div class="commit-msg">Initial commit</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls" style="margin-top: 2rem; flex-wrap: wrap;">
+            <button class="btn" onclick="gitAdd()">git add .</button>
+            <button class="btn" onclick="gitCommit()">git commit -m "..."</button>
+            <button class="btn btn-secondary" onclick="resetVisualizer()">Reset Visualizer</button>
+        </div>
+        
+        <div class="code-block" id="git-log-output">
+            <span class="code-line">$ git status</span>
+            <span class="code-line" style="color: #ef4444;">Untracked files: style.css</span>
+            <span class="code-line" style="color: #ef4444;">Modified: index.html</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.git-zone {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.git-zone h3 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.file-item {
+    background: var(--card-bg);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    border-left: 4px solid #ef4444; /* untracked/modified */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.file-item.staged {
+    border-left-color: #10b981; /* staged */
+}
+
+.commit-node {
+    background: var(--card-bg);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+    animation: popIn 0.3s ease;
+}
+
+.commit-hash {
+    font-family: monospace;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.commit-msg {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+</style>
+
+<script>
+    let isStaged = false;
+    let commitCount = 1;
+
+    function gitAdd() {
+        if (isStaged) return;
+        const staging = document.getElementById('staging-area');
+        const working = document.getElementById('working-dir');
+        
+        const f1 = document.getElementById('file1');
+        const f2 = document.getElementById('file2');
+        
+        if(f1 && f2) {
+            f1.classList.remove('untracked');
+            f1.classList.add('staged');
+            f1.innerHTML = 'index.html (Staged)';
+            
+            f2.classList.remove('untracked');
+            f2.classList.add('staged');
+            f2.innerHTML = 'style.css (Staged)';
+            
+            staging.appendChild(f1);
+            staging.appendChild(f2);
+            
+            isStaged = true;
+            
+            logTerminal('$ git add .');
+            logTerminal('Changes to be committed:', '#10b981');
+            logTerminal('  modified: index.html', '#10b981');
+            logTerminal('  new file: style.css', '#10b981');
+        }
+    }
+
+    function gitCommit() {
+        if (!isStaged) {
+            logTerminal('$ git commit -m "Update styles"');
+            logTerminal('nothing added to commit but untracked files present', '#ef4444');
+            return;
+        }
+        
+        const staging = document.getElementById('staging-area');
+        staging.innerHTML = '<h3>Staging Area (Index)</h3>'; // clear staged files
+        
+        const repo = document.getElementById('repository');
+        
+        const hash = Math.random().toString(16).substr(2, 7);
+        const node = document.createElement('div');
+        node.className = 'commit-node';
+        node.innerHTML = `
+            <div class="commit-hash">${hash}</div>
+            <div class="commit-msg">Update styles</div>
+        `;
+        repo.insertBefore(node, repo.children[1]); // insert after h3
+        
+        isStaged = false;
+        commitCount++;
+        
+        logTerminal('$ git commit -m "Update styles"');
+        logTerminal(`[main ${hash}] Update styles`);
+        logTerminal(' 2 files changed, 42 insertions(+)');
+        
+        // Re-populate working dir after some time to allow more commits
+        setTimeout(() => {
+            const working = document.getElementById('working-dir');
+            working.innerHTML = `
+                <h3>Working Directory</h3>
+                <div class="file-item untracked" id="file1">app.js (Untracked)</div>
+                <div class="file-item untracked" id="file2">index.html (Modified)</div>
+            `;
+            logTerminal('$ git status');
+            logTerminal('Untracked files: app.js', '#ef4444');
+            logTerminal('Modified: index.html', '#ef4444');
+        }, 1500);
+    }
+
+    function resetVisualizer() {
+        const working = document.getElementById('working-dir');
+        const staging = document.getElementById('staging-area');
+        const repo = document.getElementById('repository');
+        
+        working.innerHTML = `
+            <h3>Working Directory</h3>
+            <div class="file-item untracked" id="file1">index.html (Modified)</div>
+            <div class="file-item untracked" id="file2">style.css (Untracked)</div>
+        `;
+        
+        staging.innerHTML = '<h3>Staging Area (Index)</h3>';
+        
+        repo.innerHTML = `
+            <h3>Repository (HEAD)</h3>
+            <div class="commit-node">
+                <div class="commit-hash">a1b2c3d</div>
+                <div class="commit-msg">Initial commit</div>
+            </div>
+        `;
+        
+        document.getElementById('git-log-output').innerHTML = `
+            <span class="code-line">$ git status</span>
+            <span class="code-line" style="color: #ef4444;">Untracked files: style.css</span>
+            <span class="code-line" style="color: #ef4444;">Modified: index.html</span>
+        `;
+        
+        isStaged = false;
+        commitCount = 1;
+    }
+
+    function logTerminal(text, color = 'var(--text-main)') {
+        const log = document.getElementById('git-log-output');
+        const span = document.createElement('span');
+        span.className = 'code-line';
+        span.style.color = color;
+        span.innerText = text;
+        log.appendChild(span);
+        log.scrollTop = log.scrollHeight;
+    }
+</script>
+{% endblock %}

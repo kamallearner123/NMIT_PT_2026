@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agentic AI - Dashboard{% endblock %}
+
+{% block breadcrumb %}Agentic AI / Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">Agentic AI Course</span></h1>
+        <p>Master the foundations, prompt engineering, RAG, and Agentic AI architectures. Build real-world production-grade AI agents from scratch.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <a href="{% url 'AgenticAI:foundations' %}" class="glass-card topic-card">
+            <div class="topic-icon">🧠</div>
+            <h2>01 AI Foundations</h2>
+            <p>Understand LLMs, tokens, transformers — no math.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 2 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:python_builders' %}" class="glass-card topic-card">
+            <div class="topic-icon">🐍</div>
+            <h2>02 Python for AI</h2>
+            <p>Call APIs, handle JSON, build simple chatbot.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 2 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:prompt_engineering' %}" class="glass-card topic-card">
+            <div class="topic-icon">📝</div>
+            <h2>03 Prompt Engineering</h2>
+            <p>Master prompting — zero-shot to chain-of-thought.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 3 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:genai_ecosystem' %}" class="glass-card topic-card">
+            <div class="topic-icon">🌐</div>
+            <h2>04 GenAI Ecosystem</h2>
+            <p>Navigate OpenAI, Ollama, LangChain, HuggingFace.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 2 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:rag' %}" class="glass-card topic-card">
+            <div class="topic-icon">🔍</div>
+            <h2>05 RAG</h2>
+            <p>Build PDF chatbots and document search engines.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 3 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:fundamentals' %}" class="glass-card topic-card">
+            <div class="topic-icon">🤖</div>
+            <h2>06 Agentic AI Fundamentals</h2>
+            <p>Understand agents: brain, memory, tools, planning.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 3 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:building_agents' %}" class="glass-card topic-card">
+            <div class="topic-icon">⚙️</div>
+            <h2>07 Building AI Agents</h2>
+            <p>Build real agents with LangChain, CrewAI, LangGraph.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 4 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:mcp_tools' %}" class="glass-card topic-card">
+            <div class="topic-icon">🔌</div>
+            <h2>08 MCP & Tool Integration</h2>
+            <p>Connect AI to files, browser, APIs, databases.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 1.5 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:system_design' %}" class="glass-card topic-card">
+            <div class="topic-icon">🏗️</div>
+            <h2>09 AI System Design</h2>
+            <p>Build production-grade AI systems.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 2 hrs</div>
+        </a>
+
+        <a href="{% url 'AgenticAI:capstone' %}" class="glass-card topic-card">
+            <div class="topic-icon">🎓</div>
+            <h2>10 Capstone Projects</h2>
+            <p>Showcase your final project.</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">Duration: 1.5 hrs</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

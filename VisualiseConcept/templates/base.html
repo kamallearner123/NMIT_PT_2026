@@ -57,9 +57,46 @@
             <a href="{% url 'RustProgramming:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'RustProgramming' %}active{% endif %}">Rust</a>
             <a href="{% url 'Cpp:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Cpp' %}active{% endif %}">C & C++</a>
             <a href="{% url 'challenges' %}" class="nav-item {% if request.resolver_match.url_name == 'challenges' %}active{% endif %}">Challenges</a>
+            <a href="{% url 'Git:git_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'Git' %}active{% endif %}">Git & GitHub</a>
+            <a href="{% url 'MachineLearning:ml_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'MachineLearning' %}active{% endif %}">Machine Learning</a>
+            <a href="{% url 'GenAI:genai_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'GenAI' %}active{% endif %}">Gen AI</a>
+            <a href="{% url 'AgenticAI:agenticai_dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'AgenticAI' %}active{% endif %}">Agentic AI</a>
 
             <!-- DYNAMIC CHAPTERS (Only shows for active module) -->
-            {% if chapters %}
+            {% if request.resolver_match.app_name == 'Git' %}
+                <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
+                <div class="sidebar-label">Chapters</div>
+                <a href="{% url 'Git:git_basics' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'git_basics' %}active{% endif %}">Git Basics</a>
+                <a href="{% url 'Git:git_branching' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'git_branching' %}active{% endif %}">Branching & Merging</a>
+                <a href="{% url 'Git:github_collaboration' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'github_collaboration' %}active{% endif %}">GitHub Collaboration</a>
+            {% elif request.resolver_match.app_name == 'MachineLearning' %}
+                <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
+                <div class="sidebar-label">Chapters</div>
+                <a href="{% url 'MachineLearning:ml_basics' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'ml_basics' %}active{% endif %}">ML Basics</a>
+                <a href="{% url 'MachineLearning:linear_regression' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'linear_regression' %}active{% endif %}">Linear Regression</a>
+                <a href="{% url 'MachineLearning:classification' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'classification' %}active{% endif %}">Classification</a>
+                <a href="{% url 'MachineLearning:neural_networks' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'neural_networks' %}active{% endif %}">Neural Networks</a>
+            {% elif request.resolver_match.app_name == 'GenAI' %}
+                <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
+                <div class="sidebar-label">Chapters</div>
+                <a href="{% url 'GenAI:transformers_intro' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'transformers_intro' %}active{% endif %}">Transformers Intro</a>
+                <a href="{% url 'GenAI:self_attention' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'self_attention' %}active{% endif %}">Self-Attention</a>
+                <a href="{% url 'GenAI:encoder_decoder' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'encoder_decoder' %}active{% endif %}">Encoder-Decoder</a>
+                <a href="{% url 'GenAI:llm_generation' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'llm_generation' %}active{% endif %}">LLM Generation</a>
+            {% elif request.resolver_match.app_name == 'AgenticAI' %}
+                <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
+                <div class="sidebar-label">Modules</div>
+                <a href="{% url 'AgenticAI:foundations' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'foundations' %}active{% endif %}">01 AI Foundations</a>
+                <a href="{% url 'AgenticAI:python_builders' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'python_builders' %}active{% endif %}">02 Python for AI</a>
+                <a href="{% url 'AgenticAI:prompt_engineering' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'prompt_engineering' %}active{% endif %}">03 Prompt Engineering</a>
+                <a href="{% url 'AgenticAI:genai_ecosystem' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'genai_ecosystem' %}active{% endif %}">04 GenAI Ecosystem</a>
+                <a href="{% url 'AgenticAI:rag' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'rag' %}active{% endif %}">05 RAG</a>
+                <a href="{% url 'AgenticAI:fundamentals' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'fundamentals' %}active{% endif %}">06 Agentic AI</a>
+                <a href="{% url 'AgenticAI:building_agents' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'building_agents' %}active{% endif %}">07 Building Agents</a>
+                <a href="{% url 'AgenticAI:mcp_tools' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'mcp_tools' %}active{% endif %}">08 MCP & Tools</a>
+                <a href="{% url 'AgenticAI:system_design' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'system_design' %}active{% endif %}">09 System Design</a>
+                <a href="{% url 'AgenticAI:capstone' %}" class="nav-item sub-item {% if request.resolver_match.url_name == 'capstone' %}active{% endif %}">10 Capstone</a>
+            {% elif chapters %}
                 <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 1.5rem 0 1rem 0;">
                 <div class="sidebar-label">Chapters</div>
                 

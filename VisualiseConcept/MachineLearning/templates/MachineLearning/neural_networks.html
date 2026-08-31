@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Neural Networks{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Neural Networks (Deep Learning)</h1>
+    <p>Neural networks are inspired by the human brain. Data flows through layers of connected "neurons", where weights and biases adjust to recognize complex patterns.</p>
+
+    <div class="visualizer-container">
+        
+        <div class="network-container" id="network-container">
+            <svg id="nn-svg" width="100%" height="350px" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;">
+                <!-- Connections will be drawn here -->
+            </svg>
+            
+            <div class="layer" id="layer-input" style="left: 10%;">
+                <div class="layer-title">Input</div>
+                <div class="neuron input-neuron" data-id="i1"></div>
+                <div class="neuron input-neuron" data-id="i2"></div>
+                <div class="neuron input-neuron" data-id="i3"></div>
+            </div>
+            
+            <div class="layer" id="layer-hidden1" style="left: 50%;">
+                <div class="layer-title">Hidden Layer</div>
+                <div class="neuron hidden-neuron" data-id="h1"></div>
+                <div class="neuron hidden-neuron" data-id="h2"></div>
+                <div class="neuron hidden-neuron" data-id="h3"></div>
+                <div class="neuron hidden-neuron" data-id="h4"></div>
+            </div>
+            
+            <div class="layer" id="layer-output" style="left: 90%;">
+                <div class="layer-title">Output</div>
+                <div class="neuron output-neuron" data-id="o1"></div>
+                <div class="neuron output-neuron" data-id="o2"></div>
+            </div>
+        </div>
+
+        <div class="controls" style="margin-top: 2rem;">
+            <button class="btn" onclick="animateForwardPass()" style="background: #10b981;">▶ Run Forward Pass</button>
+            <button class="btn btn-secondary" onclick="resetNetwork()">Reset</button>
+        </div>
+
+        <div class="code-block" style="margin-top: 2rem;">
+            <span class="code-line" style="color: #8b5cf6;">import</span> tensorflow <span style="color: #8b5cf6;">as</span> tf
+            <span class="code-line"></span>
+            <span class="code-line">model = tf.keras.Sequential([</span>
+            <span class="code-line">    tf.keras.layers.Dense(<span style="color: #f97316;">4</span>, activation=<span style="color: #fbbf24;">'relu'</span>, input_shape=(<span style="color: #f97316;">3</span>,)), <span style="color: var(--text-muted);"># Hidden Layer</span></span>
+            <span class="code-line">    tf.keras.layers.Dense(<span style="color: #f97316;">2</span>, activation=<span style="color: #fbbf24;">'softmax'</span>)                 <span style="color: var(--text-muted);"># Output Layer</span></span>
+            <span class="code-line">])</span>
+            <span class="code-line">model.compile(optimizer=<span style="color: #fbbf24;">'adam'</span>, loss=<span style="color: #fbbf24;">'categorical_crossentropy'</span>)</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.network-container {
+    position: relative;
+    height: 350px;
+    background: rgba(0,0,0,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+}
+
+.layer {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    z-index: 10;
+}
+
+.layer-title {
+    position: absolute;
+    top: -40px;
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.neuron {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 3px solid #475569;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.input-neuron { border-color: #3b82f6; }
+.hidden-neuron { border-color: #8b5cf6; }
+.output-neuron { border-color: #10b981; }
+
+.neuron.active {
+    box-shadow: 0 0 15px currentColor;
+    background: currentColor;
+}
+
+.input-neuron.active { color: #3b82f6; }
+.hidden-neuron.active { color: #8b5cf6; }
+.output-neuron.active { color: #10b981; }
+
+.synapse {
+    stroke: rgba(148, 163, 184, 0.3);
+    stroke-width: 2;
+    transition: all 0.2s;
+}
+
+.synapse.active-signal {
+    stroke: #fbbf24;
+    stroke-width: 4;
+    animation: dash 1s linear forwards;
+    stroke-dasharray: 10, 5;
+}
+
+@keyframes dash {
+    from { stroke-dashoffset: 100; }
+    to { stroke-dashoffset: 0; }
+}
+</style>
+
+<script>
+    let drawn = false;
+
+    function getCenter(el) {
+        const rect = el.getBoundingClientRect();
+        const containerRect = document.getElementById('network-container').getBoundingClientRect();
+        return {
+            x: rect.left - containerRect.left + rect.width / 2,
+            y: rect.top - containerRect.top + rect.height / 2
+        };
+    }
+
+    function drawConnections() {
+        if(drawn) return;
+        const svg = document.getElementById('nn-svg');
+        const inputs = document.querySelectorAll('.input-neuron');
+        const hiddens = document.querySelectorAll('.hidden-neuron');
+        const outputs = document.querySelectorAll('.output-neuron');
+
+        // Input to Hidden
+        inputs.forEach(i => {
+            const p1 = getCenter(i);
+            hiddens.forEach(h => {
+                const p2 = getCenter(h);
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', p1.x);
+                line.setAttribute('y1', p1.y);
+                line.setAttribute('x2', p2.x);
+                line.setAttribute('y2', p2.y);
+                line.setAttribute('class', 'synapse i-h');
+                svg.appendChild(line);
+            });
+        });
+
+        // Hidden to Output
+        hiddens.forEach(h => {
+            const p1 = getCenter(h);
+            outputs.forEach(o => {
+                const p2 = getCenter(o);
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', p1.x);
+                line.setAttribute('y1', p1.y);
+                line.setAttribute('x2', p2.x);
+                line.setAttribute('y2', p2.y);
+                line.setAttribute('class', 'synapse h-o');
+                svg.appendChild(line);
+            });
+        });
+        drawn = true;
+    }
+
+    window.onload = () => {
+        setTimeout(drawConnections, 100);
+    };
+
+    function animateForwardPass() {
+        resetNetwork();
+        
+        // Step 1: Activate Inputs
+        setTimeout(() => {
+            document.querySelectorAll('.input-neuron').forEach(n => n.classList.add('active'));
+            document.querySelectorAll('.synapse.i-h').forEach(s => s.classList.add('active-signal'));
+        }, 100);
+
+        // Step 2: Activate Hidden Layer
+        setTimeout(() => {
+            document.querySelectorAll('.input-neuron').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.synapse.i-h').forEach(s => s.classList.remove('active-signal'));
+            
+            document.querySelectorAll('.hidden-neuron').forEach(n => n.classList.add('active'));
+            document.querySelectorAll('.synapse.h-o').forEach(s => s.classList.add('active-signal'));
+        }, 1200);
+
+        // Step 3: Activate Output Layer
+        setTimeout(() => {
+            document.querySelectorAll('.hidden-neuron').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.synapse.h-o').forEach(s => s.classList.remove('active-signal'));
+            
+            // Output node 1 active, output node 2 inactive (classification result)
+            document.querySelector('[data-id="o1"]').classList.add('active');
+        }, 2300);
+    }
+
+    function resetNetwork() {
+        document.querySelectorAll('.neuron').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.synapse').forEach(s => s.classList.remove('active-signal'));
+    }
+</script>
+{% endblock %}

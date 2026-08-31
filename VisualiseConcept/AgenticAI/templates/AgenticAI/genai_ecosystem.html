@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}04 GenAI Ecosystem & Tools{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 04 GenAI Ecosystem{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">04. GenAI Ecosystem & Tools</span></h1>
+        <p>Navigating the complex landscape of models, frameworks, and deployment tools.</p>
+    </div>
+
+    <div class="glass-card">
+        <h2>The Ecosystem Layers</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+            <!-- Application Layer -->
+            <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; padding: 1.5rem; border-radius: 8px;">
+                <h3>1. Application & Framework Layer</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Libraries to build AI logic and Agents.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">LangChain</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">LlamaIndex</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">CrewAI</span>
+                </div>
+            </div>
+
+            <!-- Model Layer -->
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
+                <h3>2. Foundation Models Layer</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">The brains (LLMs).</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">OpenAI (GPT-4)</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">Anthropic (Claude)</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">Google (Gemini)</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">Meta (Llama 3)</span>
+                </div>
+            </div>
+
+            <!-- Infrastructure Layer -->
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                <h3>3. Execution & Hosting Layer</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Where the models live and run.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">HuggingFace</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">Ollama (Local)</span>
+                    <span style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">AWS Bedrock</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Code Example: Running Local Models with Ollama</h2>
+        <p>Using the official Ollama Python library to query a local model without API costs.</p>
+        <pre><code class="language-python line-numbers">
+# pip install ollama
+import ollama
+
+# Assuming you have Ollama running locally and have downloaded 'llama3'
+# e.g., in terminal: ollama run llama3
+
+response = ollama.chat(model='llama3', messages=[
+  {
+    'role': 'user',
+    'content': 'Why is the sky blue?',
+  },
+])
+
+print(response['message']['content'])
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

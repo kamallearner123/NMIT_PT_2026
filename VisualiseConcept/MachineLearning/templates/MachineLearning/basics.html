@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ML Basics{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Machine Learning Paradigms</h1>
+    <p>Explore the three main types of Machine Learning: Supervised, Unsupervised, and Reinforcement Learning.</p>
+
+    <div class="visualizer-container">
+        
+        <!-- Interactive Tabs -->
+        <div class="tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center;">
+            <button class="btn tab-btn active" onclick="showParadigm('supervised')">Supervised Learning</button>
+            <button class="btn tab-btn" style="background: rgba(255,255,255,0.1);" onclick="showParadigm('unsupervised')">Unsupervised Learning</button>
+            <button class="btn tab-btn" style="background: rgba(255,255,255,0.1);" onclick="showParadigm('reinforcement')">Reinforcement Learning</button>
+        </div>
+
+        <!-- Supervised Content -->
+        <div id="supervised" class="paradigm-content active">
+            <h3 style="color: #ec4899; text-align: center;">Learning with Labels</h3>
+            <p style="text-align: center; margin-bottom: 2rem;">The model is trained on a labeled dataset (data + answers).</p>
+            
+            <div class="flow-diagram">
+                <div class="box data-box">
+                    <strong>Input Data (X)</strong>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">Images of Cats/Dogs</div>
+                </div>
+                <div class="arrow">➡</div>
+                <div class="box model-box">
+                    <strong>ML Model</strong>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">f(x) = y</div>
+                </div>
+                <div class="arrow">➡</div>
+                <div class="box output-box">
+                    <strong>Predictions (Y)</strong>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">"It's a Cat"</div>
+                </div>
+                
+                <!-- Feedback loop -->
+                <svg class="feedback-loop" width="100%" height="60" style="position: absolute; bottom: -60px; left: 0;">
+                    <path d="M 500,0 Q 300,50 100,0" fill="transparent" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <text x="300" y="45" fill="#ef4444" font-size="12" text-anchor="middle">Error / Loss Feedback (Updating Weights)</text>
+                </svg>
+            </div>
+            
+            <div class="code-block" style="margin-top: 4rem;">
+                <span class="code-line" style="color: #8b5cf6;">from</span> sklearn.ensemble <span style="color: #8b5cf6;">import</span> RandomForestClassifier
+                <span class="code-line"></span>
+                <span class="code-line" style="color: var(--text-muted);"># X: Features (pixel data), y: Labels (0=Dog, 1=Cat)</span>
+                <span class="code-line">model = RandomForestClassifier()</span>
+                <span class="code-line">model.fit(X_train, y_train) <span style="color: var(--text-muted);"># Training</span></span>
+                <span class="code-line">predictions = model.predict(X_test)</span>
+            </div>
+        </div>
+
+        <!-- Unsupervised Content -->
+        <div id="unsupervised" class="paradigm-content" style="display: none;">
+            <h3 style="color: #8b5cf6; text-align: center;">Finding Hidden Patterns</h3>
+            <p style="text-align: center; margin-bottom: 2rem;">The model is given unlabeled data and must find structure (like grouping).</p>
+            
+            <div class="scatter-plot" style="position: relative; height: 250px; border: 1px solid var(--glass-border); border-radius: 8px; background: rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                <!-- Unclustered -->
+                <div class="dot" style="left: 20%; top: 30%;"></div>
+                <div class="dot" style="left: 25%; top: 40%;"></div>
+                <div class="dot" style="left: 15%; top: 35%;"></div>
+                
+                <div class="dot" style="left: 70%; top: 20%;"></div>
+                <div class="dot" style="left: 80%; top: 25%;"></div>
+                <div class="dot" style="left: 75%; top: 15%;"></div>
+                
+                <div class="dot" style="left: 50%; top: 70%;"></div>
+                <div class="dot" style="left: 55%; top: 80%;"></div>
+                <div class="dot" style="left: 45%; top: 75%;"></div>
+                
+                <button class="btn" style="position: absolute; bottom: 10px; right: 10px;" onclick="runClustering()">Run K-Means Clustering</button>
+            </div>
+            
+            <div class="code-block">
+                <span class="code-line" style="color: #8b5cf6;">from</span> sklearn.cluster <span style="color: #8b5cf6;">import</span> KMeans
+                <span class="code-line"></span>
+                <span class="code-line" style="color: var(--text-muted);"># X: Customer purchase history (no labels)</span>
+                <span class="code-line">model = KMeans(n_clusters=3)</span>
+                <span class="code-line">model.fit(X) <span style="color: var(--text-muted);"># Finds 3 distinct customer segments automatically</span></span>
+            </div>
+        </div>
+
+        <!-- Reinforcement Content -->
+        <div id="reinforcement" class="paradigm-content" style="display: none;">
+            <h3 style="color: #10b981; text-align: center;">Learning by Trial & Error</h3>
+            <p style="text-align: center; margin-bottom: 2rem;">An Agent learns to perform actions in an Environment to maximize Rewards.</p>
+            
+            <div class="rl-diagram" style="display: flex; align-items: center; justify-content: center; gap: 3rem; margin-bottom: 3rem; position: relative;">
+                <div class="box agent-box" style="background: #10b981;">
+                    <strong>Agent</strong>
+                    <div style="font-size: 2rem;">🤖</div>
+                </div>
+                
+                <div class="rl-arrows" style="display: flex; flex-direction: column; gap: 2rem; align-items: center;">
+                    <div class="arrow-text" style="color: var(--primary);">Action (At) ➡</div>
+                    <div class="arrow-text" style="color: #fbbf24;">⬅ State (St), Reward (Rt)</div>
+                </div>
+                
+                <div class="box env-box" style="background: #3b82f6;">
+                    <strong>Environment</strong>
+                    <div style="font-size: 2rem;">🌍</div>
+                </div>
+            </div>
+            
+            <div class="code-block">
+                <span class="code-line" style="color: #8b5cf6;">import</span> gym
+                <span class="code-line"></span>
+                <span class="code-line">env = gym.make(<span style="color: #fbbf24;">'CartPole-v1'</span>)</span>
+                <span class="code-line">state = env.reset()</span>
+                <span class="code-line"><span style="color: #8b5cf6;">for</span> t <span style="color: #8b5cf6;">in</span> <span style="color: #3b82f6;">range</span>(100):</span>
+                <span class="code-line">    action = agent.select_action(state)</span>
+                <span class="code-line">    next_state, reward, done, info = env.step(action)</span>
+                <span class="code-line">    agent.learn(state, action, reward, next_state)</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    padding: 2rem 0;
+}
+
+.box {
+    padding: 1.5rem;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    width: 150px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.data-box { background: #3b82f6; }
+.model-box { background: #8b5cf6; }
+.output-box { background: #10b981; }
+
+.arrow {
+    font-size: 2rem;
+    color: var(--text-muted);
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    position: absolute;
+    transition: background 1s ease;
+}
+
+.cluster-1 { background: #ef4444; }
+.cluster-2 { background: #3b82f6; }
+.cluster-3 { background: #10b981; }
+</style>
+
+<script>
+    function showParadigm(type) {
+        document.querySelectorAll('.paradigm-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('active');
+            el.style.background = 'rgba(255,255,255,0.1)';
+        });
+        
+        document.getElementById(type).style.display = 'block';
+        event.target.style.background = 'var(--primary)';
+    }
+    
+    function runClustering() {
+        const dots = document.querySelectorAll('.dot');
+        // Simple manual assignment for visual effect
+        for(let i=0; i<3; i++) dots[i].className = 'dot cluster-1';
+        for(let i=3; i<6; i++) dots[i].className = 'dot cluster-2';
+        for(let i=6; i<9; i++) dots[i].className = 'dot cluster-3';
+    }
+</script>
+{% endblock %}

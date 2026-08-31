@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gen AI Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>Generative AI Hub</h1>
+    <p>Dive deep into Transformers, the architecture that powers modern Large Language Models (LLMs) like ChatGPT.</p>
+    
+    <div style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+        
+        <a href="{% url 'GenAI:transformers_intro' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #f59e0b;">
+                <h3 style="color: #f59e0b; margin-bottom: 1rem; font-size: 1.3rem;">Transformers Intro</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Understand the shift from RNNs to Transformers and the core concept of Positional Encoding.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'GenAI:self_attention' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #ef4444;">
+                <h3 style="color: #ef4444; margin-bottom: 1rem; font-size: 1.3rem;">Self-Attention</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Visualize Queries, Keys, and Values to see how words pay attention to each other.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'GenAI:encoder_decoder' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #3b82f6;">
+                <h3 style="color: #3b82f6; margin-bottom: 1rem; font-size: 1.3rem;">Encoder-Decoder</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Learn how Encoders process input and Decoders generate output token by token.</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+        <a href="{% url 'GenAI:llm_generation' %}" style="text-decoration: none;">
+            <div class="glass-card nav-card" style="padding: 2rem; transition: all 0.3s ease; height: 100%; border-left: 5px solid #8b5cf6;">
+                <h3 style="color: #8b5cf6; margin-bottom: 1rem; font-size: 1.3rem;">LLM Generation</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted);">Explore Decoder-Only models (like GPT) and text generation strategies (Temperature, Top-K).</p>
+                <div style="margin-top: 1.5rem; color: var(--primary); font-weight: 600; font-size: 0.9rem;">Begin Journey →</div>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+<style>
+.nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1);
+}
+</style>
+{% endblock %}

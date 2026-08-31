@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}07 Building AI Agents{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 07 Building Agents{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">07. Building AI Agents</span></h1>
+        <p>Implementing real-world agents using LangChain, CrewAI, and LangGraph.</p>
+    </div>
+
+    <div class="glass-card">
+        <h2>Multi-Agent Systems (CrewAI Example)</h2>
+        <p>Instead of one massive prompt, we create multiple specialized agents that talk to each other to solve a complex task.</p>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center; flex-wrap: wrap;">
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 1rem; border-radius: 8px; width: 250px; text-align: center;">
+                <div style="font-size: 2rem;">🕵️‍♂️</div>
+                <h4>Researcher Agent</h4>
+                <p style="font-size: 0.8rem;">Goal: Find the latest news on AI.</p>
+                <div style="font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; margin-top: 5px;">Tool: WebSearch</div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--text-muted);">➔</div>
+
+            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; padding: 1rem; border-radius: 8px; width: 250px; text-align: center;">
+                <div style="font-size: 2rem;">✍️</div>
+                <h4>Writer Agent</h4>
+                <p style="font-size: 0.8rem;">Goal: Write a blog post based on research.</p>
+                <div style="font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; margin-top: 5px;">Tool: MarkdownEditor</div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--text-muted);">➔</div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px; width: 250px; text-align: center;">
+                <div style="font-size: 2rem;">🧑‍🏫</div>
+                <h4>Editor Agent</h4>
+                <p style="font-size: 0.8rem;">Goal: Review for tone and correctness.</p>
+                <div style="font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; margin-top: 5px;">Output: Final Blog Post</div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>Code Example: Basic LangChain Agent with a Math Tool</h2>
+        <pre><code class="language-python line-numbers">
+from langchain_openai import ChatOpenAI
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools import Tool
+
+def calculate_length(text):
+    """Returns the length of a string."""
+    return len(text)
+
+# 1. Define Tools
+tools = [
+    Tool(
+        name="StringLengthCalculator",
+        func=calculate_length,
+        description="Useful for when you need to count characters in a word or phrase."
+    )
+]
+
+# 2. Init LLM
+llm = ChatOpenAI(temperature=0)
+
+# 3. Initialize Agent
+agent = initialize_agent(
+    tools, 
+    llm, 
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, 
+    verbose=True
+)
+
+# 4. Run Agent
+agent.run("How many characters are in the word 'Supercalifragilisticexpialidocious'?")
+        </code></pre>
+    </div>
+</div>
+{% endblock %}

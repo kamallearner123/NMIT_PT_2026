@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}10 Capstone Projects{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 10 Capstone Projects{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">10. Capstone Projects</span></h1>
+        <p>Showcase your mastery of Agentic AI by building a complete, production-ready system.</p>
+    </div>
+
+    <div class="glass-card">
+        <h2>Project Ideas</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
+                <h3>Idea 1: Autonomous Research Assistant</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">An agent that takes a topic, searches the web, reads 5 articles, extracts key points, and writes a comprehensive markdown summary.</p>
+                <div style="margin-top: 1rem; font-size: 0.8rem;">
+                    <b>Tech Stack:</b> Python, CrewAI, Tavily Search API, OpenAI.
+                </div>
+            </div>
+
+            <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid #6366f1; padding: 1.5rem; border-radius: 8px;">
+                <h3>Idea 2: Chat-with-your-Database</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">A UI where users can ask questions in plain English (e.g., "Show me top 5 customers this month") and the agent converts it to SQL, runs it, and explains the data.</p>
+                <div style="margin-top: 1rem; font-size: 0.8rem;">
+                    <b>Tech Stack:</b> FastAPI, React, LangChain SQL Agent, PostgreSQL.
+                </div>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                <h3>Idea 3: Customer Support RAG System</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">A chatbot loaded with company PDFs that can accurately answer user queries, cite sources, and escalate to a human if uncertain.</p>
+                <div style="margin-top: 1rem; font-size: 0.8rem;">
+                    <b>Tech Stack:</b> LlamaIndex, Pinecone, Streamlit UI.
+                </div>
+            </div>
+
+            <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px;">
+                <h3>Idea 4: Local MCP Developer Tool</h3>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Build an MCP server that exposes your local filesystem and bash terminal to Claude Desktop to automate coding tasks.</p>
+                <div style="margin-top: 1rem; font-size: 0.8rem;">
+                    <b>Tech Stack:</b> Node.js/Python, MCP SDK, Claude Desktop.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem; text-align: center;">
+        <h2 style="color: var(--primary);">Ready to Build?</h2>
+        <p>Clone the starter repository and begin your capstone.</p>
+        <button class="btn btn-primary" style="margin-top: 1rem;">View Starter Code on GitHub</button>
+    </div>
+</div>
+{% endblock %}

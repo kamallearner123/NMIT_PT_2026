@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}06 Agentic AI Fundamentals{% endblock %}
+
+{% block breadcrumb %}Agentic AI / 06 Agentic AI Fundamentals{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h1><span class="gradient-text">06. Agentic AI Fundamentals</span></h1>
+        <p>Beyond passive chatting: Giving AI the ability to plan, use tools, and take actions autonomously.</p>
+    </div>
+
+    <!-- Agent Anatomy -->
+    <h2 style="margin-top: 2rem; color: var(--primary);">Anatomy of an AI Agent (Block Diagram)</h2>
+    <div style="background: rgba(0,0,0,0.2); padding: 3rem; border-radius: 12px; margin: 2rem 0; display: flex; justify-content: center; position: relative;">
+        
+        <!-- Brain -->
+        <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(16, 185, 129, 0.2)); border: 4px solid var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2;">
+            <div style="font-size: 3rem;">🧠</div>
+            <h3 style="margin: 0;">LLM (The Brain)</h3>
+            <p style="font-size: 0.8rem; text-align: center; margin-top: 5px;">Reasoning, Planning, Decision Making</p>
+        </div>
+
+        <!-- Memory -->
+        <div style="position: absolute; left: 10%; top: 20%; width: 150px; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; z-index: 1;">
+            <h4>💾 Memory</h4>
+            <ul style="font-size: 0.8rem; padding-left: 1rem; margin-top: 5px;">
+                <li>Short-term (Context)</li>
+                <li>Long-term (Vector DB)</li>
+            </ul>
+        </div>
+        
+        <!-- Tools -->
+        <div style="position: absolute; right: 10%; top: 20%; width: 150px; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #ef4444; z-index: 1;">
+            <h4>🛠️ Tools</h4>
+            <ul style="font-size: 0.8rem; padding-left: 1rem; margin-top: 5px;">
+                <li>Web Search</li>
+                <li>Calculator</li>
+                <li>API Call</li>
+            </ul>
+        </div>
+
+        <!-- Lines (Visual only, CSS borders) -->
+        <div style="position: absolute; left: 25%; top: 50%; width: 20%; height: 2px; background: var(--text-muted); z-index: 0;"></div>
+        <div style="position: absolute; right: 25%; top: 50%; width: 20%; height: 2px; background: var(--text-muted); z-index: 0;"></div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h2>The ReAct (Reason + Act) Loop</h2>
+        <div style="font-family: monospace; font-size: 0.95rem; line-height: 1.6; background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+            <span style="color: #60a5fa;">User Task:</span> "Find the weather in Tokyo and multiply the temperature by 2."<br><br>
+            <span style="color: #34d399;">Thought:</span> I need to find the current weather in Tokyo first. I'll use the WebSearch tool.<br>
+            <span style="color: #f472b6;">Action:</span> WebSearch("current temperature Tokyo")<br>
+            <span style="color: #fbbf24;">Observation:</span> The current temperature in Tokyo is 15°C.<br><br>
+            <span style="color: #34d399;">Thought:</span> Now I need to multiply 15 by 2. I'll use the Calculator tool.<br>
+            <span style="color: #f472b6;">Action:</span> Calculator("15 * 2")<br>
+            <span style="color: #fbbf24;">Observation:</span> 30.<br><br>
+            <span style="color: #34d399;">Thought:</span> I have the final answer.<br>
+            <span style="color: #a78bfa;">Final Answer:</span> The temperature in Tokyo is 15°C, and multiplying it by 2 gives 30.
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GitHub Collaboration{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1>GitHub Collaboration Workflow</h1>
+    <p>Modern software development relies heavily on remote repositories for collaboration. Learn how to pull, push, fork, and manage pull requests.</p>
+
+    <div class="visualizer-container">
+        <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 2rem; gap: 2rem;">
+            
+            <!-- Local Machine -->
+            <div class="machine-zone" id="local-machine">
+                <div class="icon">💻</div>
+                <h3>Local Machine</h3>
+                <div class="repo-box">
+                    <strong>Local Repo</strong>
+                    <div class="commit-list" id="local-commits">
+                        <div class="commit">c1: Init</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network/Arrows -->
+            <div class="network-zone">
+                <div class="arrow up-arrow" id="push-arrow">Push ⬆</div>
+                <div class="arrow down-arrow" id="pull-arrow">Pull ⬇</div>
+            </div>
+
+            <!-- GitHub Server -->
+            <div class="machine-zone" id="remote-machine" style="border-color: #3b82f6;">
+                <div class="icon">☁️</div>
+                <h3>GitHub (origin)</h3>
+                <div class="repo-box" style="background: rgba(59, 130, 246, 0.1);">
+                    <strong>Remote Repo</strong>
+                    <div class="commit-list" id="remote-commits">
+                        <div class="commit">c1: Init</div>
+                        <div class="commit new">c2: Add config</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="controls" style="margin-top: 2rem;">
+            <button class="btn" onclick="simulatePull()">git pull origin main</button>
+            <button class="btn" onclick="simulateCommit()">git commit</button>
+            <button class="btn" onclick="simulatePush()">git push origin main</button>
+            <button class="btn btn-secondary" onclick="resetState()">Reset</button>
+        </div>
+        
+        <div class="code-block" id="git-log-output">
+            <span class="code-line">$ git remote -v</span>
+            <span class="code-line">origin  https://github.com/user/repo.git (fetch)</span>
+            <span class="code-line">origin  https://github.com/user/repo.git (push)</span>
+            <span class="code-line" style="color: var(--text-muted);">// Notice c2 is on remote but not local!</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.machine-zone {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.machine-zone .icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.machine-zone h3 {
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+.repo-box {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 150px;
+}
+
+.commit-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.commit {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--primary);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    animation: slideIn 0.3s ease;
+}
+
+.commit.new {
+    border-left-color: #fbbf24;
+}
+
+.commit.mine {
+    border-left-color: #10b981;
+}
+
+.network-zone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    align-items: center;
+}
+
+.arrow {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    color: white;
+    opacity: 0.2;
+    transition: all 0.3s;
+}
+
+.up-arrow {
+    background: #10b981;
+}
+
+.down-arrow {
+    background: #3b82f6;
+}
+
+.arrow.active {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px currentColor;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
+<script>
+    let localCommits = ['c1'];
+    let remoteCommits = ['c1', 'c2'];
+    let myCommits = [];
+
+    function simulatePull() {
+        if(localCommits.includes('c2')) {
+            logTerminal('Already up to date.');
+            return;
+        }
+        
+        const arrow = document.getElementById('pull-arrow');
+        arrow.classList.add('active');
+        
+        logTerminal('$ git pull origin main');
+        logTerminal('remote: Enumerating objects: 5, done.');
+        logTerminal('remote: Counting objects: 100% (5/5), done.');
+        logTerminal('Unpacking objects: 100% (3/3), done.');
+        logTerminal('From https://github.com/user/repo');
+        logTerminal(' * branch            main       -> FETCH_HEAD');
+        logTerminal('Updating c1..c2');
+        logTerminal('Fast-forward');
+        
+        setTimeout(() => {
+            localCommits.push('c2');
+            const lc = document.getElementById('local-commits');
+            lc.innerHTML += '<div class="commit">c2: Add config</div>';
+            arrow.classList.remove('active');
+        }, 800);
+    }
+
+    function simulateCommit() {
+        if(!localCommits.includes('c2')) {
+            logTerminal('Error: Please pull remote changes before committing new work to avoid conflicts.', '#ef4444');
+            return;
+        }
+        if(myCommits.length > 0) {
+            logTerminal('Already committed c3. Try pushing.');
+            return;
+        }
+        
+        logTerminal('$ git commit -m "Implement authentication"');
+        logTerminal('[main c3] Implement authentication');
+        
+        myCommits.push('c3');
+        localCommits.push('c3');
+        const lc = document.getElementById('local-commits');
+        lc.innerHTML += '<div class="commit mine">c3: Implement authentication</div>';
+    }
+
+    function simulatePush() {
+        if(myCommits.length === 0) {
+            logTerminal('Everything up-to-date');
+            return;
+        }
+        if(remoteCommits.includes('c3')) {
+            logTerminal('Everything up-to-date');
+            return;
+        }
+        
+        const arrow = document.getElementById('push-arrow');
+        arrow.classList.add('active');
+        
+        logTerminal('$ git push origin main');
+        logTerminal('Enumerating objects: 5, done.');
+        logTerminal('Counting objects: 100% (5/5), done.');
+        logTerminal('Writing objects: 100% (3/3), 321 bytes | 321.00 KiB/s, done.');
+        logTerminal('To https://github.com/user/repo.git');
+        logTerminal('   c2..c3  main -> main');
+        
+        setTimeout(() => {
+            remoteCommits.push('c3');
+            const rc = document.getElementById('remote-commits');
+            rc.innerHTML += '<div class="commit mine">c3: Implement authentication</div>';
+            arrow.classList.remove('active');
+        }, 800);
+    }
+
+    function resetState() {
+        localCommits = ['c1'];
+        remoteCommits = ['c1', 'c2'];
+        myCommits = [];
+        
+        document.getElementById('local-commits').innerHTML = '<div class="commit">c1: Init</div>';
+        document.getElementById('remote-commits').innerHTML = '<div class="commit">c1: Init</div><div class="commit new">c2: Add config</div>';
+        
+        document.getElementById('git-log-output').innerHTML = `
+            <span class="code-line">$ git remote -v</span>
+            <span class="code-line">origin  https://github.com/user/repo.git (fetch)</span>
+            <span class="code-line">origin  https://github.com/user/repo.git (push)</span>
+            <span class="code-line" style="color: var(--text-muted);">// Notice c2 is on remote but not local!</span>
+        `;
+    }
+
+    function logTerminal(text, color = 'var(--text-main)') {
+        const log = document.getElementById('git-log-output');
+        const span = document.createElement('span');
+        span.className = 'code-line';
+        span.style.color = color;
+        span.innerText = text;
+        log.appendChild(span);
+        log.scrollTop = log.scrollHeight;
+    }
+</script>
+{% endblock %}
